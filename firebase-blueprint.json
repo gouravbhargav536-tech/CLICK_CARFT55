@@ -1,0 +1,182 @@
+{
+  "entities": {
+    "TrainingData": {
+      "title": "ClickCraft AI Training Data",
+      "description": "Curated knowledge base, FAQs, and marketing strategies for training the ClickCraft AI assistant.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique training document identifier."
+        },
+        "category": {
+          "type": "string",
+          "description": "Category such as 'services', 'targeted_ads', 'sell_old_car', 'pricing', 'process'."
+        },
+        "title": {
+          "type": "string",
+          "description": "Topic or title of the training knowledge item."
+        },
+        "content": {
+          "type": "string",
+          "description": "Comprehensive knowledge and prompt instructions for the AI."
+        },
+        "keywords": {
+          "type": "string",
+          "description": "Comma-separated keywords for intent matching."
+        },
+        "language": {
+          "type": "string",
+          "description": "Language code like 'hi', 'en', or 'all'."
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO timestamp of last update."
+        }
+      },
+      "required": ["id", "category", "title", "content"]
+    },
+    "CompanyProfile": {
+      "title": "ClickCraft Official Company Profile",
+      "description": "Master company information, services catalog, and verified achievements stored in Firebase.",
+      "type": "object",
+      "properties": {
+        "companyName": {
+          "type": "string",
+          "description": "Official company name (ClickCraft)."
+        },
+        "tagline": {
+          "type": "string",
+          "description": "Company slogan (Boost Your Business Online)."
+        },
+        "description": {
+          "type": "string",
+          "description": "Agency bio and mission statement."
+        },
+        "whatsapp": {
+          "type": "string",
+          "description": "Official WhatsApp number (+919376124893)."
+        },
+        "phone": {
+          "type": "string",
+          "description": "Official contact phone number (+91 9376124893)."
+        },
+        "email": {
+          "type": "string",
+          "description": "Official email (info@clickcraft.com)."
+        },
+        "happyClients": {
+          "type": "string",
+          "description": "Verified client count (500+)."
+        },
+        "campaignsDelivered": {
+          "type": "string",
+          "description": "Delivered campaigns count (1200+)."
+        },
+        "logoUrl": {
+          "type": "string",
+          "description": "Official logo image URL."
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO timestamp."
+        }
+      },
+      "required": ["companyName", "tagline", "description", "whatsapp", "phone", "email"]
+    },
+    "ChatLog": {
+      "title": "AI Conversation Training Log",
+      "description": "User prompts and AI responses logged to Firestore to train and refine the model.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique interaction ID."
+        },
+        "userPrompt": {
+          "type": "string",
+          "description": "User question or voice query."
+        },
+        "aiResponse": {
+          "type": "string",
+          "description": "AI generated answer."
+        },
+        "language": {
+          "type": "string",
+          "description": "Language used."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Time of interaction."
+        },
+        "trainingApproved": {
+          "type": "boolean",
+          "description": "Flag indicating if this log is ready for model fine-tuning."
+        }
+      },
+      "required": ["id", "userPrompt", "aiResponse", "timestamp"]
+    },
+    "LeadInquiry": {
+      "title": "Client Lead & Campaign Request",
+      "description": "Captured inquiries from prospective clients requesting ad campaigns.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique lead ID."
+        },
+        "clientName": {
+          "type": "string",
+          "description": "Name or contact handle of prospective client."
+        },
+        "contact": {
+          "type": "string",
+          "description": "Phone number, WhatsApp, or email."
+        },
+        "serviceRequested": {
+          "type": "string",
+          "description": "Service e.g. Targeted Ads, Sell Old Car by Ad, Creative Strategy."
+        },
+        "notes": {
+          "type": "string",
+          "description": "User query summary or campaign requirements."
+        },
+        "status": {
+          "type": "string",
+          "description": "Status e.g. 'new', 'contacted', 'closed'."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp created."
+        }
+      },
+      "required": ["id", "serviceRequested", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/training_data/{docId}": {
+      "schema": {
+        "$ref": "#/entities/TrainingData"
+      },
+      "description": "Collection of knowledge base and training documents for ClickCraft AI."
+    },
+    "/company_profile/{docId}": {
+      "schema": {
+        "$ref": "#/entities/CompanyProfile"
+      },
+      "description": "Master agency information and services catalog."
+    },
+    "/chat_logs/{logId}": {
+      "schema": {
+        "$ref": "#/entities/ChatLog"
+      },
+      "description": "Logs of user queries and AI responses for model training."
+    },
+    "/lead_inquiries/{leadId}": {
+      "schema": {
+        "$ref": "#/entities/LeadInquiry"
+      },
+      "description": "Client campaign leads and inquiries."
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "ClickCraft Assistant",
+  "description": "Mobile chat interface for ClickCraft assistant - Digital marketing help, targeted ads, creative strategy, sell old car ads, and business growth.",
+  "requestFramePermissions": ["microphone", "camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

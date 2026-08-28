@@ -1,0 +1,88 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidTrainingData(data) {
+      return data.keys().hasAll(['id', 'category', 'title', 'content']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.category is string && data.category.size() <= 100 &&
+             data.title is string && data.title.size() <= 200 &&
+             data.content is string && data.content.size() <= 10000;
+    }
+
+    function isValidCompanyProfile(data) {
+      return data.keys().hasAll(['companyName', 'tagline', 'description', 'whatsapp', 'phone', 'email']) &&
+             data.companyName is string && data.companyName.size() <= 100 &&
+             data.tagline is string && data.tagline.size() <= 200 &&
+             data.description is string && data.description.size() <= 5000 &&
+             data.whatsapp is string && data.whatsapp.size() <= 50 &&
+             data.phone is string && data.phone.size() <= 50 &&
+             data.email is string && data.email.size() <= 100;
+    }
+
+    function isValidChatLog(data) {
+      return data.keys().hasAll(['id', 'userPrompt', 'aiResponse', 'timestamp']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.userPrompt is string && data.userPrompt.size() <= 5000 &&
+             data.aiResponse is string && data.aiResponse.size() <= 20000 &&
+             data.timestamp is string && data.timestamp.size() <= 100;
+    }
+
+    function isValidLeadInquiry(data) {
+      return data.keys().hasAll(['id', 'serviceRequested', 'createdAt']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.serviceRequested is string && data.serviceRequested.size() <= 200 &&
+             data.createdAt is string && data.createdAt.size() <= 100;
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Training Data collection - Read accessible for AI context & training
+    match /training_data/{docId} {
+      allow read: if true;
+      allow create, update: if isValidId(docId) && isValidTrainingData(incoming());
+      allow delete: if false;
+    }
+
+    // Company Profile collection - Read accessible for branding & official data
+    match /company_profile/{docId} {
+      allow read: if true;
+      allow create, update: if isValidId(docId) && isValidCompanyProfile(incoming());
+      allow delete: if false;
+    }
+
+    // Chat Logs collection - Created by users and AI to train models
+    match /chat_logs/{logId} {
+      allow read: if true;
+      allow create: if isValidId(logId) && isValidChatLog(incoming());
+      allow update, delete: if false;
+    }
+
+    // Lead Inquiries collection - Created when users submit consultation requests
+    match /lead_inquiries/{leadId} {
+      allow read: if true;
+      allow create: if isValidId(leadId) && isValidLeadInquiry(incoming());
+      allow update, delete: if false;
+    }
+  }
+}
