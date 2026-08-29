@@ -210,7 +210,7 @@ Provide output STRICTLY matching the requested JSON schema.`;
 
       const response = await retryGeminiOperation(() =>
         ai.models.generateContent({
-          model: "gemini-3.6-flash",
+          model: "gemini-3.7-flash",
           contents: `Input Text: "${text}"`,
           config: {
             systemInstruction,
@@ -581,35 +581,57 @@ Keep the tone professional, warm, and direct.`;
         modelMode === "low-latency" ||
         responseMode === "quick";
 
-      let selectedModel = "gemini-3.6-flash";
+      let selectedModel = "gemini-3.7-flash";
       const geminiConfig: any = {
         systemInstruction,
-        temperature: 0.65,
+        temperature: 0.7,
       };
 
       if (enableThinking) {
-        // High thinking mode with gemini-3.1-pro-preview
-        selectedModel = "gemini-3.1-pro-preview";
+        // High reasoning mode
+        selectedModel = "gemini-3.7-flash";
         geminiConfig.thinkingConfig = { thinkingLevel: "HIGH" };
       } else if (enableSearch) {
-        // Search Grounding with gemini-3.5-flash
-        selectedModel = "gemini-3.5-flash";
+        // Search Grounding with Gemini 3.7 Flash
+        selectedModel = "gemini-3.7-flash";
         geminiConfig.tools = [{ googleSearch: {} }];
       } else if (enableLowLatency) {
-        // Low latency responses with gemini-3.1-flash-lite
+        // Fast response mode
         selectedModel = "gemini-3.1-flash-lite";
-        geminiConfig.temperature = 0.5;
+        geminiConfig.temperature = 0.6;
       }
 
       let responseStream;
       try {
-        responseStream = await retryGeminiOperation(() =>
-          ai.models.generateContentStream({
-            model: selectedModel,
-            contents: formattedContents,
-            config: geminiConfig,
-          })
-        );
+        // 1. Primary Attempt with Selected Gemini Model (Gemini 3.7 Flash)
+        try {
+          responseStream = await retryGeminiOperation(
+            () =>
+              ai.models.generateContentStream({
+                model: selectedModel,
+                contents: formattedContents,
+                config: geminiConfig,
+              }),
+            2,
+            800
+          );
+        } catch (primaryErr: any) {
+          console.warn(`[Gemini Primary Model Error (${selectedModel})]: ${primaryErr?.message}. Retrying with gemini-2.5-flash...`);
+          // 2. Secondary Fast Fallback with gemini-2.5-flash
+          responseStream = await retryGeminiOperation(
+            () =>
+              ai.models.generateContentStream({
+                model: "gemini-2.5-flash",
+                contents: formattedContents,
+                config: {
+                  systemInstruction,
+                  temperature: 0.65,
+                },
+              }),
+            2,
+            500
+          );
+        }
 
         for await (const chunk of responseStream) {
           const textChunk = chunk.text;
@@ -618,7 +640,7 @@ Keep the tone professional, warm, and direct.`;
           }
         }
       } catch (geminiError: any) {
-        console.warn("[Gemini API Quota/Error Notice] Falling back to Firebase Knowledge Base:", geminiError?.message || geminiError);
+        console.warn("[Gemini API Fallback Notice] Generating dynamic AI answer from Firebase Knowledge Base:", geminiError?.message || geminiError);
         
         // Intelligent fallback directly from Firebase Data
         const lowerQ = prompt.toLowerCase();
@@ -674,7 +696,7 @@ Keep the tone professional, warm, and direct.`;
 
       const response = await retryGeminiOperation(() =>
         ai.models.generateContent({
-          model: "gemini-3.6-flash",
+          model: "gemini-3.7-flash",
           contents: [
             {
               parts: [
