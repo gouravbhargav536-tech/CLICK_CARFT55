@@ -82,6 +82,40 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
   // Network connection status monitoring
   const { isOnline, justReconnected } = useNetworkStatus();
 
+  // Auto-typing animation for "How ClickCraft can help grow your business?"
+  const targetTypingText = "How ClickCraft can help grow your business?";
+  const [typedPlaceholder, setTypedPlaceholder] = useState("");
+  const [isTypingForward, setIsTypingForward] = useState(true);
+
+  useEffect(() => {
+    if (inputText) return;
+    let timeout: NodeJS.Timeout;
+
+    if (isTypingForward) {
+      if (typedPlaceholder.length < targetTypingText.length) {
+        timeout = setTimeout(() => {
+          setTypedPlaceholder(targetTypingText.slice(0, typedPlaceholder.length + 1));
+        }, 65);
+      } else {
+        timeout = setTimeout(() => {
+          setIsTypingForward(false);
+        }, 2200);
+      }
+    } else {
+      if (typedPlaceholder.length > 0) {
+        timeout = setTimeout(() => {
+          setTypedPlaceholder(targetTypingText.slice(0, typedPlaceholder.length - 1));
+        }, 30);
+      } else {
+        timeout = setTimeout(() => {
+          setIsTypingForward(true);
+        }, 500);
+      }
+    }
+
+    return () => clearTimeout(timeout);
+  }, [typedPlaceholder, isTypingForward, inputText]);
+
   const handleBuyDirect = (service: ServicePackage) => {
     setIsServicesModalOpen(true);
   };
@@ -109,23 +143,23 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
   };
 
   return (
-    <div className="w-full max-w-md mx-auto h-[100dvh] sm:h-[94vh] sm:max-h-[890px] bg-[#0E1724] sm:rounded-[30px] sm:border sm:border-[#2D3A4B]/90 flex flex-col overflow-hidden text-white font-sans shadow-[0_20px_60px_rgba(0,0,0,0.85)] relative">
+    <div className="w-full max-w-md mx-auto h-[100dvh] sm:h-[94vh] sm:max-h-[890px] bg-[#111418] sm:rounded-[24px] sm:border sm:border-[#242A32] flex flex-col overflow-hidden text-white font-sans shadow-2xl relative">
       
       {/* ============================================================
-          1. HIGH-GRAPHIC HEADER BAR (Matching screenshot reference)
-          - Official Company Logo with golden accent ring
-          - "ClickCraft" + "Assistant" + "5.0 ★" gold pill badge
-          - "Digital marketing help • 🟢 Online"
+          1. MINIMAL PROFESSIONAL HEADER BAR
+          - Official Company Logo with gold accent ring (#D4A017)
+          - "ClickCraft" + "Assistant" + "5.0 ★" gold rating badge
+          - "Digital marketing help • Online" status dot
           - Right: Services pill + Language selector + Refresh
       ============================================================ */}
-      <header className="px-3.5 py-3 bg-[#1A222F]/95 backdrop-blur-md border-b border-[#283648] flex items-center justify-between shrink-0 z-10">
+      <header className="px-4 py-3 bg-[#111418] border-b border-[#242A32] flex items-center justify-between shrink-0 z-10">
         <div className="flex items-center gap-2.5">
-          {/* Circular Company Logo with Glowing Gold Ring */}
+          {/* Circular Company Logo with Gold Accent Ring */}
           <div className="relative shrink-0">
             <div
               id="clickcraft-avatar-icon"
-              className={`w-11 h-11 rounded-full overflow-hidden border-2 border-[#E8B923] bg-[#161F33] flex items-center justify-center transition-all ${
-                isSpeaking ? 'ring-4 ring-[#E8B923]/40 animate-voice-glow' : 'shadow-md shadow-black/60'
+              className={`w-11 h-11 rounded-full overflow-hidden border-2 border-[#D4A017] bg-[#181C22] flex items-center justify-center transition-all ${
+                isSpeaking ? 'ring-2 ring-[#D4A017]/40 shadow-[0_0_12px_rgba(212,160,23,0.3)]' : 'shadow-md'
               }`}
               title="ClickCraft Official Logo"
             >
@@ -138,27 +172,23 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="text-[#E8B923] font-black text-sm">CC</span>
+                <span className="text-[#D4A017] font-black text-sm">CC</span>
               )}
             </div>
 
-            {/* Live Online / Offline Status Indicator with animated state */}
+            {/* Live Online Status Dot */}
             <span
               id="network-status-dot"
-              className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-[#1A222F] transition-all duration-300 ${
+              className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-[#111418] transition-all duration-300 ${
                 !isOnline
-                  ? 'bg-rose-500 ring-2 ring-rose-400/40 animate-pulse'
-                  : isSpeaking
-                  ? 'bg-[#E8B923] animate-ping'
-                  : isListening
-                  ? 'bg-rose-500 animate-pulse'
+                  ? 'bg-rose-500'
                   : 'bg-emerald-400'
               }`}
               title={!isOnline ? 'Offline Mode — No Internet' : 'Online & Connected'}
             />
           </div>
 
-          {/* Assistant Title & Agency Badge */}
+          {/* Assistant Title & Status */}
           <div className="flex flex-col text-left">
             <div className="flex items-center gap-1.5 leading-none">
               <h1 className="text-[14.5px] font-bold text-white tracking-tight">
@@ -169,29 +199,23 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
               <span className="text-[13.5px] font-bold text-white tracking-tight">
                 Assistant
               </span>
-              <span className="px-1.5 py-0.5 rounded-full text-[9.5px] font-bold bg-[#141C2B] text-[#E8B923] border border-[#E8B923]/50 flex items-center gap-0.5 shadow-sm">
+              <span className="px-1.5 py-0.5 rounded-full text-[9.5px] font-bold bg-[#181C22] text-[#D4A017] border border-[#D4A017]/40 flex items-center gap-0.5">
                 <span>5.0</span>
                 <span>★</span>
               </span>
             </div>
-            <div className="text-[11.5px] font-normal text-[#94A3B8] leading-tight mt-1 flex items-center gap-1.5 flex-wrap">
+            <div className="text-[11.5px] font-normal text-[#B0B0B0] leading-tight mt-1 flex items-center gap-1.5 flex-wrap">
               <span>Digital marketing help</span>
-              <span className="text-[#64748B]">•</span>
+              <span className="text-[#606060]">•</span>
               
-              {/* Network status text indicator */}
               {!isOnline ? (
-                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-rose-400 bg-rose-500/10 px-1.5 py-0.5 rounded border border-rose-500/30">
+                <span className="inline-flex items-center gap-1 text-[10px] font-medium text-rose-400">
                   <WifiOff className="w-2.5 h-2.5" />
                   Offline
                 </span>
-              ) : justReconnected ? (
-                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/30 animate-fadeIn">
-                  <Wifi className="w-2.5 h-2.5" />
-                  Back Online
-                </span>
               ) : (
                 <span className="text-emerald-400 text-[10.5px] flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                   Online
                 </span>
               )}
@@ -199,22 +223,22 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
           </div>
         </div>
 
-        {/* Header Right Controls: Services Pill + Language Selector Pill + Refresh Button */}
+        {/* Header Right Controls: Services + Language + Refresh */}
         <div className="flex items-center gap-1.5 shrink-0">
-          {/* Services Pill Button (Matching Plum/Purple Tint in Screenshot) */}
+          {/* Services Pill Button with thin gold border */}
           <button
             id="clickcraft-services-header-btn"
             onClick={() => setIsServicesModalOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#382C4E]/90 hover:bg-[#483764] text-white border border-[#9065E0]/40 text-xs font-semibold transition-all active:scale-95 shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#181C22] hover:bg-[#202630] text-white border border-[#D4A017]/50 hover:border-[#D4A017] text-xs font-semibold transition-all active:scale-95 shadow-sm"
             title="View Services & Buy Packages (₹500 / ₹5000 / ₹10000)"
           >
-            <ShoppingBag className="w-3.5 h-3.5 text-purple-200 shrink-0" />
+            <ShoppingBag className="w-3.5 h-3.5 text-[#D4A017] shrink-0" />
             <span>Services</span>
           </button>
 
           {/* Language Selector Pill */}
-          <div className="relative flex items-center bg-[#242A3B]/90 rounded-full px-2.5 py-1.5 border border-[#475569]/50 text-xs hover:border-[#E8B923]/60 transition-colors shadow-sm">
-            <Globe className="w-3.5 h-3.5 text-slate-300 mr-1 shrink-0" />
+          <div className="relative flex items-center bg-[#181C22] rounded-full px-2.5 py-1.5 border border-[#242A32] text-xs hover:border-[#D4A017]/40 transition-colors shadow-sm">
+            <Globe className="w-3.5 h-3.5 text-[#B0B0B0] mr-1 shrink-0" />
             <select
               value={currentLanguage.code}
               onChange={(e) => {
@@ -224,19 +248,19 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
               className="bg-transparent text-white text-[11px] font-medium outline-none cursor-pointer pr-3.5 appearance-none"
               title="Change Language"
             >
-              <option value="hi-IN" className="bg-[#1A222F] text-white">हिन्दी</option>
-              <option value="en-US" className="bg-[#1A222F] text-white">English</option>
-              <option value="bn-IN" className="bg-[#1A222F] text-white">বাংলা</option>
-              <option value="mr-IN" className="bg-[#1A222F] text-white">मराठी</option>
-              <option value="gu-IN" className="bg-[#1A222F] text-white">ગુજરાતી</option>
+              <option value="hi-IN" className="bg-[#111418] text-white">हिन्दी</option>
+              <option value="en-US" className="bg-[#111418] text-white">English</option>
+              <option value="bn-IN" className="bg-[#111418] text-white">বাংলা</option>
+              <option value="mr-IN" className="bg-[#111418] text-white">मराठी</option>
+              <option value="gu-IN" className="bg-[#111418] text-white">ગુજરાતી</option>
             </select>
-            <ChevronDown className="w-3 h-3 text-slate-400 absolute right-1.5 pointer-events-none" />
+            <ChevronDown className="w-3 h-3 text-[#B0B0B0] absolute right-1.5 pointer-events-none" />
           </div>
 
           {/* Refresh / Clear Chat Icon Button */}
           <button
             onClick={onClearHistory}
-            className="w-8 h-8 rounded-full bg-[#242A3B]/90 text-[#94A3B8] hover:text-white hover:bg-[#323B52] border border-[#475569]/50 transition-colors flex items-center justify-center shrink-0"
+            className="w-8 h-8 rounded-full bg-[#181C22] text-[#B0B0B0] hover:text-white hover:border-[#D4A017]/40 border border-[#242A32] transition-colors flex items-center justify-center shrink-0"
             title="Reset / Clear Conversation"
             aria-label="Clear chat history"
           >
@@ -246,10 +270,7 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
       </header>
 
       {/* ============================================================
-          2. LUXURY MARKETING SHOWCASE BANNER STRIP (Under Header)
-          - Geometric Analytics Matrix + "Premium Marketing. Redefined."
-          - Real-time Campaign Performance Tablet Mockup
-          - ClickCraft Official Medallion Badge
+          2. MINIMAL GOLD STRIP (Single Line Text in Gold Color)
       ============================================================ */}
       <MarketingBannerStrip onBannerClick={() => setIsServicesModalOpen(true)} />
 
@@ -257,29 +278,29 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
       {!isOnline && (
         <div
           id="offline-network-banner"
-          className="bg-rose-950/80 border-b border-rose-500/30 px-3.5 py-2 flex items-center justify-between text-xs text-rose-200 animate-fadeIn shrink-0 backdrop-blur-md"
+          className="bg-[#181C22] border-b border-rose-500/30 px-3.5 py-2 flex items-center justify-between text-xs text-rose-200 shrink-0"
         >
           <div className="flex items-center gap-2">
-            <WifiOff className="w-3.5 h-3.5 text-rose-400 animate-pulse" />
+            <WifiOff className="w-3.5 h-3.5 text-rose-400" />
             <span>इंटरनेट डिस्कनेक्ट हो गया है (Offline Mode)</span>
           </div>
-          <span className="text-[10px] text-rose-300">लोकल चैट उपलब्ध</span>
+          <span className="text-[10px] text-[#B0B0B0]">लोकल चैट उपलब्ध</span>
         </div>
       )}
 
       {/* ============================================================
-          3. SCROLLABLE CHAT FEED (Rich Slate / Navy Luxury Bubbles)
+          3. SCROLLABLE CHAT FEED (Dark Charcoal #111418 + Spacing)
       ============================================================ */}
-      <main className="flex-1 overflow-y-auto p-3.5 space-y-4 custom-scrollbar bg-[#0E1724]">
+      <main className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 custom-scrollbar bg-[#111418]">
         {/* Welcome Hero Content when chat is empty */}
         {messages.length === 0 && (
           <div className="space-y-4 animate-fadeIn">
             {/* Master Welcome Hero Card */}
-            <div className="flex flex-col items-start max-w-[95%]">
-              <div className="bg-[#18222E] border border-[#273648] text-white p-4 rounded-[22px] rounded-tl-[4px] shadow-xl text-[13.5px] leading-relaxed w-full">
+            <div className="flex flex-col items-start max-w-[96%]">
+              <div className="bg-[#181C22] border border-[#242A32] text-[#B0B0B0] p-4 sm:p-5 rounded-[20px] rounded-tl-[4px] shadow-lg text-[13.5px] leading-relaxed sm:leading-7 w-full">
                 {/* Hero Header with Logo */}
-                <div className="flex items-center gap-2.5 pb-2.5 mb-2.5 border-b border-[#273648]">
-                  <div className="w-7 h-7 rounded-full overflow-hidden border border-[#E8B923] bg-[#0B1220] shrink-0">
+                <div className="flex items-center gap-2.5 pb-3 mb-3 border-b border-[#242A32]">
+                  <div className="w-7 h-7 rounded-full overflow-hidden border border-[#D4A017] bg-[#111418] shrink-0">
                     <img
                       src={COMPANY_LOGO_URL}
                       alt="ClickCraft"
@@ -291,38 +312,38 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
                     <h2 className="text-sm font-bold text-white leading-tight">
                       Hello! Welcome to ClickCraft.
                     </h2>
-                    <p className="text-[11px] text-[#94A3B8]">
+                    <p className="text-[11px] text-[#B0B0B0] mt-0.5">
                       How can I assist you with your marketing growth today?
                     </p>
                   </div>
                 </div>
 
-                <p className="text-white/95 leading-relaxed text-xs sm:text-[13px] mb-3">
+                <p className="text-[#B0B0B0] leading-relaxed text-xs sm:text-[13px] mb-3">
                   We offer digital marketing services to help grow your business online, including:
                 </p>
 
-                <div className="space-y-1.5 text-xs sm:text-[12.5px] text-[#CBD5E1] bg-[#121A24] p-3 rounded-xl border border-[#222E3E]">
+                <div className="space-y-2 text-xs sm:text-[12.5px] text-[#B0B0B0] bg-[#111418] p-3.5 rounded-xl border border-[#242A32]">
                   <div className="flex items-start gap-2">
-                    <span className="text-[#E8B923] font-bold">•</span>
-                    <span><strong className="text-white">Targeted Advertisement Campaigns</strong> starting at <strong className="text-[#E8B923]">₹500</strong></span>
+                    <span className="text-[#D4A017] font-bold">•</span>
+                    <span><strong className="text-white">Targeted Advertisement Campaigns</strong> starting at <strong className="text-[#D4A017]">₹500</strong></span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <span className="text-[#E8B923] font-bold">•</span>
-                    <span><strong className="text-white">Professional Website Development</strong> for <strong className="text-[#E8B923]">₹5,000</strong></span>
+                    <span className="text-[#D4A017] font-bold">•</span>
+                    <span><strong className="text-white">Professional Website Development</strong> for <strong className="text-[#D4A017]">₹5,000</strong></span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <span className="text-[#E8B923] font-bold">•</span>
-                    <span><strong className="text-white">Premium Offer</strong> (Website + 1 Week Ads) for <strong className="text-[#E8B923]">₹10,000</strong></span>
+                    <span className="text-[#D4A017] font-bold">•</span>
+                    <span><strong className="text-white">Premium Offer</strong> (Website + 1 Week Ads) for <strong className="text-[#D4A017]">₹10,000</strong></span>
                   </div>
                 </div>
 
-                {/* Firebase Synchronization Pill */}
-                <div className="flex items-center gap-1.5 text-[10.5px] text-[#8A93A6] mt-3 pt-2 border-t border-[#273648]">
-                  <Database className="w-3 h-3 text-[#E8B923]" />
+                {/* Data Synchronization Pill */}
+                <div className="flex items-center gap-1.5 text-[10.5px] text-[#707070] mt-3 pt-2.5 border-t border-[#242A32]">
+                  <Database className="w-3 h-3 text-[#D4A017]" />
                   <span>Cloud Data Synced • 24/7 Agency AI</span>
                 </div>
               </div>
-              <span className="text-[10.5px] text-[#8A93A6] mt-1 pl-1">ClickCraft AI • Ready</span>
+              <span className="text-[10.5px] text-[#707070] mt-1 pl-1">ClickCraft AI • Ready</span>
             </div>
 
             {/* Official Services & Pricing Showcase with Buy Buttons */}
@@ -331,11 +352,32 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
               onOpenAllServices={() => setIsServicesModalOpen(true)}
             />
 
-            {/* Quick Prompt Suggestions */}
-            <div className="pt-1">
-              <div className="flex items-center gap-1.5 mb-2 px-1">
-                <Sparkles className="w-3.5 h-3.5 text-[#E8B923]" />
-                <p className="text-[11px] font-bold text-[#8A93A6] uppercase tracking-wider">
+            {/* Quick Prompt Suggestions with Auto-Typing Featured Card */}
+            <div className="pt-1 space-y-2.5">
+              {/* Live Auto-Typing Prompt Card */}
+              <button
+                id="clickcraft-auto-typing-featured-card"
+                onClick={() => onSendMessage(targetTypingText)}
+                className="w-full p-3 rounded-xl bg-[#111418] hover:bg-[#181C22] border border-[#D4A017]/70 hover:border-[#D4A017] transition-all flex items-center justify-between text-left group shadow-[0_0_14px_rgba(212,160,23,0.15)] active:scale-[0.99] cursor-pointer"
+                title="Click to ask this question"
+              >
+                <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                  <div className="w-6 h-6 rounded-lg bg-[#181C22] border border-[#D4A017]/40 flex items-center justify-center text-[#D4A017] shrink-0">
+                    <Sparkles className="w-3.5 h-3.5" />
+                  </div>
+                  <div className="flex items-center text-[13px] text-white font-medium truncate">
+                    <span className="truncate">{typedPlaceholder || targetTypingText}</span>
+                    <span className="inline-block w-1.5 h-3.5 bg-[#D4A017] ml-0.5 animate-pulse shrink-0" />
+                  </div>
+                </div>
+                <span className="text-[10.5px] font-semibold text-[#D4A017] px-2 py-0.5 rounded-full bg-[#181C22] border border-[#D4A017]/40 shrink-0 group-hover:bg-[#D4A017] group-hover:text-[#111418] transition-colors">
+                  Ask AI →
+                </span>
+              </button>
+
+              <div className="flex items-center gap-1.5 px-1">
+                <Sparkles className="w-3.5 h-3.5 text-[#D4A017]" />
+                <p className="text-[11px] font-bold text-[#B0B0B0] uppercase tracking-wider">
                   सुझाए गए सवाल (Popular Topics)
                 </p>
               </div>
@@ -345,7 +387,7 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
                   <button
                     key={idx}
                     onClick={() => onSendMessage(prompt.query)}
-                    className="text-[12px] px-3.5 py-1.5 rounded-full bg-[#18222E] hover:bg-[#223040] text-[#94A3B8] hover:text-[#E8B923] border border-[#273648] hover:border-[#E8B923]/40 transition-all text-left flex items-center gap-1.5 shadow-sm active:scale-95"
+                    className="text-[12px] px-3.5 py-1.5 rounded-full bg-[#181C22] hover:bg-[#202630] text-[#B0B0B0] hover:text-[#D4A017] border border-[#242A32] hover:border-[#D4A017]/40 transition-all text-left flex items-center gap-1.5 shadow-sm active:scale-95"
                   >
                     <span>{prompt.label}</span>
                     <ArrowRight className="w-3 h-3 opacity-60" />
@@ -377,7 +419,7 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
               >
                 {/* Assistant Circular Avatar */}
                 {!isUser && (
-                  <div className="w-7 h-7 rounded-full overflow-hidden border border-[#E8B923] bg-[#161F33] shrink-0 mt-1 shadow-sm">
+                  <div className="w-7 h-7 rounded-full overflow-hidden border border-[#D4A017] bg-[#181C22] shrink-0 mt-1 shadow-sm">
                     <img
                       src={COMPANY_LOGO_URL}
                       alt="ClickCraft AI"
@@ -387,12 +429,12 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
                   </div>
                 )}
 
-                {/* Message Bubble */}
+                {/* Message Bubble with High Readability Spacing */}
                 <div
-                  className={`p-3.5 sm:p-4 rounded-[22px] text-[13.5px] leading-relaxed shadow-lg relative ${
+                  className={`p-4 sm:p-5 rounded-[20px] text-[13.5px] leading-relaxed sm:leading-7 shadow-md relative ${
                     isUser
-                      ? 'bg-gradient-to-r from-[#0C3868] to-[#124B8B] border border-[#1E5C9E]/70 text-white rounded-tr-[4px]'
-                      : 'bg-[#18222E] border border-[#273648] text-[#E2E8F0] rounded-tl-[4px]'
+                      ? 'bg-[#181C22] border border-[#D4A017]/40 text-white rounded-tr-[4px]'
+                      : 'bg-[#181C22] border border-[#242A32] text-[#B0B0B0] rounded-tl-[4px]'
                   }`}
                 >
                   <div className="whitespace-pre-wrap break-words font-normal">
@@ -401,42 +443,43 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
 
                   {/* Interactive Buy Buttons Bar (When AI mentions services / pricing) */}
                   {!isUser && (cleanText.includes('500') || cleanText.includes('5000') || cleanText.includes('5,000') || cleanText.includes('10000') || cleanText.includes('10,000') || cleanText.toLowerCase().includes('website') || cleanText.toLowerCase().includes('advertisement') || cleanText.toLowerCase().includes('package') || cleanText.toLowerCase().includes('पैकेज') || cleanText.toLowerCase().includes('प्राइस') || cleanText.toLowerCase().includes('सर्विस')) && (
-                    <div className="mt-3 p-2.5 rounded-xl bg-[#101824] border border-[#E8B923]/40 space-y-2">
-                      <div className="flex items-center justify-between text-[11px] font-bold text-[#E8B923]">
-                        <span className="flex items-center gap-1">
+                    <div className="mt-3.5 p-3 rounded-xl bg-[#111418] border border-[#242A32] space-y-2.5">
+                      <div className="flex items-center justify-between text-[11px] font-bold text-[#D4A017]">
+                        <span className="flex items-center gap-1.5">
                           <ShoppingBag className="w-3.5 h-3.5" />
                           <span>Buy Official Service Packages:</span>
                         </span>
                         <button
                           onClick={() => setIsServicesModalOpen(true)}
-                          className="text-[10px] text-[#94A3B8] hover:text-white underline"
+                          className="text-[10px] text-[#B0B0B0] hover:text-[#D4A017] underline"
                         >
                           View Details
                         </button>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
+                      {/* 3 Buttons: Same shape, size, dark background, thin gold border, Premium with subtle gold glow & Best Value badge */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                         <button
                           onClick={() => handleBuyDirect(CLICKCRAFT_SERVICES[0])}
-                          className="py-1.5 px-2 rounded-lg bg-[#18222E] hover:bg-[#243345] border border-blue-500/40 text-blue-300 text-[11px] font-bold flex items-center justify-center gap-1 transition-all active:scale-95"
+                          className="py-2.5 px-3 rounded-xl bg-[#181C22] hover:bg-[#202630] border border-[#D4A017]/50 hover:border-[#D4A017] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-95"
                         >
-                          <CreditCard className="w-3 h-3" />
+                          <CreditCard className="w-3.5 h-3.5 text-[#D4A017]" />
                           <span>Buy Ads (₹500)</span>
                         </button>
 
                         <button
                           onClick={() => handleBuyDirect(CLICKCRAFT_SERVICES[1])}
-                          className="py-1.5 px-2 rounded-lg bg-[#18222E] hover:bg-[#243345] border border-emerald-500/40 text-emerald-300 text-[11px] font-bold flex items-center justify-center gap-1 transition-all active:scale-95"
+                          className="py-2.5 px-3 rounded-xl bg-[#181C22] hover:bg-[#202630] border border-[#D4A017]/50 hover:border-[#D4A017] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-95"
                         >
-                          <CreditCard className="w-3 h-3" />
+                          <CreditCard className="w-3.5 h-3.5 text-[#D4A017]" />
                           <span>Buy Web (₹5,000)</span>
                         </button>
 
                         <button
                           onClick={() => handleBuyDirect(CLICKCRAFT_SERVICES[2])}
-                          className="py-1.5 px-2 rounded-lg bg-gradient-to-r from-[#E8B923] to-[#F5CE42] text-[#0B1220] text-[11px] font-extrabold flex items-center justify-center gap-1 transition-all hover:brightness-105 active:scale-95 shadow-sm"
+                          className="py-2.5 px-3 rounded-xl bg-[#181C22] hover:bg-[#202630] border border-[#D4A017] shadow-[0_0_12px_rgba(212,160,23,0.25)] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-95 relative"
                         >
-                          <Zap className="w-3 h-3 fill-current" />
+                          <Zap className="w-3.5 h-3.5 text-[#D4A017]" />
                           <span>Premium (₹10,000)</span>
                         </button>
                       </div>
@@ -445,12 +488,12 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
 
                   {/* Real-time Data Consultation Card */}
                   {hasRealtimeTag && !isUser && (
-                    <div className="mt-3 p-3 rounded-[14px] bg-[#101824] border border-[#E8B923]/50 text-white space-y-2">
-                      <div className="flex items-center gap-2 text-xs font-bold text-[#E8B923]">
+                    <div className="mt-3.5 p-3.5 rounded-xl bg-[#111418] border border-[#D4A017]/40 text-[#B0B0B0] space-y-2">
+                      <div className="flex items-center gap-2 text-xs font-bold text-[#D4A017]">
                         <Database className="w-4 h-4" />
                         <span>Agency Live Consultation Booking</span>
                       </div>
-                      <p className="text-[11.5px] text-[#94A3B8] leading-relaxed">
+                      <p className="text-[11.5px] text-[#B0B0B0] leading-relaxed">
                         Ready to start your targeted campaigns or website development? Reach out directly to ClickCraft experts on WhatsApp:
                       </p>
                       <div className="flex items-center gap-2 pt-1">
@@ -458,24 +501,24 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
                           href="https://wa.me/919376124893?text=Hello%20ClickCraft%2C%20I%20want%20to%20discuss%20a%20marketing%20campaign"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#E8B923] text-[#0B1220] font-bold text-[11.5px] hover:bg-[#d4a81f] transition-all shadow-md active:scale-95"
+                          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#181C22] text-[#D4A017] border border-[#D4A017]/60 hover:bg-[#D4A017] hover:text-[#111418] font-bold text-xs transition-all active:scale-95"
                         >
                           <span>WhatsApp (+919376124893)</span>
                         </a>
                         <a
                           href="tel:+919376124893"
-                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#18222E] text-white font-semibold text-[11.5px] hover:bg-[#243345] transition-colors border border-[#8A93A6]/30"
+                          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#181C22] text-white font-semibold text-xs hover:border-[#D4A017]/50 border border-[#242A32] transition-colors"
                         >
-                          <Phone className="w-3.5 h-3.5 text-[#E8B923]" />
+                          <Phone className="w-3.5 h-3.5 text-[#D4A017]" />
                           <span>Call Team</span>
                         </a>
                       </div>
                     </div>
                   )}
 
-                  {/* Assistant Actions: Audio Player with Standard Normal Stop Button + Copy */}
+                  {/* Assistant Actions: Audio Player + Copy */}
                   {!isUser && cleanText && (
-                    <div className="flex items-center justify-between gap-2 mt-2.5 pt-2 border-t border-white/10 text-[11.5px] text-[#8A93A6]">
+                    <div className="flex items-center justify-between gap-2 mt-3 pt-2.5 border-t border-[#242A32] text-[11.5px] text-[#B0B0B0]">
                       {/* Audio Playback / Normal Stop Button */}
                       {onPlayAudio && (
                         <div>
@@ -485,7 +528,7 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
                               onClick={() => {
                                 if (onStopAudio) onStopAudio();
                               }}
-                              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-semibold text-[11px] transition-all active:scale-95 shadow-sm cursor-pointer"
+                              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#181C22] border border-[#D4A017] text-[#D4A017] hover:bg-[#D4A017] hover:text-[#111418] font-semibold text-[11px] transition-all active:scale-95 cursor-pointer"
                               title="Stop Voice Playback"
                             >
                               <Square className="w-3 h-3 fill-current" />
@@ -495,10 +538,10 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
                             <button
                               id={`play-msg-audio-${msg.id}`}
                               onClick={() => onPlayAudio(cleanText, msg.id)}
-                              className="flex items-center gap-1.5 hover:text-[#E8B923] text-[#94A3B8] transition-colors font-medium cursor-pointer"
-                              title="Listen with Natural Female Voice"
+                              className="flex items-center gap-1.5 hover:text-[#D4A017] text-[#B0B0B0] transition-colors font-medium cursor-pointer"
+                              title="Listen with Voice"
                             >
-                              <Volume2 className="w-3.5 h-3.5 text-[#E8B923]" />
+                              <Volume2 className="w-3.5 h-3.5 text-[#D4A017]" />
                               <span>Listen (आवाज़ सुनें)</span>
                             </button>
                           )}
@@ -513,11 +556,11 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
                       >
                         {copiedId === msg.id ? (
                           <>
-                            <Check className="w-3.5 h-3.5 text-[#E8B923]" />
-                            <span className="text-[#E8B923]">Copied</span>
+                            <Check className="w-3.5 h-3.5 text-[#D4A017]" />
+                            <span className="text-[#D4A017]">Copied</span>
                           </>
                         ) : (
-                          <Copy className="w-3.5 h-3.5" />
+                          <Copy className="w-3.5 h-3.5 text-[#B0B0B0]" />
                         )}
                       </button>
                     </div>
@@ -528,7 +571,7 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
               {/* Timestamp */}
               <span
                 className={`text-[10px] mt-1 px-2 ${
-                  isUser ? 'text-[#8A93A6]' : 'text-[#8A93A6] pl-9'
+                  isUser ? 'text-[#707070]' : 'text-[#707070] pl-9'
                 }`}
               >
                 {msg.timestamp || 'Just now'}
@@ -539,31 +582,31 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
 
         {/* Thinking Indicator */}
         {isThinking && (
-          <div className="flex items-center gap-2 max-w-[80%] bg-[#18222E] border border-[#273648] text-[#94A3B8] p-3.5 rounded-[22px] rounded-bl-[3px] text-[13px] animate-fadeIn">
+          <div className="flex items-center gap-2 max-w-[80%] bg-[#181C22] border border-[#242A32] text-[#B0B0B0] p-3.5 rounded-[20px] rounded-bl-[3px] text-[13px] animate-fadeIn">
             <div className="flex items-center gap-1 px-1">
-              <span className="w-2 h-2 rounded-full bg-[#E8B923] animate-bounce" />
-              <span className="w-2 h-2 rounded-full bg-[#E8B923] animate-bounce [animation-delay:0.2s]" />
-              <span className="w-2 h-2 rounded-full bg-[#E8B923] animate-bounce [animation-delay:0.4s]" />
+              <span className="w-2 h-2 rounded-full bg-[#D4A017] animate-bounce" />
+              <span className="w-2 h-2 rounded-full bg-[#D4A017] animate-bounce [animation-delay:0.2s]" />
+              <span className="w-2 h-2 rounded-full bg-[#D4A017] animate-bounce [animation-delay:0.4s]" />
             </div>
-            <span className="text-xs font-medium text-white/90">ClickCraft AI is thinking...</span>
+            <span className="text-xs font-medium text-white">ClickCraft AI is thinking...</span>
           </div>
         )}
 
         <div ref={messagesEndRef} />
       </main>
 
-      {/* Normal Clear Stop Button Banner when Voice Assistant is Speaking */}
+      {/* Voice Assistant Speaking Banner */}
       {isSpeaking && (
-        <div className="px-4 py-2 bg-[#131D2A] border-t border-[#E8B923]/40 flex items-center justify-between animate-fadeIn shrink-0 shadow-lg z-10">
+        <div className="px-4 py-2 bg-[#181C22] border-t border-[#D4A017]/40 flex items-center justify-between animate-fadeIn shrink-0 shadow-lg z-10">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#E8B923] animate-ping" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#D4A017] animate-ping" />
             <span className="text-xs font-semibold text-white">आवाज़ चल रही है (Speaking...)</span>
           </div>
           <button
             id="clickcraft-normal-stop-btn"
             type="button"
             onClick={onStopAudio}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold shadow-md transition-all active:scale-95 cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#111418] border border-[#D4A017] text-[#D4A017] hover:bg-[#D4A017] hover:text-[#111418] text-xs font-bold transition-all active:scale-95 cursor-pointer"
             title="Stop Assistant Voice (बोलना बंद करें)"
           >
             <Square className="w-3.5 h-3.5 fill-current" />
@@ -573,9 +616,9 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
       )}
 
       {/* ============================================================
-          4. FLOATING GLASS INPUT BAR WITH NEON BLUE GLOW & TEAL SEND
+          4. CLEAN MINIMAL CHAT INPUT BAR
       ============================================================ */}
-      <footer className="p-3.5 bg-[#131D2A]/95 border-t border-[#233346] backdrop-blur-md shrink-0">
+      <footer className="p-3.5 bg-[#111418] border-t border-[#242A32] shrink-0">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -585,37 +628,48 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
           }}
           className="flex items-center gap-2"
         >
-          {/* Floating Pill with Cyan/Blue Neon Rim */}
-          <div className="relative flex-1 flex items-center bg-[#172332] border border-[#2B5488] rounded-[24px] p-1 shadow-[0_0_20px_rgba(30,85,150,0.25)] ring-1 ring-[#2B5488]/40">
+          {/* Pill Input Container */}
+          <div className="relative flex-1 flex items-center bg-[#181C22] border border-[#242A32] focus-within:border-[#D4A017]/60 rounded-full p-1 transition-colors">
+            {/* Auto-typing placeholder overlay when empty */}
+            {inputText === '' && isOnline && (
+              <div
+                onClick={() => inputRef.current?.focus()}
+                className="absolute left-4.5 pointer-events-none text-[13.5px] text-[#787878] flex items-center select-none overflow-hidden text-ellipsis whitespace-nowrap max-w-[calc(100%-60px)]"
+              >
+                <span>{typedPlaceholder || targetTypingText}</span>
+                <span className="inline-block w-1.5 h-3.5 bg-[#D4A017] ml-0.5 animate-pulse" />
+              </div>
+            )}
+
             <input
               ref={inputRef}
               type="text"
               value={inputText}
               onChange={(e) => onInputChange(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={!isOnline ? "Offline mode — connect to send..." : "Type your marketing question..."}
-              className="w-full bg-transparent text-white placeholder-[#78889E] text-[13.5px] px-3.5 py-2 pr-10 outline-none font-normal"
+              placeholder={!isOnline ? "Offline mode — connect to send..." : ""}
+              className="w-full bg-transparent text-white placeholder-[#707070] text-[13.5px] px-3.5 py-2 pr-10 outline-none font-normal relative z-10"
             />
 
-            {/* Voice Mic Button (Teal-Emerald Glowing Circle) */}
+            {/* Voice Mic Button */}
             <button
               type="button"
               onClick={onToggleVoice}
               disabled={!isOnline}
               className={`absolute right-1.5 w-8 h-8 rounded-full flex items-center justify-center transition-all ${
                 !isOnline
-                  ? 'text-[#475569] cursor-not-allowed bg-transparent'
+                  ? 'text-[#606060] cursor-not-allowed bg-transparent'
                   : isListening
-                  ? 'bg-rose-600 text-white animate-pulse ring-4 ring-rose-500/30'
-                  : 'bg-[#103D3D] text-[#34D399] border border-[#14B8A6]/40 hover:bg-[#144E4E]'
+                  ? 'bg-[#D4A017] text-[#111418] animate-pulse ring-2 ring-[#D4A017]/40'
+                  : 'bg-[#111418] text-[#D4A017] border border-[#D4A017]/30 hover:border-[#D4A017]'
               }`}
               title={!isOnline ? 'Voice requires network' : isListening ? 'Listening (Click to Stop)' : 'Voice Input (बोलकर पूछें)'}
             >
               {isListening ? (
                 <div className="flex items-center gap-0.5">
-                  <span className="w-0.5 h-3 bg-white animate-pulse" />
-                  <span className="w-0.5 h-4 bg-white animate-pulse [animation-delay:0.2s]" />
-                  <span className="w-0.5 h-2 bg-white animate-pulse [animation-delay:0.4s]" />
+                  <span className="w-0.5 h-3 bg-[#111418] animate-pulse" />
+                  <span className="w-0.5 h-4 bg-[#111418] animate-pulse [animation-delay:0.2s]" />
+                  <span className="w-0.5 h-2 bg-[#111418] animate-pulse [animation-delay:0.4s]" />
                 </div>
               ) : (
                 <Mic className="w-4 h-4" />
@@ -623,12 +677,12 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
             </button>
           </div>
 
-          {/* Luxury Circular Teal-Emerald Send Button with Golden Arrow */}
+          {/* Gold Send Button */}
           <button
             id="clickcraft-send-btn"
             type="submit"
             disabled={!inputText.trim() || isStreaming || isThinking || !isOnline}
-            className="w-11 h-11 rounded-full bg-gradient-to-br from-[#126460] via-[#0E4F4C] to-[#0A3937] border border-[#14B8A6]/60 text-[#E8B923] flex items-center justify-center transition-all disabled:opacity-40 disabled:cursor-not-allowed shrink-0 hover:scale-105 active:scale-95 shadow-lg shadow-[#0E4F4C]/40"
+            className="w-11 h-11 rounded-full bg-[#D4A017] text-[#111418] flex items-center justify-center transition-all disabled:opacity-30 disabled:cursor-not-allowed shrink-0 hover:bg-[#c29214] hover:scale-105 active:scale-95 shadow-md font-bold"
             title={!isOnline ? 'Offline: Internet connection required' : 'Send message'}
             aria-label="Send question"
           >
@@ -638,15 +692,15 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
       </footer>
 
       {/* ============================================================
-          5. FOOTER: METALLIC BRONZE-GOLD EMBOSSED SOCIAL ICONS
+          5. FOOTER: MINIMAL GOLD SOCIAL ICONS
       ============================================================ */}
-      <div className="py-2.5 px-8 bg-[#111A26] border-t border-[#233346]/60 flex items-center justify-center gap-14 shrink-0 shadow-inner">
+      <div className="py-2.5 px-8 bg-[#111418] border-t border-[#242A32] flex items-center justify-center gap-12 shrink-0">
         {/* WhatsApp */}
         <a
           href="https://wa.me/919376124893?text=Hello%20ClickCraft%20Team%2C%20I%20want%20to%20know%20more%20about%20your%20digital%20marketing%20services"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-[#D4AF37] hover:text-white transition-all transform hover:scale-110 p-1 flex items-center justify-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)]"
+          className="text-[#D4A017] hover:text-white transition-all transform hover:scale-110 p-1 flex items-center justify-center"
           title="WhatsApp ClickCraft Team (+919376124893)"
           aria-label="WhatsApp"
         >
@@ -660,7 +714,7 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
           href="https://instagram.com"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-[#D4AF37] hover:text-white transition-all transform hover:scale-110 p-1 flex items-center justify-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)]"
+          className="text-[#D4A017] hover:text-white transition-all transform hover:scale-110 p-1 flex items-center justify-center"
           title="Instagram"
           aria-label="Instagram"
         >
@@ -674,7 +728,7 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
           href="https://facebook.com"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-[#D4AF37] hover:text-white transition-all transform hover:scale-110 p-1 flex items-center justify-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)]"
+          className="text-[#D4A017] hover:text-white transition-all transform hover:scale-110 p-1 flex items-center justify-center"
           title="Facebook"
           aria-label="Facebook"
         >

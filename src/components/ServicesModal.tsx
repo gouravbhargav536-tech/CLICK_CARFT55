@@ -43,7 +43,7 @@ export const CLICKCRAFT_SERVICES: ServicePackage[] = [
     priceFormatted: '₹500',
     originalPrice: '₹1,500',
     badge: 'Starter Deal',
-    badgeColor: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+    badgeColor: 'bg-[#181C22] text-[#B0B0B0] border-[#242A32]',
     highlight: false,
     icon: 'ad',
     features: [
@@ -64,7 +64,7 @@ export const CLICKCRAFT_SERVICES: ServicePackage[] = [
     priceFormatted: '₹5,000',
     originalPrice: '₹12,000',
     badge: 'Popular Choice',
-    badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+    badgeColor: 'bg-[#181C22] text-[#B0B0B0] border-[#242A32]',
     highlight: false,
     icon: 'website',
     features: [
@@ -84,8 +84,8 @@ export const CLICKCRAFT_SERVICES: ServicePackage[] = [
     price: 10000,
     priceFormatted: '₹10,000',
     originalPrice: '₹22,000',
-    badge: '🌟 BEST VALUE / PREMIUM OFFER',
-    badgeColor: 'bg-[#E8B923]/20 text-[#E8B923] border-[#E8B923]/40',
+    badge: 'Best Value',
+    badgeColor: 'bg-[#181C22] text-[#D4A017] border-[#D4A017]',
     highlight: true,
     icon: 'combo',
     features: [
@@ -173,19 +173,19 @@ export const ServicesModal: React.FC<ServicesModalProps> = ({
     >
       <div
         id="services-modal-dialog"
-        className="bg-[#0F172A] border border-[#1E293B] rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]"
+        className="bg-[#111418] border border-[#242A32] rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]"
       >
         {/* Modal Header */}
-        <div className="px-5 py-4 bg-[#0B1220] border-b border-[#1E293B] flex items-center justify-between shrink-0">
+        <div className="px-5 py-4 bg-[#111418] border-b border-[#242A32] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-[#E8B923]/10 border border-[#E8B923]/30 flex items-center justify-center text-[#E8B923]">
+            <div className="w-8 h-8 rounded-full bg-[#181C22] border border-[#D4A017]/40 flex items-center justify-center text-[#D4A017]">
               <ShoppingBag className="w-4 h-4" />
             </div>
             <div>
               <h2 className="text-base font-bold text-white leading-tight">
                 ClickCraft Official Services & Pricing
               </h2>
-              <p className="text-xs text-[#8A93A6]">
+              <p className="text-xs text-[#B0B0B0]">
                 Transparent packages engineered to scale your business
               </p>
             </div>
@@ -193,7 +193,7 @@ export const ServicesModal: React.FC<ServicesModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-[#8A93A6] hover:text-white hover:bg-[#1E293B] transition-colors"
+            className="p-1.5 rounded-lg text-[#B0B0B0] hover:text-white hover:bg-[#181C22] transition-colors"
             aria-label="Close modal"
           >
             <X className="w-5 h-5" />
@@ -201,20 +201,20 @@ export const ServicesModal: React.FC<ServicesModalProps> = ({
         </div>
 
         {/* Modal Content */}
-        <div className="p-4 sm:p-6 overflow-y-auto custom-scrollbar flex-1 space-y-6">
+        <div className="p-4 sm:p-6 overflow-y-auto custom-scrollbar flex-1 space-y-6 bg-[#111418]">
           {!isOrdering ? (
             <>
               {/* Trust banner */}
-              <div className="bg-gradient-to-r from-[#141C2E] to-[#1E293B] rounded-xl p-3.5 border border-[#1E293B] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-                <div className="flex items-center gap-2 text-white">
-                  <ShieldCheck className="w-4 h-4 text-[#E8B923] shrink-0" />
+              <div className="bg-[#181C22] rounded-xl p-3.5 border border-[#242A32] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-2 text-[#B0B0B0]">
+                  <ShieldCheck className="w-4 h-4 text-[#D4A017] shrink-0" />
                   <span>
-                    <strong>500+ Happy Clients</strong> • <strong>1200+ Campaigns</strong> • 5-Star Rated Digital Agency
+                    <strong className="text-white">500+ Happy Clients</strong> • <strong className="text-white">1200+ Campaigns</strong> • 5-Star Rated Digital Agency
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5 text-[#8A93A6]">
-                  <Zap className="w-3.5 h-3.5 text-[#E8B923]" />
-                  <span>Direct WhatsApp Support: <strong>+91 9376124893</strong></span>
+                <div className="flex items-center gap-1.5 text-[#B0B0B0]">
+                  <Zap className="w-3.5 h-3.5 text-[#D4A017]" />
+                  <span>Direct WhatsApp: <strong className="text-white">+91 9376124893</strong></span>
                 </div>
               </div>
 
@@ -223,10 +223,10 @@ export const ServicesModal: React.FC<ServicesModalProps> = ({
                 {CLICKCRAFT_SERVICES.map((pkg) => (
                   <div
                     key={pkg.id}
-                    className={`relative rounded-2xl bg-[#141C2E] border flex flex-col justify-between transition-all duration-200 ${
+                    className={`relative rounded-2xl bg-[#181C22] border flex flex-col justify-between transition-all duration-200 ${
                       pkg.highlight
-                        ? 'border-[#E8B923] shadow-xl shadow-[#E8B923]/10 ring-1 ring-[#E8B923]/40'
-                        : 'border-[#1E293B] hover:border-[#334155]'
+                        ? 'border-[#D4A017] shadow-xl shadow-[#D4A017]/10 ring-1 ring-[#D4A017]/40'
+                        : 'border-[#242A32] hover:border-[#D4A017]/40'
                     }`}
                   >
                     {/* Top Highlight Badge */}
@@ -244,15 +244,7 @@ export const ServicesModal: React.FC<ServicesModalProps> = ({
                       {/* Service Icon & Title */}
                       <div className="pt-1">
                         <div className="flex items-center justify-between mb-2">
-                          <div
-                            className={`w-9 h-9 rounded-xl flex items-center justify-center ${
-                              pkg.icon === 'combo'
-                                ? 'bg-[#E8B923]/20 text-[#E8B923]'
-                                : pkg.icon === 'website'
-                                ? 'bg-emerald-500/20 text-emerald-400'
-                                : 'bg-blue-500/20 text-blue-400'
-                            }`}
-                          >
+                          <div className="w-9 h-9 rounded-xl bg-[#111418] border border-[#D4A017]/30 flex items-center justify-center text-[#D4A017]">
                             {pkg.icon === 'combo' ? (
                               <Sparkles className="w-5 h-5" />
                             ) : pkg.icon === 'website' ? (
@@ -262,24 +254,24 @@ export const ServicesModal: React.FC<ServicesModalProps> = ({
                             )}
                           </div>
                           {pkg.originalPrice && (
-                            <span className="text-xs text-[#64748B] line-through">
+                            <span className="text-xs text-[#707070] line-through">
                               {pkg.originalPrice}
                             </span>
                           )}
                         </div>
 
                         <h3 className="text-lg font-bold text-white">{pkg.title}</h3>
-                        <p className="text-xs text-[#8A93A6] mt-0.5 leading-snug">
+                        <p className="text-xs text-[#B0B0B0] mt-0.5 leading-relaxed">
                           {pkg.subtitle}
                         </p>
                       </div>
 
                       {/* Pricing block */}
-                      <div className="pt-2 pb-3 border-y border-[#1E293B]/70 flex items-baseline gap-1.5">
+                      <div className="pt-2 pb-3 border-y border-[#242A32] flex items-baseline gap-1.5">
                         <span className="text-3xl font-extrabold text-white tracking-tight">
                           {pkg.priceFormatted}
                         </span>
-                        <span className="text-xs font-medium text-[#8A93A6]">
+                        <span className="text-xs font-medium text-[#B0B0B0]">
                           / one-time investment
                         </span>
                       </div>
@@ -287,13 +279,9 @@ export const ServicesModal: React.FC<ServicesModalProps> = ({
                       {/* Features List */}
                       <ul className="space-y-2 text-xs">
                         {pkg.features.map((feat, fIdx) => (
-                          <li key={fIdx} className="flex items-start gap-2 text-[#CBD5E1]">
-                            <CheckCircle2
-                              className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${
-                                pkg.highlight ? 'text-[#E8B923]' : 'text-emerald-400'
-                              }`}
-                            />
-                            <span className="leading-tight">{feat}</span>
+                          <li key={fIdx} className="flex items-start gap-2 text-[#B0B0B0]">
+                            <CheckCircle2 className="w-3.5 h-3.5 shrink-0 mt-0.5 text-[#D4A017]" />
+                            <span className="leading-relaxed">{feat}</span>
                           </li>
                         ))}
                       </ul>
@@ -304,21 +292,21 @@ export const ServicesModal: React.FC<ServicesModalProps> = ({
                       <button
                         id={`buy-service-${pkg.id}-btn`}
                         onClick={() => handleBuyClick(pkg)}
-                        className={`w-full py-2.5 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-md ${
+                        className={`w-full py-2.5 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95 bg-[#111418] hover:bg-[#181C22] border text-white ${
                           pkg.highlight
-                            ? 'bg-gradient-to-r from-[#E8B923] to-[#F5CE42] text-[#0B1220] hover:brightness-105 shadow-[#E8B923]/20'
-                            : 'bg-white text-[#0B1220] hover:bg-white/90'
+                            ? 'border-[#D4A017] shadow-[0_0_12px_rgba(212,160,23,0.25)]'
+                            : 'border-[#D4A017]/50 hover:border-[#D4A017]'
                         }`}
                       >
-                        <CreditCard className="w-3.5 h-3.5" />
+                        <CreditCard className="w-3.5 h-3.5 text-[#D4A017]" />
                         <span>Buy {pkg.priceFormatted} Package</span>
                       </button>
 
                       <button
                         onClick={() => handleWhatsAppRedirect(pkg)}
-                        className="w-full py-2 px-3 rounded-lg text-[11px] font-medium text-[#8A93A6] hover:text-[#25D366] hover:bg-[#1E293B] border border-transparent hover:border-[#25D366]/30 flex items-center justify-center gap-1.5 transition-colors"
+                        className="w-full py-2 px-3 rounded-lg text-[11px] font-medium text-[#B0B0B0] hover:text-[#D4A017] hover:bg-[#111418] border border-transparent hover:border-[#D4A017]/30 flex items-center justify-center gap-1.5 transition-colors"
                       >
-                        <MessageSquare className="w-3 h-3 text-[#25D366]" />
+                        <MessageSquare className="w-3 h-3 text-[#D4A017]" />
                         <span>Order instantly via WhatsApp</span>
                       </button>
                     </div>
@@ -331,40 +319,40 @@ export const ServicesModal: React.FC<ServicesModalProps> = ({
             <div className="max-w-xl mx-auto space-y-5 animate-fadeIn">
               <button
                 onClick={() => setIsOrdering(false)}
-                className="text-xs text-[#8A93A6] hover:text-[#E8B923] flex items-center gap-1 transition-colors"
+                className="text-xs text-[#B0B0B0] hover:text-[#D4A017] flex items-center gap-1 transition-colors"
               >
                 ← Back to all packages
               </button>
 
               {/* Selected package summary banner */}
               {selectedService && (
-                <div className="bg-[#141C2E] border border-[#E8B923]/40 rounded-xl p-4 flex items-center justify-between">
+                <div className="bg-[#181C22] border border-[#D4A017]/40 rounded-xl p-4 flex items-center justify-between">
                   <div>
-                    <span className="text-[10px] uppercase font-bold text-[#E8B923] tracking-wider">
+                    <span className="text-[10px] uppercase font-bold text-[#D4A017] tracking-wider">
                       Selected Service
                     </span>
                     <h3 className="text-base font-bold text-white">{selectedService.title}</h3>
-                    <p className="text-xs text-[#8A93A6]">{selectedService.subtitle}</p>
+                    <p className="text-xs text-[#B0B0B0]">{selectedService.subtitle}</p>
                   </div>
                   <div className="text-right">
-                    <span className="text-2xl font-extrabold text-[#E8B923]">
+                    <span className="text-2xl font-extrabold text-[#D4A017]">
                       {selectedService.priceFormatted}
                     </span>
-                    <p className="text-[10px] text-[#8A93A6]">All inclusive</p>
+                    <p className="text-[10px] text-[#707070]">All inclusive</p>
                   </div>
                 </div>
               )}
 
               {orderSubmitted ? (
                 /* Success Confirmation State */
-                <div className="bg-[#141C2E] border border-emerald-500/40 rounded-2xl p-6 text-center space-y-4">
-                  <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto">
+                <div className="bg-[#181C22] border border-[#D4A017]/40 rounded-2xl p-6 text-center space-y-4">
+                  <div className="w-12 h-12 rounded-full bg-[#111418] text-[#D4A017] border border-[#D4A017]/40 flex items-center justify-center mx-auto">
                     <CheckCircle2 className="w-7 h-7" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-white">Order Request Received! 🎉</h3>
-                    <p className="text-xs text-[#8A93A6] mt-1 max-w-sm mx-auto">
-                      Thank you <strong className="text-white">{orderName}</strong>. Our ClickCraft marketing team has received your order request for <strong className="text-[#E8B923]">{selectedService?.title} ({selectedService?.priceFormatted})</strong>.
+                    <h3 className="text-lg font-bold text-white">Order Request Received!</h3>
+                    <p className="text-xs text-[#B0B0B0] mt-1 max-w-sm mx-auto">
+                      Thank you <strong className="text-white">{orderName}</strong>. Our ClickCraft marketing team has received your order request for <strong className="text-[#D4A017]">{selectedService?.title} ({selectedService?.priceFormatted})</strong>.
                     </p>
                   </div>
 
@@ -372,7 +360,7 @@ export const ServicesModal: React.FC<ServicesModalProps> = ({
                     {selectedService && (
                       <button
                         onClick={() => handleWhatsAppRedirect(selectedService)}
-                        className="py-2.5 px-4 rounded-xl bg-[#25D366] text-white font-bold text-xs flex items-center justify-center gap-2 hover:brightness-105 transition-all shadow-md shadow-[#25D366]/20"
+                        className="py-2.5 px-4 rounded-xl bg-[#111418] text-[#D4A017] border border-[#D4A017] font-bold text-xs flex items-center justify-center gap-2 hover:bg-[#D4A017] hover:text-[#111418] transition-all"
                       >
                         <MessageSquare className="w-4 h-4" />
                         <span>Chat on WhatsApp (+91 9376124893)</span>
@@ -383,7 +371,7 @@ export const ServicesModal: React.FC<ServicesModalProps> = ({
                         setIsOrdering(false);
                         onClose();
                       }}
-                      className="py-2.5 px-4 rounded-xl bg-[#1E293B] text-white font-semibold text-xs hover:bg-[#334155] transition-colors"
+                      className="py-2.5 px-4 rounded-xl bg-[#111418] text-white font-semibold text-xs hover:border-[#D4A017]/40 border border-[#242A32] transition-colors"
                     >
                       Back to Assistant
                     </button>
@@ -393,60 +381,60 @@ export const ServicesModal: React.FC<ServicesModalProps> = ({
                 /* Order Input Form */
                 <form
                   onSubmit={handleSubmitOrder}
-                  className="bg-[#141C2E] border border-[#1E293B] rounded-2xl p-5 sm:p-6 space-y-4 shadow-xl"
+                  className="bg-[#181C22] border border-[#242A32] rounded-2xl p-5 sm:p-6 space-y-4 shadow-xl"
                 >
                   <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                    <User className="w-4 h-4 text-[#E8B923]" />
+                    <User className="w-4 h-4 text-[#D4A017]" />
                     <span>Your Contact & Business Details</span>
                   </h3>
 
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-xs font-medium text-[#8A93A6] mb-1">
+                      <label className="block text-xs font-medium text-[#B0B0B0] mb-1">
                         Your Full Name *
                       </label>
                       <div className="relative">
-                        <User className="w-4 h-4 text-[#64748B] absolute left-3 top-1/2 -translate-y-1/2" />
+                        <User className="w-4 h-4 text-[#707070] absolute left-3 top-1/2 -translate-y-1/2" />
                         <input
                           type="text"
                           required
                           value={orderName}
                           onChange={(e) => setOrderName(e.target.value)}
                           placeholder="e.g. Rahul Sharma"
-                          className="w-full bg-[#0B1220] text-white text-xs rounded-xl pl-9 pr-3.5 py-2.5 border border-[#1E293B] focus:border-[#E8B923] outline-none"
+                          className="w-full bg-[#111418] text-white text-xs rounded-xl pl-9 pr-3.5 py-2.5 border border-[#242A32] focus:border-[#D4A017] outline-none"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-[#8A93A6] mb-1">
+                      <label className="block text-xs font-medium text-[#B0B0B0] mb-1">
                         Phone / WhatsApp Number *
                       </label>
                       <div className="relative">
-                        <Phone className="w-4 h-4 text-[#64748B] absolute left-3 top-1/2 -translate-y-1/2" />
+                        <Phone className="w-4 h-4 text-[#707070] absolute left-3 top-1/2 -translate-y-1/2" />
                         <input
                           type="tel"
                           required
                           value={orderPhone}
                           onChange={(e) => setOrderPhone(e.target.value)}
                           placeholder="e.g. +91 9876543210"
-                          className="w-full bg-[#0B1220] text-white text-xs rounded-xl pl-9 pr-3.5 py-2.5 border border-[#1E293B] focus:border-[#E8B923] outline-none"
+                          className="w-full bg-[#111418] text-white text-xs rounded-xl pl-9 pr-3.5 py-2.5 border border-[#242A32] focus:border-[#D4A017] outline-none"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-[#8A93A6] mb-1">
+                      <label className="block text-xs font-medium text-[#B0B0B0] mb-1">
                         Business / Brand Name (Optional)
                       </label>
                       <div className="relative">
-                        <Building className="w-4 h-4 text-[#64748B] absolute left-3 top-1/2 -translate-y-1/2" />
+                        <Building className="w-4 h-4 text-[#707070] absolute left-3 top-1/2 -translate-y-1/2" />
                         <input
                           type="text"
                           value={orderBusiness}
                           onChange={(e) => setOrderBusiness(e.target.value)}
                           placeholder="e.g. Royal Motors / Fashion Boutique"
-                          className="w-full bg-[#0B1220] text-white text-xs rounded-xl pl-9 pr-3.5 py-2.5 border border-[#1E293B] focus:border-[#E8B923] outline-none"
+                          className="w-full bg-[#111418] text-white text-xs rounded-xl pl-9 pr-3.5 py-2.5 border border-[#242A32] focus:border-[#D4A017] outline-none"
                         />
                       </div>
                     </div>
@@ -456,7 +444,7 @@ export const ServicesModal: React.FC<ServicesModalProps> = ({
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#E8B923] to-[#F5CE42] hover:brightness-105 text-[#0B1220] font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md shadow-[#E8B923]/20 disabled:opacity-50"
+                      className="w-full py-3 px-4 rounded-xl bg-[#D4A017] hover:bg-[#c29214] text-[#111418] font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50"
                     >
                       {isSubmitting ? (
                         <span>Processing Order...</span>
@@ -472,7 +460,7 @@ export const ServicesModal: React.FC<ServicesModalProps> = ({
                       <button
                         type="button"
                         onClick={() => handleWhatsAppRedirect(selectedService)}
-                        className="w-full py-2.5 px-4 rounded-xl bg-[#1E293B] hover:bg-[#25D366]/20 text-[#25D366] font-semibold text-xs flex items-center justify-center gap-2 transition-colors border border-[#1E293B] hover:border-[#25D366]/40"
+                        className="w-full py-2.5 px-4 rounded-xl bg-[#111418] text-[#D4A017] hover:bg-[#D4A017] hover:text-[#111418] font-semibold text-xs flex items-center justify-center gap-2 transition-colors border border-[#D4A017]/40"
                       >
                         <MessageSquare className="w-3.5 h-3.5" />
                         <span>Or Order Directly on WhatsApp (+91 9376124893)</span>
@@ -486,14 +474,14 @@ export const ServicesModal: React.FC<ServicesModalProps> = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="px-5 py-3 bg-[#0B1220] border-t border-[#1E293B] flex items-center justify-between text-xs text-[#8A93A6]">
+        <div className="px-5 py-3 bg-[#111418] border-t border-[#242A32] flex items-center justify-between text-xs text-[#B0B0B0]">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400" />
+            <span className="w-2 h-2 rounded-full bg-[#D4A017]" />
             <span>ClickCraft Verified Agency Pricing</span>
           </div>
           <button
             onClick={onClose}
-            className="px-3 py-1 rounded-lg bg-[#141C2E] hover:bg-[#1E293B] text-white transition-colors"
+            className="px-3 py-1 rounded-lg bg-[#181C22] hover:bg-[#202630] text-white border border-[#242A32] transition-colors"
           >
             Close
           </button>

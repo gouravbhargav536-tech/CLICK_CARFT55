@@ -8,15 +8,15 @@ const STORAGE_KEYS = {
 };
 
 export const DEFAULT_VOICE_CONFIG: VoiceConfig = {
-  voiceName: 'Swara (Natural Female)',
-  speed: 1.08,
-  pitch: 1.06,
+  voiceName: 'Swara / Google हिन्दी (Fast Hindi)',
+  speed: 1.25,
+  pitch: 1.05,
   autoSpeak: true,
   handsFree: false,
   visualizerPreset: 'quantum',
   voiceEngine: 'instant',
   vocalFeeling: 'natural',
-  responseMode: 'balanced',
+  responseMode: 'quick',
 };
 
 // Safe obfuscation helper for secure local storage storage

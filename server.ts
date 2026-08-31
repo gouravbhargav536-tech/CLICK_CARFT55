@@ -82,6 +82,67 @@ async function startServer() {
     });
   });
 
+  // Google Cloud Text-to-Speech API Endpoint (hi-IN-Wavenet-A)
+  app.post(["/api/tts", "/api/cloud-tts"], async (req, res) => {
+    try {
+      const { text } = req.body;
+      if (!text || typeof text !== "string" || !text.trim()) {
+        res.status(400).json({ error: "Missing 'text' in request body." });
+        return;
+      }
+
+      const apiKey =
+        process.env.GOOGLE_TTS_API_KEY ||
+        process.env.GOOGLE_CLOUD_API_KEY ||
+        process.env.GEMINI_API_KEY;
+
+      if (!apiKey) {
+        res.status(500).json({
+          error: "GOOGLE_TTS_API_KEY is not configured on server.",
+        });
+        return;
+      }
+
+      const ttsRes = await fetch(
+        `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            input: { text: text.trim() },
+            voice: {
+              languageCode: "hi-IN",
+              name: "hi-IN-Wavenet-A",
+            },
+            audioConfig: {
+              audioEncoding: "MP3",
+              speakingRate: 0.95,
+              pitch: 0.0,
+            },
+          }),
+        }
+      );
+
+      if (!ttsRes.ok) {
+        const errText = await ttsRes.text();
+        console.error("[Google Cloud TTS API Error]:", errText);
+        res.status(ttsRes.status).json({
+          error: "Failed to synthesize speech with Google Cloud TTS",
+          details: errText,
+        });
+        return;
+      }
+
+      const data: any = await ttsRes.json();
+      res.json({ audioContent: data.audioContent });
+    } catch (err: any) {
+      console.error("[TTS Server Error]:", err);
+      res.status(500).json({
+        error: err?.message || "Internal server error during speech synthesis.",
+      });
+    }
+  });
+
   // API Key Validator Endpoint (Performs low-latency test for Gemini or Groq)
   app.post("/api/validate-key", async (req, res) => {
     const { provider, apiKey } = req.body;

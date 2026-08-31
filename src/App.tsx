@@ -27,6 +27,8 @@ import {
 import { exportSessionPDF } from './utils/pdfExport';
 import {
   createSpeechRecognizer,
+  speakHindi,
+  stopSpeech,
   playTextToSpeech,
   playBase64Audio,
   playStreamedAudio,
@@ -59,6 +61,8 @@ import {
   logConversationToFirebase,
   findInstantFirebaseAnswer,
   matchFAQFromFirebase,
+  initLiveFirestoreFAQsListener,
+  fetchFAQsFromFirestore,
 } from './services/firebaseTrainingService';
 
 export default function App() {
@@ -148,11 +152,14 @@ export default function App() {
       createNewSession();
     }
 
-    // Auto-seed ClickCraft knowledge base & training data to Firebase Firestore
+    // Auto-seed and listen to ClickCraft live knowledge base & FAQs from Firebase Firestore
     seedTrainingDataToFirestore();
+    fetchFAQsFromFirestore();
+    const unsubFaqs = initLiveFirestoreFAQsListener();
 
     return () => {
       stopListeningProcess();
+      unsubFaqs();
       if (typeof window !== 'undefined') {
         window.speechSynthesis.cancel();
       }
@@ -281,9 +288,7 @@ export default function App() {
       activeStreamPlayerRef.current.stop();
       activeStreamPlayerRef.current = null;
     }
-    if (typeof window !== 'undefined') {
-      window.speechSynthesis.cancel();
-    }
+    stopSpeech();
     setIsSpeaking(false);
   };
 
@@ -612,7 +617,7 @@ export default function App() {
     }
   };
 
-  // Play Speech Output with real-time stream playback and equalizer animation
+  // Play Speech Output with natural Hindi voice selection or Google Cloud TTS
   const handlePlaySpeech = async (text: string, langCode = 'hi-IN', msgId?: string) => {
     handleStopAudio();
     setIsSpeaking(true);
@@ -639,41 +644,18 @@ export default function App() {
       }
     };
 
-    // Fast path: If instant voice engine selected or default, speak immediately with zero network delay
-    if (!voiceConfig.voiceEngine || voiceConfig.voiceEngine === 'instant') {
-      playTextToSpeech(cleanSpokenText, langCode, onPlaybackEnd, {
-        speed: voiceConfig.speed || 0.96,
-        pitch: voiceConfig.pitch || 1.0,
-        vocalFeeling: voiceConfig.vocalFeeling || 'natural',
-      });
-      return;
-    }
-
-    // Cloud path: Gemini streaming TTS
-    try {
-      const response = await apiRequest('/api/tts-stream', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text: cleanSpokenText,
-          voiceName: voiceConfig.voiceName || 'Aoede',
-        }),
-      });
-
-      if (response.ok && response.body) {
-        const player = await playStreamedAudio(response, () => setIsSpeaking(true), onPlaybackEnd);
-        activeStreamPlayerRef.current = player;
-        return;
+    speakHindi(
+      cleanSpokenText,
+      () => {
+        setIsSpeaking(true);
+        if (msgId) setActiveSpeakingId(msgId);
+      },
+      onPlaybackEnd,
+      (err) => {
+        console.warn('Speech playback error:', err);
+        onPlaybackEnd();
       }
-    } catch (e) {
-      console.warn('Streaming TTS endpoint error, falling back to instant speech:', e);
-    }
-
-    // Fallback path: Web Speech Synthesis API
-    playTextToSpeech(cleanSpokenText, langCode, onPlaybackEnd, {
-      speed: voiceConfig.speed || 0.96,
-      pitch: voiceConfig.pitch || 1.0,
-    });
+    );
   };
 
   const handleQuickTranslateApi = async (text: string, sourceLangName: string, targetLangName: string) => {

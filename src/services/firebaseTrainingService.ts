@@ -7,6 +7,7 @@ import {
   collection,
   query,
   limit,
+  onSnapshot,
 } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
@@ -18,13 +19,36 @@ export interface FAQItem {
   id?: string;
   question: string;
   answer: string;
+  keywords?: string[];
 }
 
 // Master ClickCraft FAQs Collection Dataset stored in Firebase
 export const CLICKCRAFT_FIREBASE_FAQS: FAQItem[] = [
+  // Document 1 (Greetings: hi, hii, hiii, hey)
+  {
+    id: 'faq_greeting_hi',
+    question: 'hi',
+    keywords: ['hi', 'hii', 'hiii', 'hey', 'hey there', 'hi clickcraft'],
+    answer: 'नमस्ते! मैं ClickCraft Assistant हूं, आपकी digital marketing में मदद के लिए। आप Ads, Website या Premium package के बारे में पूछ सकते हैं।',
+  },
+  // Document 2 (Greetings: hello, helo, hllo)
+  {
+    id: 'faq_greeting_hello',
+    question: 'hello',
+    keywords: ['hello', 'helo', 'hllo', 'hello assistant', 'hello clickcraft'],
+    answer: 'हेलो! ClickCraft में आपका स्वागत है। बताइए, मैं आपकी क्या मदद कर सकता हूं?',
+  },
+  // Document 3 (Status: how are you, kaise ho, kese ho)
+  {
+    id: 'faq_greeting_how_are_you',
+    question: 'how are you',
+    keywords: ['how are you', 'kaise ho', 'kese ho', 'how r u', 'kese ho aap', 'kaise ho aap', 'kaise ho bhai', 'kese ho bhai', 'how are you doing'],
+    answer: 'मैं बढ़िया हूं! आप बताइए, आपको website चाहिए, ads चाहिए, या marketing में कोई मदद चाहिए?',
+  },
   {
     id: 'faq_ad_price_en',
     question: 'What is the price of an advertisement campaign?',
+    keywords: ['ad price', 'advertisement cost', 'price of ad', '500 ad', 'ad package price'],
     answer: 'ClickCraft provides targeted advertisement campaigns starting at ₹500. This includes 1 complete targeted ad campaign on Meta (Instagram/Facebook) or Google, custom graphic design, local audience targeting, and direct customer leads sent to your WhatsApp (+91 9376124893).',
   },
   {
@@ -342,13 +366,14 @@ export async function seedTrainingDataToFirestore(): Promise<{ success: boolean;
       updatedAt: new Date().toISOString(),
     });
 
-    // 2. Seed official FAQs collection (Collection: faqs, Fields: question, answer)
+    // 2. Seed official FAQs collection (Collection: faqs, Fields: question, answer, keywords)
     for (const faq of CLICKCRAFT_FIREBASE_FAQS) {
       const faqId = faq.id || `faq_${Math.abs(faq.question.split('').reduce((a, b) => ((a << 5) - a + b.charCodeAt(0)) | 0, 0))}`;
       const faqRef = doc(db, 'faqs', faqId);
       await setDoc(faqRef, {
         question: faq.question,
         answer: faq.answer,
+        ...(faq.keywords ? { keywords: faq.keywords } : {}),
       });
       seededCount++;
     }
@@ -369,54 +394,143 @@ export async function seedTrainingDataToFirestore(): Promise<{ success: boolean;
 }
 
 /**
- * Fetches all FAQ items from the 'faqs' collection in Firestore
+ * Real-time dynamic FAQs cache synced with Firebase Firestore
  */
-let cachedFAQs: FAQItem[] | null = null;
+let liveFirestoreFAQs: FAQItem[] = [...CLICKCRAFT_FIREBASE_FAQS];
+let hasInitializedRealtimeListener = false;
+
+/**
+ * Initializes real-time listener for Firestore FAQs collection
+ */
+export function initLiveFirestoreFAQsListener(): () => void {
+  if (hasInitializedRealtimeListener || typeof window === 'undefined') {
+    return () => {};
+  }
+  try {
+    hasInitializedRealtimeListener = true;
+    const faqsCol = collection(db, 'faqs');
+    const unsub = onSnapshot(
+      faqsCol,
+      (snapshot) => {
+        if (!snapshot.empty) {
+          const updated = snapshot.docs.map((d) => ({
+            id: d.id,
+            question: (d.data().question as string) || '',
+            answer: (d.data().answer as string) || '',
+            keywords: Array.isArray(d.data().keywords) ? (d.data().keywords as string[]) : undefined,
+          })).filter(f => f.question && f.answer);
+          if (updated.length > 0) {
+            liveFirestoreFAQs = updated;
+            console.log(`[Firebase Live] Loaded ${updated.length} live FAQ documents from Firestore.`);
+          }
+        }
+      },
+      (error) => {
+        console.warn('[Firebase Live] FAQ listener notification:', error);
+      }
+    );
+    return unsub;
+  } catch (err) {
+    console.warn('[Firebase Live] Failed to attach FAQ listener:', err);
+    return () => {};
+  }
+}
+
+/**
+ * Returns current live FAQs fetched from Firestore
+ */
+export function getLiveFirebaseFAQs(): FAQItem[] {
+  return liveFirestoreFAQs && liveFirestoreFAQs.length > 0
+    ? liveFirestoreFAQs
+    : CLICKCRAFT_FIREBASE_FAQS;
+}
+
+/**
+ * Fetches all FAQ items directly from the 'faqs' collection in Firestore
+ */
 export async function fetchFAQsFromFirestore(): Promise<FAQItem[]> {
   try {
-    if (cachedFAQs && cachedFAQs.length > 0) return cachedFAQs;
     const faqsCol = collection(db, 'faqs');
-    const q = query(faqsCol, limit(50));
+    const q = query(faqsCol, limit(100));
     const snapshot = await getDocs(q);
-    const docs = snapshot.docs.map((d) => ({
-      id: d.id,
-      question: d.data().question as string,
-      answer: d.data().answer as string,
-    }));
-    if (docs.length > 0) {
-      cachedFAQs = docs;
-      return docs;
+    if (!snapshot.empty) {
+      const docs = snapshot.docs.map((d) => ({
+        id: d.id,
+        question: d.data().question as string,
+        answer: d.data().answer as string,
+        keywords: Array.isArray(d.data().keywords) ? (d.data().keywords as string[]) : undefined,
+      })).filter(f => f.question && f.answer);
+      if (docs.length > 0) {
+        liveFirestoreFAQs = docs;
+        return docs;
+      }
     }
   } catch (err) {
     console.warn('[Firebase FAQ] Notice fetching FAQs:', err);
   }
-  return CLICKCRAFT_FIREBASE_FAQS;
+  return liveFirestoreFAQs;
 }
 
 /**
- * Checks if the user's question closely matches any question stored in the "faqs" collection in Firebase.
- * If a close match is found by meaning/intent, returns ONLY that stored answer exactly as written.
+ * Checks if the user's question closely matches any question or keywords stored in the "faqs" collection in Firebase.
+ * If a match is found by meaning/intent/keywords, returns ONLY that stored answer exactly as written in Firebase without calling external API keys.
  */
-export function matchFAQFromFirebase(userQuery: string, faqsList: FAQItem[] = CLICKCRAFT_FIREBASE_FAQS): string | null {
+export function matchFAQFromFirebase(userQuery: string, faqsList?: FAQItem[]): string | null {
   if (!userQuery || typeof userQuery !== 'string') return null;
+  const listToSearch = faqsList || getLiveFirebaseFAQs();
   const rawQ = userQuery.trim().toLowerCase();
   
   // Strip common punctuation
-  const cleanQ = rawQ.replace(/[?!.,;:()'"]/g, '').trim();
-  const qTokens = cleanQ.split(/\s+/).filter(Boolean);
+  const cleanQ = rawQ.replace(/[?!.,;:()'"`~@#$%^&*_+=[\]{}|\\/<>]/g, ' ').replace(/\s+/g, ' ').trim();
+  if (!cleanQ) return null;
+  const qTokens = cleanQ.split(' ').filter(Boolean);
 
-  let bestMatch: FAQItem | null = null;
-  let highestScore = 0;
-
-  for (const faq of faqsList) {
-    const faqQ = faq.question.toLowerCase().replace(/[?!.,;:()'"]/g, '').trim();
+  // 1. Direct Keyword / Question exact match (Highest Priority)
+  for (const faq of listToSearch) {
+    const faqQ = faq.question.toLowerCase().replace(/[?!.,;:()'"`~@#$%^&*_+=[\]{}|\\/<>]/g, ' ').replace(/\s+/g, ' ').trim();
     
-    // 1. Direct or Substring match
-    if (cleanQ === faqQ || cleanQ.includes(faqQ) || faqQ.includes(cleanQ)) {
+    // Exact question match
+    if (cleanQ === faqQ) {
       return faq.answer;
     }
 
-    // 2. Token overlap & semantic intent calculation
+    // Check keyword entries
+    if (faq.keywords && Array.isArray(faq.keywords)) {
+      for (const kw of faq.keywords) {
+        const cleanKw = kw.toLowerCase().replace(/[?!.,;:()'"`~@#$%^&*_+=[\]{}|\\/<>]/g, ' ').replace(/\s+/g, ' ').trim();
+        if (cleanQ === cleanKw) {
+          return faq.answer;
+        }
+
+        // Single word greeting (e.g. 'hi', 'hello', 'hey', 'hii') in short queries
+        const kwParts = cleanKw.split(' ').filter(Boolean);
+        if (kwParts.length === 1 && qTokens.includes(cleanKw)) {
+          if (qTokens.length <= 4) {
+            return faq.answer;
+          }
+        }
+
+        // Multi-word phrase keyword match (e.g. 'how are you', 'kaise ho', 'kese ho')
+        if (kwParts.length > 1 && (cleanQ.includes(cleanKw) || cleanKw.includes(cleanQ))) {
+          return faq.answer;
+        }
+      }
+    }
+  }
+
+  // 2. Substring & Semantic Intent Matching
+  let bestMatch: FAQItem | null = null;
+  let highestScore = 0;
+
+  for (const faq of listToSearch) {
+    const faqQ = faq.question.toLowerCase().replace(/[?!.,;:()'"`~@#$%^&*_+=[\]{}|\\/<>]/g, ' ').replace(/\s+/g, ' ').trim();
+    
+    // Substring match for detailed questions (e.g. "price of website", "ad campaign price")
+    if (faqQ.length > 5 && (cleanQ.includes(faqQ) || faqQ.includes(cleanQ))) {
+      return faq.answer;
+    }
+
+    // Token overlap & semantic intent calculation
     const faqTokens = faqQ.split(/\s+/).filter(Boolean);
     let matchingTokens = 0;
     for (const token of qTokens) {
@@ -432,8 +546,8 @@ export function matchFAQFromFirebase(userQuery: string, faqsList: FAQItem[] = CL
     }
   }
 
-  // If close match found by meaning/intent (overlap >= 0.45 or minimum 2 strong keywords)
-  if (bestMatch && highestScore >= 0.45) {
+  // If close match found by meaning/intent
+  if (bestMatch && highestScore >= 0.40) {
     return bestMatch.answer;
   }
 

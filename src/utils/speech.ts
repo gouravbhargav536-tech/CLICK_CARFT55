@@ -189,99 +189,245 @@ export async function setupMicrophoneAnalyzer(
   }
 }
 
+// Global configuration flag to switch between free browser speech and Google Cloud TTS (hi-IN-Wavenet-A)
+export const USE_CLOUD_TTS = false;
+
+// Audio instance for playing Google Cloud TTS base64 audio
+let activeCloudAudio: HTMLAudioElement | null = null;
+
 // Global voice cache & precache loader
 let cachedVoices: SpeechSynthesisVoice[] = [];
 
-if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-  const populateVoices = () => {
+/**
+ * Ensures browser SpeechSynthesis voices are loaded properly.
+ * Resolves immediately if voices already available, or waits for the 'voiceschanged' event.
+ */
+export function getBrowserVoices(): Promise<SpeechSynthesisVoice[]> {
+  return new Promise((resolve) => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      resolve([]);
+      return;
+    }
+
+    const immediateVoices = window.speechSynthesis.getVoices();
+    if (immediateVoices && immediateVoices.length > 0) {
+      cachedVoices = immediateVoices;
+      resolve(immediateVoices);
+      return;
+    }
+
+    let resolved = false;
+    const onVoices = () => {
+      if (resolved) return;
+      resolved = true;
+      try {
+        window.speechSynthesis.removeEventListener('voiceschanged', onVoices);
+      } catch {}
+      const loaded = window.speechSynthesis.getVoices();
+      cachedVoices = loaded;
+      resolve(loaded);
+    };
+
     try {
-      cachedVoices = window.speechSynthesis.getVoices();
-    } catch {}
-  };
-  populateVoices();
-  if (typeof window.speechSynthesis.onvoiceschanged !== 'undefined') {
-    window.speechSynthesis.onvoiceschanged = populateVoices;
-  }
+      window.speechSynthesis.addEventListener('voiceschanged', onVoices);
+    } catch {
+      window.speechSynthesis.onvoiceschanged = onVoices;
+    }
+
+    // Safety fallback timeout (500ms) in case the browser does not fire voiceschanged
+    setTimeout(() => {
+      if (!resolved) {
+        resolved = true;
+        try {
+          window.speechSynthesis.removeEventListener('voiceschanged', onVoices);
+        } catch {}
+        const fallbackVoices = window.speechSynthesis.getVoices();
+        cachedVoices = fallbackVoices;
+        resolve(fallbackVoices);
+      }
+    }, 500);
+  });
 }
 
-// Helper to select the most natural, human-like female voice available
-function getBestHumanVoice(effectiveLang: string, feeling: VocalFeeling, preferredName?: string): SpeechSynthesisVoice | undefined {
-  const voices = cachedVoices.length > 0 ? cachedVoices : (typeof window !== 'undefined' && 'speechSynthesis' in window ? window.speechSynthesis.getVoices() : []);
+if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+  getBrowserVoices().catch(() => {});
+}
+
+/**
+ * Selects the BEST available Hindi voice following the exact priority rules:
+ * 1. Prefer a voice where lang is "hi-IN" AND the voice name includes "Google"
+ * 2. If not available, fall back to any voice with lang "hi-IN"
+ * 3. If still not available, fall back to any voice starting with "hi"
+ */
+export function getBestHindiVoice(voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null {
+  if (!voices || voices.length === 0) return null;
+
+  const isHiInLang = (lang: string) => {
+    const l = (lang || '').toLowerCase().replace('_', '-');
+    return l === 'hi-in' || l === 'hi-india';
+  };
+
+  // 1. Voice where lang is "hi-IN" AND name includes "Google"
+  const googleHindi = voices.find(
+    (v) => isHiInLang(v.lang) && v.name.toLowerCase().includes('google')
+  );
+  if (googleHindi) return googleHindi;
+
+  // 2. Any voice with lang "hi-IN"
+  const anyHiIn = voices.find((v) => isHiInLang(v.lang));
+  if (anyHiIn) return anyHiIn;
+
+  // 3. Any voice starting with "hi" or containing "hindi" / "हिन्दी"
+  const anyHi = voices.find(
+    (v) =>
+      (v.lang || '').toLowerCase().startsWith('hi') ||
+      v.name.toLowerCase().includes('hindi') ||
+      v.name.includes('हिन्दी')
+  );
+  if (anyHi) return anyHi;
+
+  return null;
+}
+
+/**
+ * Helper to select the most natural human voice available across languages
+ */
+export function getBestHumanVoice(
+  effectiveLang: string,
+  feeling?: VocalFeeling,
+  preferredName?: string
+): SpeechSynthesisVoice | undefined {
+  const voices = cachedVoices.length > 0
+    ? cachedVoices
+    : typeof window !== 'undefined' && 'speechSynthesis' in window
+    ? window.speechSynthesis.getVoices()
+    : [];
+
   if (voices.length === 0) return undefined;
 
-  const isHindi = effectiveLang.toLowerCase().startsWith('hi') || /[\u0900-\u097F]/.test(effectiveLang);
-  const primaryLang = effectiveLang.split('-')[0].toLowerCase();
+  const isHindi =
+    effectiveLang.toLowerCase().startsWith('hi') || /[\u0900-\u097F]/.test(effectiveLang);
+
+  if (isHindi) {
+    const bestHindi = getBestHindiVoice(voices);
+    if (bestHindi) return bestHindi;
+  }
 
   // If a specific voice name was requested
   if (preferredName) {
-    const matched = voices.find((v) => v.name.toLowerCase().includes(preferredName.toLowerCase()));
+    const matched = voices.find((v) =>
+      v.name.toLowerCase().includes(preferredName.toLowerCase())
+    );
     if (matched) return matched;
   }
 
-  if (isHindi) {
-    // Priority order for natural female Hindi voices:
-    // 1. Microsoft Swara (Natural Female)
-    // 2. Google हिन्दी (Natural Female)
-    // 3. Apple Kalpana / Lekha / Neerja (Female)
-    // 4. Any Hindi voice marked Natural/Neural
-    const femaleHindiVoice =
-      voices.find((v) => v.name.includes('Swara') || v.name.toLowerCase().includes('swara')) ||
-      voices.find((v) => v.name.includes('Google हिन्दी') || v.name.includes('Google hindi')) ||
-      voices.find((v) => v.name.includes('Kalpana') || v.name.includes('Lekha') || v.name.includes('Neerja')) ||
-      voices.find((v) => v.lang.toLowerCase().startsWith('hi') && (v.name.includes('Natural') || v.name.includes('Neural') || v.name.includes('Online') || v.name.includes('Female'))) ||
-      voices.find((v) => v.lang.toLowerCase().startsWith('hi') || v.name.toLowerCase().includes('hindi')) ||
-      voices.find((v) => v.lang.toLowerCase() === 'en-in' && (v.name.includes('Female') || v.name.includes('Swara') || v.name.includes('Heera')));
+  const primaryLang = effectiveLang.split('-')[0].toLowerCase();
+  const matchedLang = voices.find((v) => (v.lang || '').toLowerCase().startsWith(primaryLang));
+  if (matchedLang) return matchedLang;
 
-    if (femaleHindiVoice) return femaleHindiVoice;
-  }
-
-  // Priority order for natural female English/International voices:
-  // 1. Google US/UK English Female
-  // 2. Microsoft Jenny / Aria / Steffan (Natural Female)
-  // 3. Apple Samantha / Serena / Karen / Victoria / Moira
-  const femaleKeywords = [
-    'female',
-    'swara',
-    'jenny',
-    'aria',
-    'samantha',
-    'serena',
-    'karen',
-    'victoria',
-    'moira',
-    'zira',
-    'natural',
-    'neural',
-    'online',
-    'google',
-  ];
-
-  // Try matching female natural voice in same language
-  const matchedLangFemale = voices.find(
-    (v) =>
-      v.lang.toLowerCase().startsWith(primaryLang) &&
-      femaleKeywords.some((k) => v.name.toLowerCase().includes(k))
-  );
-  if (matchedLangFemale) return matchedLangFemale;
-
-  // Fallback to general female natural voice
-  const anyFemaleNatural = voices.find((v) =>
-    femaleKeywords.some((k) => v.name.toLowerCase().includes(k))
-  );
-  if (anyFemaleNatural) return anyFemaleNatural;
-
-  return voices.find((v) => v.lang.toLowerCase().startsWith(primaryLang)) || voices.find((v) => v.lang.toLowerCase().includes('en')) || voices[0];
+  return voices.find((v) => (v.lang || '').toLowerCase().includes('en')) || voices[0];
 }
 
-// Text to speech playback helper (Web Speech API + Base64 Audio player)
-export function playTextToSpeech(
+/**
+ * Stops all speech playback (Browser SpeechSynthesis + Google Cloud Audio)
+ */
+export function stopSpeech(): void {
+  if (activeCloudAudio) {
+    try {
+      activeCloudAudio.pause();
+      activeCloudAudio.currentTime = 0;
+    } catch {}
+    activeCloudAudio = null;
+  }
+  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+    try {
+      window.speechSynthesis.cancel();
+    } catch {}
+  }
+}
+
+/**
+ * Play text using Google Cloud Text-to-Speech REST API (WaveNet voice hi-IN-Wavenet-A)
+ * Calls Netlify serverless function or Express backend proxy.
+ */
+export async function playCloudTTS(
   text: string,
-  langCode = 'hi-IN',
-  onEnded?: () => void,
-  options?: { speed?: number; pitch?: number; vocalFeeling?: VocalFeeling; voiceName?: string }
-) {
+  onStart?: () => void,
+  onEnd?: () => void,
+  onError?: (err: any) => void
+): Promise<void> {
+  try {
+    // Try Netlify Function endpoint first, fallback to Express backend
+    let response: Response;
+    try {
+      response = await fetch('/.netlify/functions/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
+      });
+      if (!response.ok && response.status === 404) {
+        response = await fetch('/api/cloud-tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text }),
+        });
+      }
+    } catch {
+      response = await fetch('/api/cloud-tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
+      });
+    }
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => '');
+      throw new Error(`Cloud TTS failed with status ${response.status}: ${errorText}`);
+    }
+
+    const data = await response.json();
+    if (!data.audioContent) {
+      throw new Error('No audio content received from TTS service.');
+    }
+
+    const audioUrl = `data:audio/mp3;base64,${data.audioContent}`;
+    const audio = new Audio(audioUrl);
+    activeCloudAudio = audio;
+
+    audio.onplay = () => {
+      if (onStart) onStart();
+    };
+
+    audio.onended = () => {
+      activeCloudAudio = null;
+      if (onEnd) onEnd();
+    };
+
+    audio.onerror = (e) => {
+      activeCloudAudio = null;
+      if (onError) onError(e);
+      if (onEnd) onEnd();
+    };
+
+    await audio.play();
+  } catch (err) {
+    activeCloudAudio = null;
+    throw err;
+  }
+}
+
+/**
+ * Play text using the Browser SpeechSynthesis API with the best available Hindi voice
+ */
+export async function playBrowserSpeech(
+  text: string,
+  onStart?: () => void,
+  onEnd?: () => void,
+  onError?: (err: any) => void,
+  customOptions?: { rate?: number; pitch?: number; volume?: number }
+): Promise<void> {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
-    if (onEnded) onEnded();
+    if (onEnd) onEnd();
     return;
   }
 
@@ -289,9 +435,57 @@ export function playTextToSpeech(
     window.speechSynthesis.cancel();
   } catch {}
 
-  // Strip code blocks, markdown tags, emojis, asterisks, brackets for natural, fluid human speech flow
+  const voices = await getBrowserVoices();
+  const bestVoice = getBestHindiVoice(voices);
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'hi-IN';
+  
+  // Rate 0.95 (slightly slower sounds much more natural), Pitch 1, Volume 1
+  utterance.rate = customOptions?.rate ?? 0.95;
+  utterance.pitch = customOptions?.pitch ?? 1.0;
+  utterance.volume = customOptions?.volume ?? 1.0;
+
+  if (bestVoice) {
+    utterance.voice = bestVoice;
+  }
+
+  let hasStarted = false;
+
+  utterance.onstart = () => {
+    hasStarted = true;
+    if (onStart) onStart();
+  };
+
+  utterance.onend = () => {
+    if (onEnd) onEnd();
+  };
+
+  utterance.onerror = (event) => {
+    if (onError) onError(event);
+    if (onEnd) onEnd();
+  };
+
+  window.speechSynthesis.speak(utterance);
+}
+
+/**
+ * Main function to speak Hindi text when user clicks "Listen".
+ * Checks USE_CLOUD_TTS:
+ * - If true: calls Google Cloud TTS (hi-IN-Wavenet-A), falling back to browser if unavailable.
+ * - If false: uses browser SpeechSynthesis with the BEST Hindi voice (Google -> hi-IN -> hi).
+ */
+export async function speakHindi(
+  text: string,
+  onStart?: () => void,
+  onEnd?: () => void,
+  onError?: (error: any) => void
+): Promise<void> {
+  stopSpeech();
+
+  // Strip code blocks, markdown tags, emojis, and brackets for natural, fluid speech flow
   const cleanText = text
-    .replace(/```[\s\S]*?```/g, 'Code block omitted.')
+    .replace(/```[\s\S]*?```/g, '')
     .replace(/\[REALTIME_DATA_NEEDED\]/g, '')
     .replace(/\[REALTIME_CONSULTATION\]/g, '')
     .replace(/[*#_~`>]/g, '')
@@ -301,49 +495,40 @@ export function playTextToSpeech(
     .trim();
 
   if (!cleanText) {
-    if (onEnded) onEnded();
+    if (onEnd) onEnd();
     return;
   }
 
-  const isHindiText = /[\u0900-\u097F]/.test(cleanText);
-  const effectiveLang = isHindiText ? 'hi-IN' : langCode;
-
-  const utterance = new SpeechSynthesisUtterance(cleanText);
-  utterance.lang = effectiveLang;
-
-  const feeling = options?.vocalFeeling || 'natural';
-  // Natural fast female voice defaults (speed ~1.08, pitch ~1.06)
-  let pitch = options?.pitch || 1.06;
-  let speed = options?.speed || 1.08;
-
-  if (feeling === 'sad') {
-    pitch = 0.88;
-    speed = 0.85;
-  } else if (feeling === 'warm') {
-    pitch = 1.04;
-    speed = 1.02;
-  } else if (feeling === 'upbeat') {
-    pitch = 1.12;
-    speed = 1.15;
-  } else if (feeling === 'calm') {
-    pitch = 0.98;
-    speed = 0.95;
+  // 1. Google Cloud Text-to-Speech (WaveNet) if config flag is enabled
+  if (USE_CLOUD_TTS) {
+    try {
+      await playCloudTTS(cleanText, onStart, onEnd, onError);
+      return;
+    } catch (cloudErr) {
+      console.warn('Google Cloud TTS failed, falling back to Browser SpeechSynthesis:', cloudErr);
+      // Fallback seamlessly to browser speech synthesis below
+    }
   }
 
-  utterance.rate = Math.max(0.5, Math.min(2.0, speed));
-  utterance.pitch = Math.max(0.5, Math.min(1.5, pitch));
+  // 2. Browser SpeechSynthesis API with best Hindi voice
+  await playBrowserSpeech(cleanText, onStart, onEnd, onError);
+}
 
-  const matchedVoice = getBestHumanVoice(effectiveLang, feeling, options?.voiceName);
-  if (matchedVoice) {
-    utterance.voice = matchedVoice;
-  }
-
-  if (onEnded) {
-    utterance.onend = () => onEnded();
-    utterance.onerror = () => onEnded();
-  }
-
-  window.speechSynthesis.speak(utterance);
+// Text to speech playback helper (Compatible with legacy callers & queues)
+export function playTextToSpeech(
+  text: string,
+  langCode = 'hi-IN',
+  onEnded?: () => void,
+  options?: { speed?: number; pitch?: number; vocalFeeling?: VocalFeeling; voiceName?: string }
+) {
+  speakHindi(
+    text,
+    undefined,
+    onEnded,
+    (err) => console.warn('TTS playback issue:', err)
+  ).catch(() => {
+    if (onEnded) onEnded();
+  });
 }
 
 /**
@@ -462,21 +647,21 @@ export class SentenceSpeechQueue {
     utterance.lang = effectiveLang;
 
     const feeling = this.options.vocalFeeling || 'natural';
-    let pitch = this.options.pitch || 1.06;
-    let speed = this.options.speed || 1.08;
+    let pitch = this.options.pitch || 1.05;
+    let speed = this.options.speed || (effectiveLang.startsWith('hi') ? 1.25 : 1.15);
 
     if (feeling === 'sad') {
-      pitch = 0.88;
-      speed = 0.85;
+      pitch = 0.90;
+      speed = 0.95;
     } else if (feeling === 'warm') {
       pitch = 1.04;
-      speed = 1.02;
-    } else if (feeling === 'upbeat') {
-      pitch = 1.12;
       speed = 1.15;
+    } else if (feeling === 'upbeat') {
+      pitch = 1.10;
+      speed = 1.30;
     } else if (feeling === 'calm') {
-      pitch = 0.98;
-      speed = 0.95;
+      pitch = 1.00;
+      speed = 1.10;
     }
 
     utterance.rate = Math.max(0.5, Math.min(2.0, speed));
@@ -488,10 +673,10 @@ export class SentenceSpeechQueue {
     }
 
     utterance.onend = () => {
-      // Natural breath delay (90ms) between sentences for human-like cadence
+      // Fast, snappy delay (35ms) between sentences
       setTimeout(() => {
         this.playNext();
-      }, 90);
+      }, 35);
     };
 
     utterance.onerror = () => {

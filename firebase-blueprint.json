@@ -16,6 +16,11 @@
         "answer": {
           "type": "string",
           "description": "The exact official answer stored in Firebase."
+        },
+        "keywords": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Synonyms, variations, and trigger keywords for exact retrieval."
         }
       },
       "required": ["question", "answer"]
