@@ -45,6 +45,12 @@ service cloud.firestore {
              data.timestamp is string && data.timestamp.size() <= 100;
     }
 
+    function isValidFAQ(data) {
+      return data.keys().hasAll(['question', 'answer']) &&
+             data.question is string && data.question.size() <= 1000 &&
+             data.answer is string && data.answer.size() <= 10000;
+    }
+
     function isValidLeadInquiry(data) {
       return data.keys().hasAll(['id', 'serviceRequested', 'createdAt']) &&
              data.id is string && data.id.size() <= 128 &&
@@ -55,6 +61,13 @@ service cloud.firestore {
     // Default deny
     match /{document=**} {
       allow read, write: if false;
+    }
+
+    // FAQs collection - Question & Answer pairs stored in Firebase
+    match /faqs/{faqId} {
+      allow read: if true;
+      allow create, update: if isValidId(faqId) && isValidFAQ(incoming());
+      allow delete: if false;
     }
 
     // Training Data collection - Read accessible for AI context & training

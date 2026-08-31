@@ -58,6 +58,7 @@ import {
   seedTrainingDataToFirestore,
   logConversationToFirebase,
   findInstantFirebaseAnswer,
+  matchFAQFromFirebase,
 } from './services/firebaseTrainingService';
 
 export default function App() {
@@ -383,6 +384,47 @@ export default function App() {
       speechQueueRef.current = speechQueue;
     }
 
+    // Behavior Rules 1 & 2:
+    // 1. Check if user's question closely matches any question stored in "faqs" collection in Firebase.
+    // 2. If a close match is found, return ONLY that stored answer exactly as written in Firebase.
+    const directFaqAnswer = matchFAQFromFirebase(promptText);
+    if (directFaqAnswer) {
+      setIsThinking(false);
+      if (speechQueue) {
+        speechQueue.addChunk(directFaqAnswer);
+        speechQueue.flush();
+      }
+
+      setActiveSession((curr) => {
+        if (!curr) return null;
+        const finalMsgs = curr.messages.map((m) => {
+          if (m.id === assistantMsgId) {
+            return {
+              ...m,
+              text: directFaqAnswer,
+              isStreaming: false,
+              aiUsed: 'firebase',
+            };
+          }
+          return m;
+        });
+        const updated = { ...curr, messages: finalMsgs };
+        saveSession(updated);
+        return updated;
+      });
+
+      if (!speechQueue && voiceConfig.autoSpeak) {
+        handlePlaySpeech(directFaqAnswer, currentLanguage.speechCode, assistantMsgId);
+      }
+
+      logConversationToFirebase(
+        promptText,
+        directFaqAnswer,
+        currentLanguage.label || currentLanguage.name
+      );
+      return;
+    }
+
     try {
       const promptToSend = isSearchActive
         ? `[Search Grounding Enabled] ${promptText}`
@@ -418,44 +460,52 @@ export default function App() {
       const reader = response.body.getReader();
       const decoder = new TextDecoder('utf-8');
       let streamedText = '';
+      let buffer = '';
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n\n');
+        buffer += decoder.decode(value, { stream: true });
+        const parts = buffer.split('\n\n');
+        buffer = parts.pop() || '';
 
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const jsonStr = line.replace('data: ', '').trim();
-            if (jsonStr === '[DONE]') break;
+        for (const rawPart of parts) {
+          const lines = rawPart.split('\n');
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed || trimmed.startsWith(':')) continue;
 
-            try {
-              const parsed = JSON.parse(jsonStr);
-              if (parsed.text) {
-                streamedText += parsed.text;
+            if (trimmed.startsWith('data: ')) {
+              const jsonStr = trimmed.replace('data: ', '').trim();
+              if (jsonStr === '[DONE]') break;
 
-                if (speechQueue) {
-                  speechQueue.addChunk(parsed.text);
-                }
+              try {
+                const parsed = JSON.parse(jsonStr);
+                if (parsed.text) {
+                  streamedText += parsed.text;
 
-                setSessions((prevSessions) => {
-                  return prevSessions.map((s) => {
-                    if (s.id === activeSession.id) {
-                      const msgs = s.messages.map((m) => {
-                        if (m.id === assistantMsgId) {
-                          return { ...m, text: streamedText, aiUsed: aiUsedType };
-                        }
-                        return m;
-                      });
-                      return { ...s, messages: msgs };
-                    }
-                    return s;
+                  if (speechQueue) {
+                    speechQueue.addChunk(parsed.text);
+                  }
+
+                  setSessions((prevSessions) => {
+                    return prevSessions.map((s) => {
+                      if (s.id === activeSession.id) {
+                        const msgs = s.messages.map((m) => {
+                          if (m.id === assistantMsgId) {
+                            return { ...m, text: streamedText, aiUsed: aiUsedType };
+                          }
+                          return m;
+                        });
+                        return { ...s, messages: msgs };
+                      }
+                      return s;
+                    });
                   });
-                });
-              }
-            } catch {}
+                }
+              } catch {}
+            }
           }
         }
       }
@@ -466,7 +516,8 @@ export default function App() {
 
       setIsThinking(false);
 
-      const finalAssistantMsgText = streamedText || 'Response received.';
+      const fallbackIfEmpty = findInstantFirebaseAnswer(promptText, currentLanguage.code || 'hi-IN') || 'ClickCraft डिजिटल मार्केटिंग: हमारी सर्विसेज़ (₹500 Ads, ₹5000 Website, ₹10000 Combo) और बिज़नेस ग्रोथ के लिए WhatsApp (+91 9376124893) पर संपर्क करें।';
+      const finalAssistantMsgText = streamedText.trim() || fallbackIfEmpty;
 
       // Deduct/Track free credits
       if (!isPremiumUser) {

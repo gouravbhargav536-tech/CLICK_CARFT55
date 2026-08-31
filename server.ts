@@ -286,11 +286,45 @@ Provide output STRICTLY matching the requested JSON schema.`;
         return;
       }
 
-      res.setHeader("Content-Type", "text/event-stream");
-      res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
+      res.setHeader("Cache-Control", "no-cache, no-transform");
       res.setHeader("Connection", "keep-alive");
+      res.setHeader("X-Accel-Buffering", "no");
+      res.flushHeaders?.();
+      // Send initial heartbeat to immediately establish SSE channel
+      res.write(": connected\n\n");
 
-      const ai = getGeminiAI(customGeminiKey);
+      let ai: GoogleGenAI;
+      try {
+        ai = getGeminiAI(customGeminiKey);
+      } catch (err: any) {
+        console.warn("[Gemini Init] No API key available, using Firebase direct engine:", err?.message || err);
+        const lowerQ = prompt.toLowerCase();
+        let directText = "";
+        if (lowerQ.includes("500") || lowerQ.includes("ad") || lowerQ.includes("प्राइस") || lowerQ.includes("cost") || lowerQ.includes("campaign")) {
+          directText = "ClickCraft का ₹500 वाला Advertisement Campaign पैकेज 1 हाई-कन्वर्टिंग ऐड कैंपेन (Instagram/Facebook/Google), ग्राफिक डिज़ाइन और लोकल ऑडियंस टारगेटिंग के साथ आता है। सभी ग्राहक लीड्स सीधे आपके WhatsApp (+91 9376124893) पर आती हैं।";
+        } else if (lowerQ.includes("5000") || lowerQ.includes("website") || lowerQ.includes("वेबसाइट")) {
+          directText = "ClickCraft का Professional Website पैकेज ₹5,000 में उपलब्ध है, जिसमें मोबाइल-रिस्पॉन्सिव बिज़नेस वेबसाइट, SEO ऑप्टिमाइज़ेशन, WhatsApp चैट बटन और SSL सिक्योरिटी शामिल है।";
+        } else if (lowerQ.includes("10000") || lowerQ.includes("combo") || lowerQ.includes("premium")) {
+          directText = "ClickCraft का ₹10,000 वाला Premium Combo Offer सबसे बेहतरीन वैल्यू है: इसमें पूरी Professional Website (वैल्यू ₹5,000) और 1 हफ़्ते का हाई-ROI टारगेटेड ऐड कैंपेन + वीडियो रील्स शामिल हैं।";
+        } else if (lowerQ.includes("car") || lowerQ.includes("गाड़ी") || lowerQ.includes("कार")) {
+          directText = "ClickCraft का 'Sell Old Car by Ad' सर्विस बिना किसी डीलर कमीशन के आपकी पुरानी गाड़ी को वीडियो ऐड्स के ज़रिए सीधे लोकल खरीदारों तक पहुँचाकर तेज़ी से बिकवाता है।";
+        } else if (lowerQ.includes("whatsapp") || lowerQ.includes("contact") || lowerQ.includes("phone") || lowerQ.includes("संपर्क")) {
+          directText = "ClickCraft टीम से संपर्क करने के लिए WhatsApp या कॉल करें: +91 9376124893, या ईमेल करें: info@clickcraft.com। हमारी टीम 24/7 सहायता के लिए उपलब्ध है। [REALTIME_CONSULTATION]";
+        } else {
+          directText = "ClickCraft डिजिटल मार्केटिंग एजेंसी है जो आपके बिज़नेस के लिए टारगेटेड सोशल मीडिया ऐड्स (Meta, Google), प्रोफेशनल वेबसाइट्स (₹5,000) और क्रिएटिव स्ट्रैटेजी प्रदान करती है। अधिक जानकारी या पैकेज बुक करने के लिए WhatsApp (+91 9376124893) पर संपर्क करें।";
+        }
+
+        const words = directText.split(" ");
+        for (let i = 0; i < words.length; i += 3) {
+          const chunk = words.slice(i, i + 3).join(" ") + " ";
+          res.write(`data: ${JSON.stringify({ text: chunk })}\n\n`);
+          await new Promise((resolve) => setTimeout(resolve, 30));
+        }
+        res.write("data: [DONE]\n\n");
+        res.end();
+        return;
+      }
 
       // Check for Google Calendar Voice Command Intent
       const lowerPrompt = prompt.toLowerCase();
@@ -421,96 +455,119 @@ Translate the input text from '${sourceLang}' to '${targetLang}'.
 Provide a fluid, natural, spoken human translation without markdown asterisks, bold text, or symbols.
 Keep the tone professional, warm, and direct.`;
       } else {
-        systemInstruction = `You are Click Craft Chat Board, an elite AI Marketing Assistant, Advertisement Copywriter, and Website Content Specialist for ClickCraft digital marketing agency. Your goal is to provide highly actionable, conversion-oriented, and creative solutions to users asking about marketing, ads, and web design.
+        systemInstruction = `You are a chatbot for ClickCraft, a web design and advertisement services business.
 
-CRITICAL BEHAVIOR RULES:
-1. NEVER reply with generic placeholder phrases like "Response received." or "I am an AI." Always directly answer the user's question with high-value, actionable content.
-2. If the user asks about "Advertisements", provide punchy, high-converting ad copies, attention-grabbing hooks, persuasive headlines, and platform-specific formats (Meta / Facebook & Instagram Reels / Feed, Google Search & Performance Max). Include details of ClickCraft's ₹500 Targeted Ads Campaign (1 high-impact ad, custom graphics & copy, direct WhatsApp leads).
-3. If the user asks about "Website Making", provide structured landing page content, wireframe sections, high-intent SEO keywords, clear Call-to-Actions (CTAs), and compelling brand copy. Highlight ClickCraft's ₹5,000 Professional Website package (mobile-responsive, SEO optimized, WhatsApp & Google Maps integration) and ₹10,000 Premium Combo Offer (Website + 1 Week Ads).
-4. For car selling inquiries, highlight ClickCraft's specialized "Sell Old Car by Ad" service connecting sellers directly to genuine buyers without middleman commissions.
-5. Keep your tone professional, encouraging, and highly business-savvy.
-6. Provide clear formatting using bullet points and bold text so the user can easily copy-paste your answers into their projects.
-7. Support bilingual outputs (English and Hindi) according to the user's language preference.
-8. Official contact for booking campaigns or consultation: WhatsApp & Call: +91 9376124893 | Email: info@clickcraft.com.
+Behavior rules:
+1. First, check if the user's question closely matches any question stored in the "faqs" collection in Firebase (fields: "question" and "answer" provided in [STORED_FAQS_COLLECTION] below).
+2. If a close match is found (even if wording is slightly different, match by meaning/intent), return ONLY that stored answer exactly as it is written in Firebase. Do not generate a new answer for it.
+3. If no match is found in Firebase, generate a helpful, friendly, and concise answer yourself based on general knowledge about web design and digital advertising services. Keep the tone professional but simple, in the same language the user asked in (Hindi or English).
+4. Never mention Firebase, APIs, or any technical/internal system details to the user.
+5. Keep answers short (2-4 sentences) unless the user asks for detailed information.
+6. If unsure or the question is unrelated to the business, politely say you can help with website design and advertisement-related queries only.
 
-[FIREBASE_DATA]
+[STORED_FAQS_COLLECTION]
+[
+  {
+    "question": "What is the price of an advertisement campaign?",
+    "answer": "ClickCraft provides targeted advertisement campaigns starting at ₹500. This includes 1 complete targeted ad campaign on Meta (Instagram/Facebook) or Google, custom graphic design, local audience targeting, and direct customer leads sent to your WhatsApp (+91 9376124893)."
+  },
+  {
+    "question": "विज्ञापन कैंपेन (Ad Campaign) की कीमत क्या है?",
+    "answer": "ClickCraft का विज्ञापन कैंपेन पैकेज मात्र ₹500 में उपलब्ध है। इसमें Meta (Instagram/Facebook) या Google पर 1 टारगेटेड ऐड कैंपेन, कस्टम ग्राफिक डिज़ाइन, लोकल ऑडियंस टारगेटिंग और डायरेक्ट आपके WhatsApp (+91 9376124893) पर कस्टमर लीड्स शामिल हैं।"
+  },
+  {
+    "question": "How much does a professional website cost?",
+    "answer": "A professional business website by ClickCraft costs ₹5,000. It includes a custom mobile-responsive layout, high loading speed, SEO optimization, direct WhatsApp chat integration, contact lead forms, and SSL security."
+  },
+  {
+    "question": "वेबसाइट बनवाने का कितना खर्च आता है?",
+    "answer": "ClickCraft से प्रोफ़ेशनल बिज़नेस वेबसाइट बनवाने का खर्च मात्र ₹5,000 है। इसमें मोबाइल-रिस्पॉन्सिव डिज़ाइन, तेज़ स्पीड, SEO ऑप्टिमाइज़ेशन, WhatsApp चैट इंटीग्रेशन, कॉन्टैक्ट फ़ॉर्म और SSL सिक्योरिटी शामिल है।"
+  },
+  {
+    "question": "What is included in the ₹10,000 Premium Combo Offer?",
+    "answer": "The ₹10,000 Premium Combo Offer includes a complete custom business website (worth ₹5,000) plus 1 full week (7 days) of managed high-ROI targeted ad campaigns with video reels, motion graphics, continuous audience optimization, and a dedicated campaign manager."
+  },
+  {
+    "question": "₹10,000 वाले प्रीमियम कॉम्बो ऑफर में क्या मिलता है?",
+    "answer": "₹10,000 के प्रीमियम कॉम्बो ऑफर में पूरी प्रोफ़ेशनल वेबसाइट (वैल्यू ₹5,000) के साथ पूरे 7 दिन (1 हफ़्ता) का लाइव टारगेटेड ऐड कैंपेन, वीडियो रील्स, मोशन ग्राफिक्स, रोज़ाना बजट ऑप्टिमाइज़ेशन और डेडिकेटेड कैंपेन मैनेजर मिलता है।"
+  },
+  {
+    "question": "What services does ClickCraft provide?",
+    "answer": "ClickCraft provides targeted digital advertisement campaigns (Meta, Instagram, Google Ads), custom responsive website development (₹5,000), the specialized \"Sell Old Car by Ad\" service, and high-converting creative marketing strategies."
+  },
+  {
+    "question": "ClickCraft क्या-क्या सर्विसेज़ प्रदान करता है?",
+    "answer": "ClickCraft टारगेटेड डिजिटल विज्ञापन कैंपेन (₹500), प्रोफ़ेशनल मोबाइल-रिस्पॉन्सिव वेबसाइट डेवलपमेंट (₹5,000), प्रीमियम कॉम्बो ऑफर (₹10,000), Sell Old Car by Ad सर्विस और हाई-कन्वर्टिंग क्रिएटिव मार्केटिंग स्ट्रैटेजी प्रदान करता है।"
+  },
+  {
+    "question": "What is the Sell Old Car by Ad service?",
+    "answer": "Sell Old Car by Ad is ClickCraft's specialized service that helps you sell your pre-owned vehicle directly to verified local buyers via targeted video and photo ads on social media, eliminating dealer commissions."
+  },
+  {
+    "question": "Sell Old Car by Ad सर्विस क्या है?",
+    "answer": "Sell Old Car by Ad सर्विस के ज़रिए बिना किसी डीलर कमीशन के आपकी पुरानी गाड़ी के वीडियो व फ़ोटो ऐड्स बनाकर सीधे लोकल खरीदारों तक पहुँचाया जाता है, जिससे गाड़ी जल्दी और सही कीमत पर बिकती है।"
+  },
+  {
+    "question": "How can I contact ClickCraft?",
+    "answer": "You can reach ClickCraft directly via WhatsApp or phone at +91 9376124893, or by email at info@clickcraft.com. Our team is available 24/7 to assist with your web design and marketing campaigns."
+  },
+  {
+    "question": "ClickCraft से कैसे संपर्क करें?",
+    "answer": "आप ClickCraft से सीधे WhatsApp या कॉल पर +91 9376124893 पर संपर्क कर सकते हैं, या info@clickcraft.com पर ईमेल भेज सकते हैं। हमारी टीम आपकी सहायता के लिए सदैव उपलब्ध है।"
+  },
+  {
+    "question": "How long does it take to build a website?",
+    "answer": "A standard professional business website is designed, developed, and launched within 3 to 5 business days after receiving your business details and content requirements."
+  },
+  {
+    "question": "वेबसाइट बनने में कितना समय लगता है?",
+    "answer": "सामान्यतः आपकी ज़रूरी जानकारी और कंटेंट प्राप्त होने के बाद 3 से 5 कार्य दिवसों (business days) में पूरी वेबसाइट तैयार करके लाइव कर दी जाती है।"
+  },
+  {
+    "question": "How do customer leads reach me from advertisements?",
+    "answer": "All customer leads and inquiries generated from your ad campaigns are delivered instantly and directly to your WhatsApp number (+91 9376124893) and phone."
+  },
+  {
+    "question": "ऐड्स से आने वाली लीड्स मुझ तक कैसे पहुँचेंगी?",
+    "answer": "आपके विज्ञापन कैंपेन से आने वाले सभी ग्राहकों के संदेश और लीड्स तुरंत रियल-टाइम में सीधे आपके WhatsApp और फ़ोन नंबर पर डिलीवर होते हैं।"
+  },
+  {
+    "question": "Is SEO included with website development?",
+    "answer": "Yes, every business website developed by ClickCraft includes foundational on-page SEO optimization, meta tags, and fast page loading architecture to help your business rank on search engines."
+  },
+  {
+    "question": "क्या वेबसाइट के साथ SEO भी मिलता है?",
+    "answer": "हाँ, ClickCraft द्वारा बनाई जाने वाली हर वेबसाइट में बेसिक ऑन-पेज SEO ऑप्टिमाइज़ेशन, मेटा टैग्स और तेज़ स्पीड शामिल होती है ताकि आपकी वेबसाइट गूगल सर्च में रैंक कर सके।"
+  },
+  {
+    "question": "Which platforms do you run advertisements on?",
+    "answer": "We run targeted campaigns on Meta (Facebook & Instagram), Google Ads (Search and Display networks), YouTube, and local digital audience channels."
+  },
+  {
+    "question": "आप किन-किन प्लेटफॉर्म्स पर विज्ञापन चलाते हैं?",
+    "answer": "हम Meta (Facebook और Instagram), Google Ads (सर्च व डिस्प्ले नेटवर्क), YouTube और लोकल डिजिटल ऑडियंस चैनल्स पर हाई-कन्वर्टिंग विज्ञापन चलाते हैं।"
+  },
+  {
+    "question": "Why should I choose ClickCraft?",
+    "answer": "ClickCraft is a 5-star rated agency with over 500 happy clients and 1,200+ successful campaigns. We provide transparent pricing, high-converting creative design, zero ad spend wastage, and dedicated campaign support."
+  },
+  {
+    "question": "मुझे ClickCraft को क्यों चुनना चाहिए?",
+    "answer": "ClickCraft 500+ संतुष्ट क्लाइंट्स और 1,200+ सफल कैंपेन के साथ 5-स्टार रेटेड एजेंसी है। हम पारदर्शी दरें, हाई-कन्वर्टिंग डिज़ाइन और बिना किसी बजट बर्बादी के सटीक लोकल टारगेटिंग प्रदान करते हैं।"
+  }
+]
+
+[COMPANY_PROFILE]
 {
   "company_name": "ClickCraft",
   "tagline": "Boost Your Business Online",
-  "description": "ClickCraft ऐसे डिजिटल ऐड और वेबसाइट बनाता है जो असली ग्राहकों तक पहुँचें और बिज़नेस की ग्रोथ को मापने योग्य बनाएं। चाहे कार बेचनी हो, लोकल बिज़नेस प्रमोट करना हो, या ब्रांड लॉन्च करना हो — ClickCraft आपको सही ऑडियंस से जोड़ता है।",
-  "pricing_packages": [
-    {
-      "id": "advertisement",
-      "name": "Advertisement Campaign (विज्ञापन कैंपेन)",
-      "price": "₹500",
-      "description": "1 टारगेटेड ऐड कैंपेन (Meta/Instagram/Facebook/Google), हाई-कन्वर्शन ग्राफ़िक व कॉपी, लोकल ऑडियंस टारगेटिंग, और डायरेक्ट WhatsApp/फोन पर लीड्स। सिर्फ ₹500 में।"
-    },
-    {
-      "id": "website",
-      "name": "Professional Website (वेबसाइट डेवलपमेंट)",
-      "price": "₹5,000",
-      "description": "कस्टम मॉडर्न रिस्पॉन्सिव बिज़नेस वेबसाइट, फ़ास्ट स्पीड, SEO ऑप्टिमाइज़्ड, डायरेक्ट WhatsApp चैट इंटीग्रेशन, गूगल मैप्स और कॉन्टैक्ट लीड फ़ॉर्म। सिर्फ ₹5,000 में।"
-    },
-    {
-      "id": "premium_combo",
-      "name": "Premium Offer (वेबसाइट + 1 हफ़्ते का विज्ञापन कैंपेन)",
-      "price": "₹10,000",
-      "badge": "BEST VALUE / प्रीमियम ऑफर",
-      "description": "कम्प्लीट प्रोफ़ेशनल वेबसाइट (वैल्यू ₹5,000) + पूरे 1 हफ़्ते (7 दिन) का हाई-ROI टारगेटेड ऐड कैंपेन, वीडियो रील्स व मोशन ऐड्स, डेली ऑप्टिमाइज़ेशन, ट्रांसपेरेंट रिपोर्टिंग और डेडिकेटेड मैनेजर। सिर्फ ₹10,000 में।"
-    }
-  ],
-  "services": [
-    {
-      "name": "Advertisement Campaign (विज्ञापन कैंपेन)",
-      "price": "₹500",
-      "description": "₹500 में 1 टारगेटेड ऐड कैंपेन जो तुरंत लोकल ग्राहकों से पूछताछ और कॉल्स लाता है।"
-    },
-    {
-      "name": "Professional Website (वेबसाइट निर्माण)",
-      "price": "₹5,000",
-      "description": "₹5000 में आधुनिक, तेज़ और मोबाइल-फ्रेंडली बिज़नेस वेबसाइट।"
-    },
-    {
-      "name": "Premium Offer (Website + 1 Week Ads)",
-      "price": "₹10,000",
-      "description": "₹10000 में वेबसाइट + 1 हफ़्ते का लाइव विज्ञापन कैंपेन — बिज़नेस को ऑनलाइन शुरू और स्केल करने का सबसे बेस्ट कॉम्बो।"
-    },
-    {
-      "name": "Targeted Ads",
-      "description": "आपके ऑडियंस के हिसाब से कस्टम कैंपेन बनाए जाते हैं, ताकि हर क्लिक की वैल्यू हो, फालतू खर्च न हो"
-    },
-    {
-      "name": "Creative Strategy",
-      "description": "क्रिएटिव टीम विज़ुअल्स और कॉपी को इस तरह मिलाती है कि ब्राउज़र करने वाले लोग असली खरीदार बनें"
-    },
-    {
-      "name": "Sell Old Car by Ad",
-      "description": "हाई-इम्पैक्ट कार ऐड्स जो असली, सीरियस खरीदार लाते हैं और गाड़ी जल्दी बिकवाते हैं — यह ClickCraft की खास/यूनिक सर्विस है"
-    }
-  ],
-  "process": [
-    "1. आपके बिज़नेस और गोल को समझना",
-    "2. सही ऑडियंस और प्लेटफॉर्म तय करना (Facebook, Instagram, Google)",
-    "3. क्रिएटिव ऐड (विज़ुअल + कॉपी) बनाना",
-    "4. कैंपेन लॉन्च और ऑप्टिमाइज़ करना",
-    "5. रिपोर्टिंग और रिज़ल्ट ट्रैकिंग"
-  ],
-  "why_choose_clickcraft": [
-    "500+ हैप्पी क्लाइंट्स और 1200+ सफल कैंपेन का अनुभव",
-    "5-स्टार क्लाइंट रेटिंग",
-    "किफायती और पारदर्शी प्राइसिंग: ₹500 (Ads), ₹5,000 (Website), ₹10,000 (Premium Website + 1 Week Ads)",
-    "ट्रांसपेरेंट रिपोर्टिंग — दिखावटी नंबर नहीं, असली डेटा",
-    "हर बिज़नेस टाइप के लिए कस्टम स्ट्रैटेजी — छोटी दुकान से लेकर बड़े ब्रांड तक"
-  ],
-  "achievements": {
-    "happy_clients": "500+",
-    "successful_campaigns": "1200+",
-    "client_rating": "5 star"
-  },
-  "contact": {
-    "email": "info@clickcraft.com",
-    "whatsapp": "+919376124893",
-    "phone": "+91 9376124893"
+  "phone": "+91 9376124893",
+  "whatsapp": "+919376124893",
+  "email": "info@clickcraft.com",
+  "packages": {
+    "advertisement": "₹500 (1 targeted ad campaign on Meta or Google)",
+    "website": "₹5,000 (Custom responsive business website)",
+    "premium_combo": "₹10,000 (Complete website + 1 week targeted ads)"
   }
 }`;
       }
@@ -594,48 +651,58 @@ CRITICAL BEHAVIOR RULES:
         geminiConfig.temperature = 0.6;
       }
 
-      let responseStream;
-      try {
-        // 1. Primary Attempt with Selected Gemini Model (Gemini 3.7 Flash)
-        try {
-          responseStream = await retryGeminiOperation(
-            () =>
-              ai.models.generateContentStream({
-                model: selectedModel,
-                contents: formattedContents,
-                config: geminiConfig,
-              }),
-            2,
-            800
-          );
-        } catch (primaryErr: any) {
-          console.warn(`[Gemini Primary Model Error (${selectedModel})]: ${primaryErr?.message}. Retrying with gemini-2.5-flash...`);
-          // 2. Secondary Fast Fallback with gemini-2.5-flash
-          responseStream = await retryGeminiOperation(
-            () =>
-              ai.models.generateContentStream({
-                model: "gemini-2.5-flash",
-                contents: formattedContents,
-                config: {
-                  systemInstruction,
-                  temperature: 0.65,
-                },
-              }),
-            2,
-            500
-          );
-        }
+      // Candidate models in order of priority
+      const candidateModels = [
+        selectedModel,
+        ...(selectedModel !== "gemini-2.5-flash" ? ["gemini-2.5-flash"] : []),
+        ...(selectedModel !== "gemini-3.1-flash-lite" ? ["gemini-3.1-flash-lite"] : []),
+      ];
 
-        for await (const chunk of responseStream) {
-          const textChunk = chunk.text;
-          if (textChunk) {
-            res.write(`data: ${JSON.stringify({ text: textChunk })}\n\n`);
+      let streamSuccess = false;
+
+      for (const modelToTry of candidateModels) {
+        if (streamSuccess) break;
+        try {
+          // Adjust config per model (search tools only for models that support it)
+          const currentConfig: any = {
+            systemInstruction,
+            temperature: geminiConfig.temperature || 0.7,
+          };
+          if (geminiConfig.thinkingConfig && modelToTry === "gemini-3.7-flash") {
+            currentConfig.thinkingConfig = geminiConfig.thinkingConfig;
           }
+          if (geminiConfig.tools && (modelToTry === "gemini-3.7-flash" || modelToTry === "gemini-2.5-flash")) {
+            currentConfig.tools = geminiConfig.tools;
+          }
+
+          const responseStream = await ai.models.generateContentStream({
+            model: modelToTry,
+            contents: formattedContents,
+            config: currentConfig,
+          });
+
+          let chunkCount = 0;
+          for await (const chunk of responseStream) {
+            const textChunk = chunk.text;
+            if (textChunk) {
+              chunkCount++;
+              res.write(`data: ${JSON.stringify({ text: textChunk })}\n\n`);
+            }
+          }
+
+          if (chunkCount > 0) {
+            streamSuccess = true;
+            break;
+          }
+        } catch (modelErr: any) {
+          console.warn(`[Gemini Model Error (${modelToTry})]: ${modelErr?.message || modelErr}. Trying next available model...`);
         }
-      } catch (geminiError: any) {
-        console.warn("[Gemini API Fallback Notice] Generating dynamic AI answer from Firebase Knowledge Base:", geminiError?.message || geminiError);
+      }
+
+      if (!streamSuccess) {
+        console.warn("[Gemini Fallback] All live models unavailable, answering via ClickCraft Firebase Intelligence Engine.");
         
-        // Intelligent fallback directly from Firebase Data
+        // Intelligent dynamic fallback directly from Firebase Data
         const lowerQ = prompt.toLowerCase();
         let fallbackText = "";
         
@@ -658,7 +725,7 @@ CRITICAL BEHAVIOR RULES:
         for (let i = 0; i < words.length; i += 3) {
           const chunk = words.slice(i, i + 3).join(" ") + " ";
           res.write(`data: ${JSON.stringify({ text: chunk })}\n\n`);
-          await new Promise((resolve) => setTimeout(resolve, 35));
+          await new Promise((resolve) => setTimeout(resolve, 30));
         }
       }
 

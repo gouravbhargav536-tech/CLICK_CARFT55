@@ -6,7 +6,6 @@ import {
   getDocs,
   collection,
   query,
-  orderBy,
   limit,
 } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
@@ -14,6 +13,126 @@ import firebaseConfig from '../../firebase-applet-config.json';
 // Initialize Firebase App
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 export const db = getFirestore(app);
+
+export interface FAQItem {
+  id?: string;
+  question: string;
+  answer: string;
+}
+
+// Master ClickCraft FAQs Collection Dataset stored in Firebase
+export const CLICKCRAFT_FIREBASE_FAQS: FAQItem[] = [
+  {
+    id: 'faq_ad_price_en',
+    question: 'What is the price of an advertisement campaign?',
+    answer: 'ClickCraft provides targeted advertisement campaigns starting at ₹500. This includes 1 complete targeted ad campaign on Meta (Instagram/Facebook) or Google, custom graphic design, local audience targeting, and direct customer leads sent to your WhatsApp (+91 9376124893).',
+  },
+  {
+    id: 'faq_ad_price_hi',
+    question: 'विज्ञापन कैंपेन (Ad Campaign) की कीमत क्या है?',
+    answer: 'ClickCraft का विज्ञापन कैंपेन पैकेज मात्र ₹500 में उपलब्ध है। इसमें Meta (Instagram/Facebook) या Google पर 1 टारगेटेड ऐड कैंपेन, कस्टम ग्राफिक डिज़ाइन, लोकल ऑडियंस टारगेटिंग और डायरेक्ट आपके WhatsApp (+91 9376124893) पर कस्टमर लीड्स शामिल हैं।',
+  },
+  {
+    id: 'faq_website_price_en',
+    question: 'How much does a professional website cost?',
+    answer: 'A professional business website by ClickCraft costs ₹5,000. It includes a custom mobile-responsive layout, high loading speed, SEO optimization, direct WhatsApp chat integration, contact lead forms, and SSL security.',
+  },
+  {
+    id: 'faq_website_price_hi',
+    question: 'वेबसाइट बनवाने का कितना खर्च आता है?',
+    answer: 'ClickCraft से प्रोफ़ेशनल बिज़नेस वेबसाइट बनवाने का खर्च मात्र ₹5,000 है। इसमें मोबाइल-रिस्पॉन्सिव डिज़ाइन, तेज़ स्पीड, SEO ऑप्टिमाइज़ेशन, WhatsApp चैट इंटीग्रेशन, कॉन्टैक्ट फ़ॉर्म और SSL सिक्योरिटी शामिल है।',
+  },
+  {
+    id: 'faq_combo_price_en',
+    question: 'What is included in the ₹10,000 Premium Combo Offer?',
+    answer: 'The ₹10,000 Premium Combo Offer includes a complete custom business website (worth ₹5,000) plus 1 full week (7 days) of managed high-ROI targeted ad campaigns with video reels, motion graphics, continuous audience optimization, and a dedicated campaign manager.',
+  },
+  {
+    id: 'faq_combo_price_hi',
+    question: '₹10,000 वाले प्रीमियम कॉम्बो ऑफर में क्या मिलता है?',
+    answer: '₹10,000 के प्रीमियम कॉम्बो ऑफर में पूरी प्रोफ़ेशनल वेबसाइट (वैल्यू ₹5,000) के साथ पूरे 7 दिन (1 हफ़्ता) का लाइव टारगेटेड ऐड कैंपेन, वीडियो रील्स, मोशन ग्राफिक्स, रोज़ाना बजट ऑप्टिमाइज़ेशन और डेडिकेटेड कैंपेन मैनेजर मिलता है।',
+  },
+  {
+    id: 'faq_services_all_en',
+    question: 'What services does ClickCraft provide?',
+    answer: 'ClickCraft provides targeted digital advertisement campaigns (Meta, Instagram, Google Ads), custom responsive website development (₹5,000), the specialized "Sell Old Car by Ad" service, and high-converting creative marketing strategies.',
+  },
+  {
+    id: 'faq_services_all_hi',
+    question: 'ClickCraft क्या-क्या सर्विसेज़ प्रदान करता है?',
+    answer: 'ClickCraft टारगेटेड डिजिटल विज्ञापन कैंपेन (₹500), प्रोफ़ेशनल मोबाइल-रिस्पॉन्सिव वेबसाइट डेवलपमेंट (₹5,000), प्रीमियम कॉम्बो ऑफर (₹10,000), Sell Old Car by Ad सर्विस और हाई-कन्वर्टिंग क्रिएटिव मार्केटिंग स्ट्रैटेजी प्रदान करता है।',
+  },
+  {
+    id: 'faq_sell_old_car_en',
+    question: 'What is the Sell Old Car by Ad service?',
+    answer: 'Sell Old Car by Ad is ClickCraft\'s specialized service that helps you sell your pre-owned vehicle directly to verified local buyers via targeted video and photo ads on social media, eliminating dealer commissions.',
+  },
+  {
+    id: 'faq_sell_old_car_hi',
+    question: 'Sell Old Car by Ad सर्विस क्या है?',
+    answer: 'Sell Old Car by Ad सर्विस के ज़रिए बिना किसी डीलर कमीशन के आपकी पुरानी गाड़ी के वीडियो व फ़ोटो ऐड्स बनाकर सीधे लोकल खरीदारों तक पहुँचाया जाता है, जिससे गाड़ी जल्दी और सही कीमत पर बिकती है।',
+  },
+  {
+    id: 'faq_contact_en',
+    question: 'How can I contact ClickCraft?',
+    answer: 'You can reach ClickCraft directly via WhatsApp or phone at +91 9376124893, or by email at info@clickcraft.com. Our team is available 24/7 to assist with your web design and marketing campaigns.',
+  },
+  {
+    id: 'faq_contact_hi',
+    question: 'ClickCraft से कैसे संपर्क करें?',
+    answer: 'आप ClickCraft से सीधे WhatsApp या कॉल पर +91 9376124893 पर संपर्क कर सकते हैं, या info@clickcraft.com पर ईमेल भेज सकते हैं। हमारी टीम आपकी सहायता के लिए सदैव उपलब्ध है।',
+  },
+  {
+    id: 'faq_website_time_en',
+    question: 'How long does it take to build a website?',
+    answer: 'A standard professional business website is designed, developed, and launched within 3 to 5 business days after receiving your business details and content requirements.',
+  },
+  {
+    id: 'faq_website_time_hi',
+    question: 'वेबसाइट बनने में कितना समय लगता है?',
+    answer: 'सामान्यतः आपकी ज़रूरी जानकारी और कंटेंट प्राप्त होने के बाद 3 से 5 कार्य दिवसों (business days) में पूरी वेबसाइट तैयार करके लाइव कर दी जाती है।',
+  },
+  {
+    id: 'faq_leads_delivery_en',
+    question: 'How do customer leads reach me from advertisements?',
+    answer: 'All customer leads and inquiries generated from your ad campaigns are delivered instantly and directly to your WhatsApp number (+91 9376124893) and phone.',
+  },
+  {
+    id: 'faq_leads_delivery_hi',
+    question: 'ऐड्स से आने वाली लीड्स मुझ तक कैसे पहुँचेंगी?',
+    answer: 'आपके विज्ञापन कैंपेन से आने वाले सभी ग्राहकों के संदेश और लीड्स तुरंत रियल-टाइम में सीधे आपके WhatsApp और फ़ोन नंबर पर डिलीवर होते हैं।',
+  },
+  {
+    id: 'faq_seo_included_en',
+    question: 'Is SEO included with website development?',
+    answer: 'Yes, every business website developed by ClickCraft includes foundational on-page SEO optimization, meta tags, and fast page loading architecture to help your business rank on search engines.',
+  },
+  {
+    id: 'faq_seo_included_hi',
+    question: 'क्या वेबसाइट के साथ SEO भी मिलता है?',
+    answer: 'हाँ, ClickCraft द्वारा बनाई जाने वाली हर वेबसाइट में बेसिक ऑन-पेज SEO ऑप्टिमाइज़ेशन, मेटा टैग्स और तेज़ स्पीड शामिल होती है ताकि आपकी वेबसाइट गूगल सर्च में रैंक कर सके।',
+  },
+  {
+    id: 'faq_platforms_en',
+    question: 'Which platforms do you run advertisements on?',
+    answer: 'We run targeted campaigns on Meta (Facebook & Instagram), Google Ads (Search and Display networks), YouTube, and local digital audience channels.',
+  },
+  {
+    id: 'faq_platforms_hi',
+    question: 'आप किन-किन प्लेटफॉर्म्स पर विज्ञापन चलाते हैं?',
+    answer: 'हम Meta (Facebook और Instagram), Google Ads (सर्च व डिस्प्ले नेटवर्क), YouTube और लोकल डिजिटल ऑडियंस चैनल्स पर हाई-कन्वर्टिंग विज्ञापन चलाते हैं।',
+  },
+  {
+    id: 'faq_why_choose_en',
+    question: 'Why should I choose ClickCraft?',
+    answer: 'ClickCraft is a 5-star rated agency with over 500 happy clients and 1,200+ successful campaigns. We provide transparent pricing, high-converting creative design, zero ad spend wastage, and dedicated campaign support.',
+  },
+  {
+    id: 'faq_why_choose_hi',
+    question: 'मुझे ClickCraft को क्यों चुनना चाहिए?',
+    answer: 'ClickCraft 500+ संतुष्ट क्लाइंट्स और 1,200+ सफल कैंपेन के साथ 5-स्टार रेटेड एजेंसी है। हम पारदर्शी दरें, हाई-कन्वर्टिंग डिज़ाइन और बिना किसी बजट बर्बादी के सटीक लोकल टारगेटिंग प्रदान करते हैं।',
+  },
+];
 
 // ClickCraft Comprehensive Training Dataset
 export const CLICKCRAFT_MASTER_TRAINING_DATA = [
@@ -201,19 +320,19 @@ Features:
 ];
 
 /**
- * Automatically seeds ClickCraft training data to Firebase Firestore
+ * Automatically seeds ClickCraft training data and FAQs to Firebase Firestore
  */
 export async function seedTrainingDataToFirestore(): Promise<{ success: boolean; count: number }> {
   try {
     let seededCount = 0;
 
-    // Seed master company profile
+    // 1. Seed master company profile
     const profileRef = doc(db, 'company_profile', 'clickcraft_master');
     await setDoc(profileRef, {
       companyName: 'ClickCraft',
       tagline: 'Boost Your Business Online',
       description:
-        'ClickCraft creates targeted digital ads that reach real customers and drive measurable business growth. From selling pre-owned cars to scaling local brands, ClickCraft delivers high-converting campaigns.',
+        'ClickCraft creates targeted digital ads and websites that reach real customers and drive measurable business growth. From selling pre-owned cars to scaling local brands, ClickCraft delivers high-converting campaigns.',
       whatsapp: '+919376124893',
       phone: '+91 9376124893',
       email: 'info@clickcraft.com',
@@ -223,19 +342,102 @@ export async function seedTrainingDataToFirestore(): Promise<{ success: boolean;
       updatedAt: new Date().toISOString(),
     });
 
-    // Seed individual training data documents
+    // 2. Seed official FAQs collection (Collection: faqs, Fields: question, answer)
+    for (const faq of CLICKCRAFT_FIREBASE_FAQS) {
+      const faqId = faq.id || `faq_${Math.abs(faq.question.split('').reduce((a, b) => ((a << 5) - a + b.charCodeAt(0)) | 0, 0))}`;
+      const faqRef = doc(db, 'faqs', faqId);
+      await setDoc(faqRef, {
+        question: faq.question,
+        answer: faq.answer,
+      });
+      seededCount++;
+    }
+
+    // 3. Seed individual training data documents
     for (const item of CLICKCRAFT_MASTER_TRAINING_DATA) {
       const docRef = doc(db, 'training_data', item.id);
       await setDoc(docRef, item);
       seededCount++;
     }
 
-    console.log(`[Firebase] Successfully synchronized ${seededCount} ClickCraft training records to Firestore!`);
+    console.log(`[Firebase] Successfully synchronized ${seededCount} ClickCraft training & FAQ records to Firestore!`);
     return { success: true, count: seededCount };
   } catch (error) {
-    console.warn('[Firebase] Training data sync notice:', error);
+    console.warn('[Firebase] Training & FAQ data sync notice:', error);
     return { success: false, count: 0 };
   }
+}
+
+/**
+ * Fetches all FAQ items from the 'faqs' collection in Firestore
+ */
+let cachedFAQs: FAQItem[] | null = null;
+export async function fetchFAQsFromFirestore(): Promise<FAQItem[]> {
+  try {
+    if (cachedFAQs && cachedFAQs.length > 0) return cachedFAQs;
+    const faqsCol = collection(db, 'faqs');
+    const q = query(faqsCol, limit(50));
+    const snapshot = await getDocs(q);
+    const docs = snapshot.docs.map((d) => ({
+      id: d.id,
+      question: d.data().question as string,
+      answer: d.data().answer as string,
+    }));
+    if (docs.length > 0) {
+      cachedFAQs = docs;
+      return docs;
+    }
+  } catch (err) {
+    console.warn('[Firebase FAQ] Notice fetching FAQs:', err);
+  }
+  return CLICKCRAFT_FIREBASE_FAQS;
+}
+
+/**
+ * Checks if the user's question closely matches any question stored in the "faqs" collection in Firebase.
+ * If a close match is found by meaning/intent, returns ONLY that stored answer exactly as written.
+ */
+export function matchFAQFromFirebase(userQuery: string, faqsList: FAQItem[] = CLICKCRAFT_FIREBASE_FAQS): string | null {
+  if (!userQuery || typeof userQuery !== 'string') return null;
+  const rawQ = userQuery.trim().toLowerCase();
+  
+  // Strip common punctuation
+  const cleanQ = rawQ.replace(/[?!.,;:()'"]/g, '').trim();
+  const qTokens = cleanQ.split(/\s+/).filter(Boolean);
+
+  let bestMatch: FAQItem | null = null;
+  let highestScore = 0;
+
+  for (const faq of faqsList) {
+    const faqQ = faq.question.toLowerCase().replace(/[?!.,;:()'"]/g, '').trim();
+    
+    // 1. Direct or Substring match
+    if (cleanQ === faqQ || cleanQ.includes(faqQ) || faqQ.includes(cleanQ)) {
+      return faq.answer;
+    }
+
+    // 2. Token overlap & semantic intent calculation
+    const faqTokens = faqQ.split(/\s+/).filter(Boolean);
+    let matchingTokens = 0;
+    for (const token of qTokens) {
+      if (token.length > 2 && faqTokens.some(ft => ft.includes(token) || token.includes(ft))) {
+        matchingTokens++;
+      }
+    }
+
+    const similarity = matchingTokens / Math.max(qTokens.length, faqTokens.length);
+    if (similarity > highestScore) {
+      highestScore = similarity;
+      bestMatch = faq;
+    }
+  }
+
+  // If close match found by meaning/intent (overlap >= 0.45 or minimum 2 strong keywords)
+  if (bestMatch && highestScore >= 0.45) {
+    return bestMatch.answer;
+  }
+
+  return null;
 }
 
 /**
@@ -280,12 +482,18 @@ export async function fetchTrainingDocsFromFirestore(): Promise<any[]> {
 }
 
 /**
- * Fast direct response generator directly from Firebase Knowledge Base (No API key needed)
+ * Fast direct response generator adhering to ClickCraft Behavior Rules (Firebase FAQs first)
  */
 export function findInstantFirebaseAnswer(rawQuery: string, lang = 'hi-IN'): string | null {
   if (!rawQuery || typeof rawQuery !== 'string') return null;
-  const q = rawQuery.toLowerCase().trim();
+  
+  // Rule 1 & 2: First check if user's question closely matches any question stored in "faqs" collection
+  const exactFaqMatch = matchFAQFromFirebase(rawQuery);
+  if (exactFaqMatch) {
+    return exactFaqMatch;
+  }
 
+  const q = rawQuery.toLowerCase().trim();
   const isHindi = lang.startsWith('hi') || /[\u0900-\u097F]/.test(rawQuery) || q.includes('kya') || q.includes('batao') || q.includes('kaise') || q.includes('kimat') || q.includes('paisa');
 
   // 1. ₹500 Ads Package

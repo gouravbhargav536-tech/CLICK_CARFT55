@@ -1,5 +1,25 @@
 {
   "entities": {
+    "FAQ": {
+      "title": "ClickCraft FAQ",
+      "description": "Standard business questions and exact answers for ClickCraft website design and advertisement services.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique FAQ identifier."
+        },
+        "question": {
+          "type": "string",
+          "description": "The user inquiry or FAQ question."
+        },
+        "answer": {
+          "type": "string",
+          "description": "The exact official answer stored in Firebase."
+        }
+      },
+      "required": ["question", "answer"]
+    },
     "TrainingData": {
       "title": "ClickCraft AI Training Data",
       "description": "Curated knowledge base, FAQs, and marketing strategies for training the ClickCraft AI assistant.",
@@ -154,6 +174,12 @@
     }
   },
   "firestore": {
+    "/faqs/{faqId}": {
+      "schema": {
+        "$ref": "#/entities/FAQ"
+      },
+      "description": "Collection of official FAQs with exact questions and answers."
+    },
     "/training_data/{docId}": {
       "schema": {
         "$ref": "#/entities/TrainingData"
