@@ -37,7 +37,7 @@ export const ServicesShowcaseCard: React.FC<ServicesShowcaseCardProps> = ({
             <ShoppingBag className="w-4 h-4" />
           </div>
           <div>
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+            <h4 className="text-[15px] font-bold font-script-headline text-white text-luminous-white tracking-wide flex items-center gap-1.5">
               <span>ClickCraft Services & Pricing</span>
               <span className="px-1.5 py-0.2 rounded text-[9px] bg-[#111418] text-[#D4A017] border border-[#D4A017]/40 font-semibold">
                 Official

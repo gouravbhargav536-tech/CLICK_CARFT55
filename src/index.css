@@ -174,3 +174,34 @@
   background: rgba(100, 116, 139, 0.5);
 }
 
+/* Calligraphic Script & Luxury Display Font Styles */
+.font-script-bold {
+  font-family: 'Dancing Script', 'Alex Brush', 'Great Vibes', cursive, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.font-script-headline {
+  font-family: 'Dancing Script', 'Great Vibes', 'Alex Brush', cursive, sans-serif;
+  font-weight: 700;
+}
+
+.font-calligraphy {
+  font-family: 'Great Vibes', 'Alex Brush', cursive;
+}
+
+/* Luminous High-Contrast White Glow Styles */
+.text-luminous-white {
+  color: #ffffff !important;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.8), 0 0 24px rgba(255, 255, 255, 0.4);
+}
+
+.text-bright-white {
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8), 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.text-script-glow {
+  text-shadow: 0 0 14px rgba(255, 255, 255, 0.7), 0 0 28px rgba(212, 160, 23, 0.3);
+}
+

@@ -30,9 +30,9 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
           🚀
         </div>
         <div>
-          <h1 className="font-bold text-sm sm:text-base tracking-tight text-[#ECECF1] flex items-center gap-2">
+          <h1 className="font-bold text-sm sm:text-base tracking-tight text-white font-script-headline text-luminous-white flex items-center gap-2">
             ClickCraft
-            <span className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/30">
+            <span className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/30 font-sans">
               AI Assistant
             </span>
           </h1>

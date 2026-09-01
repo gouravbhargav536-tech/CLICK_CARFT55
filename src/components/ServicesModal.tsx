@@ -182,7 +182,7 @@ export const ServicesModal: React.FC<ServicesModalProps> = ({
               <ShoppingBag className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white leading-tight">
+              <h2 className="text-[18px] sm:text-[20px] font-bold font-script-headline text-white text-luminous-white leading-tight">
                 ClickCraft Official Services & Pricing
               </h2>
               <p className="text-xs text-[#B0B0B0]">

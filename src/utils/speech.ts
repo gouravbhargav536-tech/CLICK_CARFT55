@@ -451,8 +451,8 @@ export async function playBrowserSpeech(
   const utterance = new SpeechSynthesisUtterance(cleanText);
   utterance.lang = 'hi-IN';
   
-  // Rate 0.92 (relaxed natural cadence), Pitch 1.02, Volume 1.0
-  utterance.rate = customOptions?.rate ?? 0.92;
+  // Rate 1.10 (fast, crisp, energetic cadence), Pitch 1.02, Volume 1.0
+  utterance.rate = customOptions?.rate ?? 1.10;
   utterance.pitch = customOptions?.pitch ?? 1.02;
   utterance.volume = customOptions?.volume ?? 1.0;
 
@@ -613,7 +613,7 @@ export async function playEdgeTTS(
       body: JSON.stringify({
         text: cleanText,
         voice: 'hi-IN-SwaraNeural',
-        rate: '-4%',
+        rate: '+10%',
         pitch: '+0Hz',
       }),
     });

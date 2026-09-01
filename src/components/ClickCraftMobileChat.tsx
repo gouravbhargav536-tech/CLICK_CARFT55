@@ -82,39 +82,47 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
   // Network connection status monitoring
   const { isOnline, justReconnected } = useNetworkStatus();
 
-  // Auto-typing animation for "How ClickCraft can help grow your business?"
-  const targetTypingText = "How ClickCraft can help grow your business?";
+  // Auto-typing animation for "Type something to start..." and business questions
+  const TYPING_PHRASES = [
+    "Type something to start...",
+    "How ClickCraft can help grow your business?",
+    "Ask about ₹500 Ads or ₹5,000 Websites...",
+    "Type something to start your campaign...",
+  ];
+  const [phraseIndex, setPhraseIndex] = useState(0);
   const [typedPlaceholder, setTypedPlaceholder] = useState("");
   const [isTypingForward, setIsTypingForward] = useState(true);
 
   useEffect(() => {
     if (inputText) return;
     let timeout: NodeJS.Timeout;
+    const currentTarget = TYPING_PHRASES[phraseIndex % TYPING_PHRASES.length];
 
     if (isTypingForward) {
-      if (typedPlaceholder.length < targetTypingText.length) {
+      if (typedPlaceholder.length < currentTarget.length) {
         timeout = setTimeout(() => {
-          setTypedPlaceholder(targetTypingText.slice(0, typedPlaceholder.length + 1));
-        }, 65);
+          setTypedPlaceholder(currentTarget.slice(0, typedPlaceholder.length + 1));
+        }, 55);
       } else {
         timeout = setTimeout(() => {
           setIsTypingForward(false);
-        }, 2200);
+        }, 2000);
       }
     } else {
       if (typedPlaceholder.length > 0) {
         timeout = setTimeout(() => {
-          setTypedPlaceholder(targetTypingText.slice(0, typedPlaceholder.length - 1));
-        }, 30);
+          setTypedPlaceholder(currentTarget.slice(0, typedPlaceholder.length - 1));
+        }, 25);
       } else {
         timeout = setTimeout(() => {
+          setPhraseIndex((prev) => (prev + 1) % TYPING_PHRASES.length);
           setIsTypingForward(true);
-        }, 500);
+        }, 400);
       }
     }
 
     return () => clearTimeout(timeout);
-  }, [typedPlaceholder, isTypingForward, inputText]);
+  }, [typedPlaceholder, isTypingForward, inputText, phraseIndex]);
 
   const handleBuyDirect = (service: ServicePackage) => {
     setIsServicesModalOpen(true);
@@ -191,12 +199,12 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
           {/* Assistant Title & Status */}
           <div className="flex flex-col text-left">
             <div className="flex items-center gap-1.5 leading-none">
-              <h1 className="text-[14.5px] font-bold text-white tracking-tight">
+              <h1 className="text-[17px] sm:text-[18px] font-bold font-script-headline text-white text-luminous-white tracking-wide">
                 ClickCraft
               </h1>
             </div>
             <div className="flex items-center gap-1.5 mt-0.5 leading-none">
-              <span className="text-[13.5px] font-bold text-white tracking-tight">
+              <span className="text-[14px] font-bold font-script-bold text-white text-bright-white tracking-wide">
                 Assistant
               </span>
               <span className="px-1.5 py-0.5 rounded-full text-[9.5px] font-bold bg-[#181C22] text-[#D4A017] border border-[#D4A017]/40 flex items-center gap-0.5">
@@ -309,10 +317,10 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
                     />
                   </div>
                   <div>
-                    <h2 className="text-sm font-bold text-white leading-tight">
+                    <h2 className="text-[17px] sm:text-[18px] font-bold font-script-headline text-white text-luminous-white leading-tight">
                       Hello! Welcome to ClickCraft.
                     </h2>
-                    <p className="text-[11px] text-[#B0B0B0] mt-0.5">
+                    <p className="text-[12.5px] font-medium font-script-bold text-white/90 text-bright-white mt-0.5">
                       How can I assist you with your marketing growth today?
                     </p>
                   </div>
@@ -357,7 +365,7 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
               {/* Live Auto-Typing Prompt Card */}
               <button
                 id="clickcraft-auto-typing-featured-card"
-                onClick={() => onSendMessage(targetTypingText)}
+                onClick={() => onSendMessage(typedPlaceholder || TYPING_PHRASES[0])}
                 className="w-full p-3 rounded-xl bg-[#111418] hover:bg-[#181C22] border border-[#D4A017]/70 hover:border-[#D4A017] transition-all flex items-center justify-between text-left group shadow-[0_0_14px_rgba(212,160,23,0.15)] active:scale-[0.99] cursor-pointer"
                 title="Click to ask this question"
               >
@@ -365,9 +373,9 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
                   <div className="w-6 h-6 rounded-lg bg-[#181C22] border border-[#D4A017]/40 flex items-center justify-center text-[#D4A017] shrink-0">
                     <Sparkles className="w-3.5 h-3.5" />
                   </div>
-                  <div className="flex items-center text-[13px] text-white font-medium truncate">
-                    <span className="truncate">{typedPlaceholder || targetTypingText}</span>
-                    <span className="inline-block w-1.5 h-3.5 bg-[#D4A017] ml-0.5 animate-pulse shrink-0" />
+                  <div className="flex items-center text-[15px] sm:text-[16px] font-bold font-script-bold text-white text-luminous-white truncate">
+                    <span className="truncate">{typedPlaceholder || TYPING_PHRASES[0]}</span>
+                    <span className="inline-block w-1.5 h-4 bg-[#D4A017] ml-0.5 animate-pulse shrink-0" />
                   </div>
                 </div>
                 <span className="text-[10.5px] font-semibold text-[#D4A017] px-2 py-0.5 rounded-full bg-[#181C22] border border-[#D4A017]/40 shrink-0 group-hover:bg-[#D4A017] group-hover:text-[#111418] transition-colors">
@@ -634,10 +642,10 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
             {inputText === '' && isOnline && (
               <div
                 onClick={() => inputRef.current?.focus()}
-                className="absolute left-4.5 pointer-events-none text-[13.5px] text-[#787878] flex items-center select-none overflow-hidden text-ellipsis whitespace-nowrap max-w-[calc(100%-60px)]"
+                className="absolute left-4.5 pointer-events-none text-[15.5px] sm:text-[16px] font-bold font-script-bold text-white text-luminous-white flex items-center select-none overflow-hidden text-ellipsis whitespace-nowrap max-w-[calc(100%-60px)]"
               >
-                <span>{typedPlaceholder || targetTypingText}</span>
-                <span className="inline-block w-1.5 h-3.5 bg-[#D4A017] ml-0.5 animate-pulse" />
+                <span>{typedPlaceholder || TYPING_PHRASES[0]}</span>
+                <span className="inline-block w-1.5 h-4 bg-[#D4A017] ml-0.5 animate-pulse shrink-0" />
               </div>
             )}
 

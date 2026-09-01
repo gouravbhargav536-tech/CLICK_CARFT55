@@ -86,7 +86,7 @@ async function startServer() {
   // Microsoft Edge Neural Text-to-Speech (Free, studio-grade 96kbps audio, ultra-natural Hindi Neural Swara/Madhur voice)
   app.post("/api/edge-tts", async (req, res) => {
     try {
-      const { text, voice = "hi-IN-SwaraNeural", rate = "-4%", pitch = "+0Hz" } = req.body;
+      const { text, voice = "hi-IN-SwaraNeural", rate = "+8%", pitch = "+0Hz" } = req.body;
       if (!text || typeof text !== "string" || !text.trim()) {
         res.status(400).json({ error: "Missing 'text' in request body." });
         return;
@@ -138,8 +138,8 @@ async function startServer() {
         // Automatically fallback to Edge TTS Swara Neural if no Google Cloud key is set!
         try {
           const tts = new MsEdgeTTS();
-          await tts.setMetadata("hi-IN-SwaraNeural", OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3);
-          const { audioStream } = tts.toStream(text.trim(), { rate: "-5%" });
+          await tts.setMetadata("hi-IN-SwaraNeural", OUTPUT_FORMAT.AUDIO_24KHZ_96KBITRATE_MONO_MP3);
+          const { audioStream } = tts.toStream(text.trim(), { rate: "+8%", pitch: "+0Hz" });
           const chunks: Buffer[] = [];
 
           audioStream.on("data", (chunk: Buffer) => {
@@ -176,7 +176,7 @@ async function startServer() {
             },
             audioConfig: {
               audioEncoding: "MP3",
-              speakingRate: 0.95,
+              speakingRate: 1.08,
               pitch: 0.0,
             },
           }),
