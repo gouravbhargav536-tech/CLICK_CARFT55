@@ -3,6 +3,7 @@ import path from "path";
 import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { createServer as createViteServer } from "vite";
 import dotenv from "dotenv";
+import { MsEdgeTTS, OUTPUT_FORMAT } from "msedge-tts";
 
 dotenv.config();
 
@@ -82,6 +83,43 @@ async function startServer() {
     });
   });
 
+  // Microsoft Edge Neural Text-to-Speech (Free, no API key required, ultra-natural Hindi Neural Swara/Madhur voice)
+  app.post("/api/edge-tts", async (req, res) => {
+    try {
+      const { text, voice = "hi-IN-SwaraNeural", rate = "-5%" } = req.body;
+      if (!text || typeof text !== "string" || !text.trim()) {
+        res.status(400).json({ error: "Missing 'text' in request body." });
+        return;
+      }
+
+      const tts = new MsEdgeTTS();
+      await tts.setMetadata(voice, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3);
+
+      const { audioStream } = tts.toStream(text.trim(), { rate });
+      const chunks: Buffer[] = [];
+
+      audioStream.on("data", (chunk: Buffer) => {
+        chunks.push(chunk);
+      });
+
+      audioStream.on("end", () => {
+        const audioBuffer = Buffer.concat(chunks);
+        const base64Audio = audioBuffer.toString("base64");
+        res.json({ audioContent: base64Audio });
+      });
+
+      audioStream.on("error", (err) => {
+        console.error("[Edge TTS Stream Error]:", err);
+        res.status(500).json({ error: "Error during Edge TTS synthesis." });
+      });
+    } catch (err: any) {
+      console.error("[Edge TTS Server Error]:", err);
+      res.status(500).json({
+        error: err?.message || "Internal server error during Edge TTS synthesis.",
+      });
+    }
+  });
+
   // Google Cloud Text-to-Speech API Endpoint (hi-IN-Wavenet-A)
   app.post(["/api/tts", "/api/cloud-tts"], async (req, res) => {
     try {
@@ -97,10 +135,32 @@ async function startServer() {
         process.env.GEMINI_API_KEY;
 
       if (!apiKey) {
-        res.status(500).json({
-          error: "GOOGLE_TTS_API_KEY is not configured on server.",
-        });
-        return;
+        // Automatically fallback to Edge TTS Swara Neural if no Google Cloud key is set!
+        try {
+          const tts = new MsEdgeTTS();
+          await tts.setMetadata("hi-IN-SwaraNeural", OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3);
+          const { audioStream } = tts.toStream(text.trim(), { rate: "-5%" });
+          const chunks: Buffer[] = [];
+
+          audioStream.on("data", (chunk: Buffer) => {
+            chunks.push(chunk);
+          });
+
+          audioStream.on("end", () => {
+            const audioBuffer = Buffer.concat(chunks);
+            res.json({ audioContent: audioBuffer.toString("base64") });
+          });
+
+          audioStream.on("error", (err) => {
+            res.status(500).json({ error: "Edge TTS fallback failed" });
+          });
+          return;
+        } catch (edgeErr) {
+          res.status(500).json({
+            error: "GOOGLE_TTS_API_KEY is not configured on server.",
+          });
+          return;
+        }
       }
 
       const ttsRes = await fetch(
@@ -126,11 +186,30 @@ async function startServer() {
       if (!ttsRes.ok) {
         const errText = await ttsRes.text();
         console.error("[Google Cloud TTS API Error]:", errText);
-        res.status(ttsRes.status).json({
-          error: "Failed to synthesize speech with Google Cloud TTS",
-          details: errText,
-        });
-        return;
+        // If Google Cloud fails, fallback to Edge TTS Neural voice
+        try {
+          const tts = new MsEdgeTTS();
+          await tts.setMetadata("hi-IN-SwaraNeural", OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3);
+          const { audioStream } = tts.toStream(text.trim(), { rate: "-5%" });
+          const chunks: Buffer[] = [];
+          audioStream.on("data", (chunk: Buffer) => chunks.push(chunk));
+          audioStream.on("end", () => {
+            res.json({ audioContent: Buffer.concat(chunks).toString("base64") });
+          });
+          audioStream.on("error", () => {
+            res.status(ttsRes.status).json({
+              error: "Failed to synthesize speech with Google Cloud TTS",
+              details: errText,
+            });
+          });
+          return;
+        } catch {
+          res.status(ttsRes.status).json({
+            error: "Failed to synthesize speech with Google Cloud TTS",
+            details: errText,
+          });
+          return;
+        }
       }
 
       const data: any = await ttsRes.json();

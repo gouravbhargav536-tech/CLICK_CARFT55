@@ -189,10 +189,14 @@ export async function setupMicrophoneAnalyzer(
   }
 }
 
-// Global configuration flag to switch between free browser speech and Google Cloud TTS (hi-IN-Wavenet-A)
+// Global configuration flag to switch between speech engines:
+// - USE_CLOUD_TTS = true: Uses Google Cloud Text-to-Speech (hi-IN-Wavenet-A)
+// - USE_EDGE_TTS = true: Uses Microsoft Edge Neural TTS (hi-IN-SwaraNeural, free, crystal-clear human voice)
+// - If both are false: Uses the browser's built-in SpeechSynthesis with the best available Hindi voice
 export const USE_CLOUD_TTS = false;
+export const USE_EDGE_TTS = true;
 
-// Audio instance for playing Google Cloud TTS base64 audio
+// Audio instance for playing cloud / Edge TTS base64 audio
 let activeCloudAudio: HTMLAudioElement | null = null;
 
 // Global voice cache & precache loader
@@ -470,10 +474,64 @@ export async function playBrowserSpeech(
 }
 
 /**
+ * Play text using Microsoft Edge Neural TTS (hi-IN-SwaraNeural / hi-IN-MadhurNeural)
+ * Produces hyper-realistic, human-like Hindi voice without requiring any API key.
+ */
+export async function playEdgeTTS(
+  text: string,
+  onStart?: () => void,
+  onEnd?: () => void,
+  onError?: (err: any) => void
+): Promise<void> {
+  try {
+    const response = await fetch('/api/edge-tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, voice: 'hi-IN-SwaraNeural', rate: '-5%' }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => '');
+      throw new Error(`Edge TTS failed with status ${response.status}: ${errorText}`);
+    }
+
+    const data = await response.json();
+    if (!data.audioContent) {
+      throw new Error('No audio content received from Edge TTS service.');
+    }
+
+    const audioUrl = `data:audio/mp3;base64,${data.audioContent}`;
+    const audio = new Audio(audioUrl);
+    activeCloudAudio = audio;
+
+    audio.onplay = () => {
+      if (onStart) onStart();
+    };
+
+    audio.onended = () => {
+      activeCloudAudio = null;
+      if (onEnd) onEnd();
+    };
+
+    audio.onerror = (e) => {
+      activeCloudAudio = null;
+      if (onError) onError(e);
+      if (onEnd) onEnd();
+    };
+
+    await audio.play();
+  } catch (err) {
+    activeCloudAudio = null;
+    throw err;
+  }
+}
+
+/**
  * Main function to speak Hindi text when user clicks "Listen".
- * Checks USE_CLOUD_TTS:
- * - If true: calls Google Cloud TTS (hi-IN-Wavenet-A), falling back to browser if unavailable.
- * - If false: uses browser SpeechSynthesis with the BEST Hindi voice (Google -> hi-IN -> hi).
+ * Priority cascade:
+ * 1. Google Cloud TTS (if USE_CLOUD_TTS is true)
+ * 2. Microsoft Edge Neural TTS (if USE_EDGE_TTS is true, hi-IN-SwaraNeural)
+ * 3. Browser SpeechSynthesis API with the BEST available Hindi voice
  */
 export async function speakHindi(
   text: string,
@@ -505,12 +563,21 @@ export async function speakHindi(
       await playCloudTTS(cleanText, onStart, onEnd, onError);
       return;
     } catch (cloudErr) {
-      console.warn('Google Cloud TTS failed, falling back to Browser SpeechSynthesis:', cloudErr);
-      // Fallback seamlessly to browser speech synthesis below
+      console.warn('Google Cloud TTS failed, falling back to Edge TTS / Browser:', cloudErr);
     }
   }
 
-  // 2. Browser SpeechSynthesis API with best Hindi voice
+  // 2. Microsoft Edge Neural TTS (Free, Ultra-Realistic Neural Hindi Voice)
+  if (USE_EDGE_TTS) {
+    try {
+      await playEdgeTTS(cleanText, onStart, onEnd, onError);
+      return;
+    } catch (edgeErr) {
+      console.warn('Edge TTS failed, falling back to Browser SpeechSynthesis:', edgeErr);
+    }
+  }
+
+  // 3. Browser SpeechSynthesis API with best Hindi voice
   await playBrowserSpeech(cleanText, onStart, onEnd, onError);
 }
 
