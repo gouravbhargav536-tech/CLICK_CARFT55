@@ -83,19 +83,19 @@ async function startServer() {
     });
   });
 
-  // Microsoft Edge Neural Text-to-Speech (Free, no API key required, ultra-natural Hindi Neural Swara/Madhur voice)
+  // Microsoft Edge Neural Text-to-Speech (Free, studio-grade 96kbps audio, ultra-natural Hindi Neural Swara/Madhur voice)
   app.post("/api/edge-tts", async (req, res) => {
     try {
-      const { text, voice = "hi-IN-SwaraNeural", rate = "-5%" } = req.body;
+      const { text, voice = "hi-IN-SwaraNeural", rate = "-4%", pitch = "+0Hz" } = req.body;
       if (!text || typeof text !== "string" || !text.trim()) {
         res.status(400).json({ error: "Missing 'text' in request body." });
         return;
       }
 
       const tts = new MsEdgeTTS();
-      await tts.setMetadata(voice, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3);
+      await tts.setMetadata(voice, OUTPUT_FORMAT.AUDIO_24KHZ_96KBITRATE_MONO_MP3);
 
-      const { audioStream } = tts.toStream(text.trim(), { rate });
+      const { audioStream } = tts.toStream(text.trim(), { rate, pitch });
       const chunks: Buffer[] = [];
 
       audioStream.on("data", (chunk: Buffer) => {

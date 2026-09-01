@@ -435,6 +435,12 @@ export async function playBrowserSpeech(
     return;
   }
 
+  const cleanText = normalizeHindiTextForTTS(text);
+  if (!cleanText) {
+    if (onEnd) onEnd();
+    return;
+  }
+
   try {
     window.speechSynthesis.cancel();
   } catch {}
@@ -442,12 +448,12 @@ export async function playBrowserSpeech(
   const voices = await getBrowserVoices();
   const bestVoice = getBestHindiVoice(voices);
 
-  const utterance = new SpeechSynthesisUtterance(text);
+  const utterance = new SpeechSynthesisUtterance(cleanText);
   utterance.lang = 'hi-IN';
   
-  // Rate 0.95 (slightly slower sounds much more natural), Pitch 1, Volume 1
-  utterance.rate = customOptions?.rate ?? 0.95;
-  utterance.pitch = customOptions?.pitch ?? 1.0;
+  // Rate 0.92 (relaxed natural cadence), Pitch 1.02, Volume 1.0
+  utterance.rate = customOptions?.rate ?? 0.92;
+  utterance.pitch = customOptions?.pitch ?? 1.02;
   utterance.volume = customOptions?.volume ?? 1.0;
 
   if (bestVoice) {
@@ -474,6 +480,117 @@ export async function playBrowserSpeech(
 }
 
 /**
+ * Converts English/Hinglish digital marketing terms, currency symbols, phone numbers,
+ * and bullet points into phonetically rich conversational Hindi with natural pauses.
+ */
+export function normalizeHindiTextForTTS(rawText: string): string {
+  if (!rawText || typeof rawText !== 'string') return '';
+
+  let t = rawText
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/\[REALTIME_DATA_NEEDED\]/g, '')
+    .replace(/\[REALTIME_CONSULTATION\]/g, '')
+    .replace(/https?:\/\/[^\s]+/g, 'लिंक')
+    .replace(/\[(.*?)\]\((.*?)\)/g, '$1')
+    .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}]/gu, '')
+    .replace(/[*#_~`>]/g, ' ');
+
+  // 1. Phone number natural conversational pacing (9376124893 -> 93, 76, 12, 48, 93)
+  t = t.replace(/(?:\+91[\s-]*)?([6-9]\d{1})[\s-]?(\d{2})[\s-]?(\d{2})[\s-]?(\d{2})[\s-]?(\d{2})/g, '$1, $2, $3, $4, $5');
+
+  // 2. Specific Indian Currency conversions into natural Hindi words
+  t = t.replace(/(?:₹|Rs\.?|INR)\s*500\b/gi, 'पाँच सौ रुपये');
+  t = t.replace(/(?:₹|Rs\.?|INR)\s*999\b/gi, 'नौ सौ निन्यानवे रुपये');
+  t = t.replace(/(?:₹|Rs\.?|INR)\s*1000\b/gi, 'एक हज़ार रुपये');
+  t = t.replace(/(?:₹|Rs\.?|INR)\s*1499\b/gi, 'चौदह सौ निन्यानवे रुपये');
+  t = t.replace(/(?:₹|Rs\.?|INR)\s*1999\b/gi, 'उन्नीस सौ निन्यानवे रुपये');
+  t = t.replace(/(?:₹|Rs\.?|INR)\s*2000\b/gi, 'दो हज़ार रुपये');
+  t = t.replace(/(?:₹|Rs\.?|INR)\s*2499\b/gi, 'चौबीस सौ निन्यानवे रुपये');
+  t = t.replace(/(?:₹|Rs\.?|INR)\s*2999\b/gi, 'उनतीस सौ निन्यानवे रुपये');
+  t = t.replace(/(?:₹|Rs\.?|INR)\s*4999\b/gi, 'चार हज़ार नौ सौ निन्यानवे रुपये');
+  t = t.replace(/(?:₹|Rs\.?|INR)\s*5000\b/gi, 'पाँच हज़ार रुपये');
+  t = t.replace(/(?:₹|Rs\.?|INR)\s*9999\b/gi, 'नौ हज़ार नौ सौ निन्यानवे रुपये');
+  t = t.replace(/(?:₹|Rs\.?|INR)\s*10000\b/gi, 'दस हज़ार रुपये');
+  t = t.replace(/(?:₹|Rs\.?|INR)\s*(\d+)/gi, '$1 रुपये');
+  t = t.replace(/(\d+)\s*\/-/g, '$1 रुपये');
+
+  // 3. Percentage and common terms
+  t = t.replace(/\b100%/g, 'सौ प्रतिशत');
+  t = t.replace(/\b(\d+)%/g, '$1 प्रतिशत');
+  t = t.replace(/\b24\/7\b/g, 'चौबीसों घंटे');
+
+  // 4. Marketing and digital branding terms to authentic Hindi pronunciation
+  const phoneticMap: [RegExp, string][] = [
+    [/\bClickCraft\b/gi, 'क्लिक-क्राफ्ट'],
+    [/\bWhatsApp\b/gi, 'व्हाट्सएप'],
+    [/\bInstagram\b/gi, 'इंस्टाग्राम'],
+    [/\bFacebook\b/gi, 'फेसबुक'],
+    [/\bMeta\b/gi, 'मेटा'],
+    [/\bGoogle\b/gi, 'गूगल'],
+    [/\bAds\b/gi, 'ऐड्स'],
+    [/\bAd\b/gi, 'ऐड'],
+    [/\bWebsites\b/gi, 'वेबसाइट्स'],
+    [/\bWebsite\b/gi, 'वेबसाइट'],
+    [/\bPackage\b/gi, 'पैकेज'],
+    [/\bPackages\b/gi, 'पैकेजेस'],
+    [/\bCampaigns\b/gi, 'कैंपेन्स'],
+    [/\bCampaign\b/gi, 'कैंपेन'],
+    [/\bTargeted\b/gi, 'टारगेटेड'],
+    [/\bDigital Marketing\b/gi, 'डिजिटल मार्केटिंग'],
+    [/\bGraphic Design\b/gi, 'ग्राफिक डिज़ाइन'],
+    [/\bGraphics\b/gi, 'ग्राफिक्स'],
+    [/\bGraphic\b/gi, 'ग्राफिक'],
+    [/\bOnline\b/gi, 'ऑनलाइन'],
+    [/\bLeads\b/gi, 'लीड्स'],
+    [/\bLead\b/gi, 'लीड'],
+    [/\bROI\b/gi, 'आर ओ आई'],
+    [/\bSEO\b/gi, 'एस ई ओ'],
+    [/\bLive\b/gi, 'लाइव'],
+    [/\bSupport\b/gi, 'सपोर्ट'],
+    [/\bFeatures\b/gi, 'फीचर्स'],
+    [/\bFeature\b/gi, 'फीचर'],
+    [/\bBusiness\b/gi, 'बिजनेस'],
+    [/\bClients\b/gi, 'क्लाइंट्स'],
+    [/\bClient\b/gi, 'क्लाइंट'],
+    [/\bPortfolio\b/gi, 'पोर्टफोलियो'],
+    [/\bDomain\b/gi, 'डोमेन'],
+    [/\bHosting\b/gi, 'होस्टिंग'],
+    [/\bSSL\b/gi, 'एस एस एल'],
+    [/\bFree\b/gi, 'फ्री'],
+    [/\bFast\b/gi, 'फास्ट'],
+    [/\bSpeed\b/gi, 'स्पीड'],
+    [/\bAnalytics\b/gi, 'एनालिटिक्स'],
+    [/\bCall\b/gi, 'कॉल'],
+    [/\bMessage\b/gi, 'मैसेज'],
+    [/\bSetup\b/gi, 'सेटअप'],
+    [/\bPremium\b/gi, 'प्रीमियम'],
+    [/\bStarter\b/gi, 'स्टार्टर'],
+    [/\bStandard\b/gi, 'स्टैंडर्ड'],
+    [/\bCustom\b/gi, 'कस्टम'],
+    [/\bLogo\b/gi, 'लोगो'],
+    [/\bBanner\b/gi, 'बैनर'],
+    [/\bBanners\b/gi, 'बैनर्स'],
+    [/\bVideo\b/gi, 'वीडियो'],
+    [/\bReels\b/gi, 'रील्स'],
+    [/\bPost\b/gi, 'पोस्ट'],
+    [/\bPosts\b/gi, 'पोस्ट्स'],
+  ];
+
+  for (const [pattern, replacement] of phoneticMap) {
+    t = t.replace(pattern, replacement);
+  }
+
+  // 5. Natural spacing for punctuation, slashes, and bullet points
+  t = t.replace(/\s*\/\s*/g, ' या ');
+  t = t.replace(/[:|]/g, ', ');
+  t = t.replace(/^\s*[-•*]\s*/gm, ' ');
+  t = t.replace(/\n+/g, '। ');
+  t = t.replace(/\s+/g, ' ').trim();
+
+  return t;
+}
+
+/**
  * Play text using Microsoft Edge Neural TTS (hi-IN-SwaraNeural / hi-IN-MadhurNeural)
  * Produces hyper-realistic, human-like Hindi voice without requiring any API key.
  */
@@ -484,10 +601,21 @@ export async function playEdgeTTS(
   onError?: (err: any) => void
 ): Promise<void> {
   try {
+    const cleanText = normalizeHindiTextForTTS(text);
+    if (!cleanText) {
+      if (onEnd) onEnd();
+      return;
+    }
+
     const response = await fetch('/api/edge-tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, voice: 'hi-IN-SwaraNeural', rate: '-5%' }),
+      body: JSON.stringify({
+        text: cleanText,
+        voice: 'hi-IN-SwaraNeural',
+        rate: '-4%',
+        pitch: '+0Hz',
+      }),
     });
 
     if (!response.ok) {
@@ -529,8 +657,8 @@ export async function playEdgeTTS(
 /**
  * Main function to speak Hindi text when user clicks "Listen".
  * Priority cascade:
- * 1. Google Cloud TTS (if USE_CLOUD_TTS is true)
- * 2. Microsoft Edge Neural TTS (if USE_EDGE_TTS is true, hi-IN-SwaraNeural)
+ * 1. Microsoft Edge Neural TTS (if USE_EDGE_TTS is true, hi-IN-SwaraNeural - ultra natural)
+ * 2. Google Cloud TTS (if USE_CLOUD_TTS is true)
  * 3. Browser SpeechSynthesis API with the BEST available Hindi voice
  */
 export async function speakHindi(
@@ -541,39 +669,30 @@ export async function speakHindi(
 ): Promise<void> {
   stopSpeech();
 
-  // Strip code blocks, markdown tags, emojis, and brackets for natural, fluid speech flow
-  const cleanText = text
-    .replace(/```[\s\S]*?```/g, '')
-    .replace(/\[REALTIME_DATA_NEEDED\]/g, '')
-    .replace(/\[REALTIME_CONSULTATION\]/g, '')
-    .replace(/[*#_~`>]/g, '')
-    .replace(/\[(.*?)\]\((.*?)\)/g, '$1')
-    .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}]/gu, '')
-    .replace(/\s+/g, ' ')
-    .trim();
+  const cleanText = normalizeHindiTextForTTS(text);
 
   if (!cleanText) {
     if (onEnd) onEnd();
     return;
   }
 
-  // 1. Google Cloud Text-to-Speech (WaveNet) if config flag is enabled
-  if (USE_CLOUD_TTS) {
-    try {
-      await playCloudTTS(cleanText, onStart, onEnd, onError);
-      return;
-    } catch (cloudErr) {
-      console.warn('Google Cloud TTS failed, falling back to Edge TTS / Browser:', cloudErr);
-    }
-  }
-
-  // 2. Microsoft Edge Neural TTS (Free, Ultra-Realistic Neural Hindi Voice)
+  // 1. Microsoft Edge Neural TTS (Free, Studio-Quality 96kbps Neural Hindi Voice)
   if (USE_EDGE_TTS) {
     try {
       await playEdgeTTS(cleanText, onStart, onEnd, onError);
       return;
     } catch (edgeErr) {
-      console.warn('Edge TTS failed, falling back to Browser SpeechSynthesis:', edgeErr);
+      console.warn('Edge TTS failed, falling back to Cloud / Browser:', edgeErr);
+    }
+  }
+
+  // 2. Google Cloud Text-to-Speech (WaveNet) if config flag is enabled
+  if (USE_CLOUD_TTS) {
+    try {
+      await playCloudTTS(cleanText, onStart, onEnd, onError);
+      return;
+    } catch (cloudErr) {
+      console.warn('Google Cloud TTS failed, falling back to Browser SpeechSynthesis:', cloudErr);
     }
   }
 
