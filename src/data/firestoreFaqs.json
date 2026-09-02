@@ -718,5 +718,149 @@
     "answer_en": "Almost every business benefits from being visible online today — even a small, low-budget test campaign can show you real results within weeks. Tell me about your business and I can share what usually works for businesses like yours.",
     "answer_hi": "आज लगभग हर बिज़नेस को ऑनलाइन दिखने से फायदा होता है — छोटा, कम-बजट test campaign भी हफ्तों में असली रिज़ल्ट दिखा सकता है। अपने बिज़नेस के बारे में बताइए, मैं सुझाव दे सकता/सकती हूँ।",
     "keywords": ["mere business ke liye kaam karega kya", "sure nhi hu digital marketing kaam karegi"]
+  },
+  {
+    "id": 91,
+    "question_en": "What are your timings and availability? Do you work on weekends?",
+    "question_hi": "आपकी टाइमिंग क्या है और कब उपलब्ध रहते हैं? क्या वीकेंड पर काम करते हैं?",
+    "answer_en": "Hum bilkul available hain! ClickCraft ki team Monday se Saturday, morning 10 AM se shaam 7 PM tak active rehti hai. Waise agar koi urgent requirement ho, toh aap weekend pe bhi message chhod sakte hain, hum jitna jaldi ho sake revert karenge. Aapko kis service ke baare mein baat karni hai?",
+    "answer_hi": "हम बिल्कुल उपलब्ध हैं! ClickCraft की टीम सोमवार से शनिवार, सुबह 10 बजे से शाम 7 बजे तक एक्टिव रहती है। वीकेंड पर भी आप मैसेज छोड़ सकते हैं, हम जल्द से जल्द रिस्पॉन्स करेंगे। आप किस सर्विस के बारे में बात करना चाहते हैं?",
+    "keywords": ["aap kab available ho", "office timing kya hai", "weekend pe kaam karte ho", "timing kya h", "kab khulta h", "opening hours", "working hours", "available timing"]
+  },
+  {
+    "id": 92,
+    "question_en": "Where are you located? Is work done online or do you visit?",
+    "question_hi": "आप कहाँ से हैं? क्या काम ऑनलाइन होता है या विज़िट भी करते हैं?",
+    "answer_en": "Hum ek 100% online digital marketing agency hain, isliye aap India ke kisi bhi kone mein hon, hum smoothly kaam kar sakte hain. Zoom ya Google Meet pe saari discussions ho jaati hain, toh visit karne ki zaroorat hi nahi padti. Aap abhi kis city se baat kar rahe hain?",
+    "answer_hi": "हम एक 100% ऑनलाइन डिजिटल मार्केटिंग एजेंसी हैं, इसलिए आप भारत के किसी भी कोने में हों, हम आसानी से काम कर सकते हैं। Zoom या Google Meet पर सारी चर्चा हो जाती है, इसलिए विज़िट की ज़रूरत नहीं पड़ती। आप किस शहर से हैं?",
+    "keywords": ["aap kahan se ho", "kya online kaam hota hai", "visit bhi karte ho", "location kya hai", "address kya hai", "kaha rehte ho", "office kahan h", "where are you located"]
+  },
+  {
+    "id": 93,
+    "question_en": "Do you only work in your local city or anywhere?",
+    "question_hi": "क्या आप सिर्फ अपने शहर में काम करते हैं या कहीं भी कर सकते हैं?",
+    "answer_en": "Hum pan-India aur globally kaam karte hain! Digital marketing ki yahi toh khoobsurati hai. ClickCraft kisi ek city tak limited nahi hai, hum kahin bhi aapke business ko online le ja sakte hain. Aapka business kis area ya city ko target kar raha hai?",
+    "answer_hi": "हम पूरे भारत (pan-India) और ग्लोबली काम करते हैं! ClickCraft किसी एक शहर तक सीमित नहीं है, हम कहीं भी आपके बिज़नेस को ऑनलाइन ले जा सकते हैं। आपका बिज़नेस किस एरिया या शहर को टारगेट कर रहा है?",
+    "keywords": ["kya sirf apne city mein kaam karte ho", "kahin bhi kar sakte ho", "service area kya hai", "pan india kaam", "all india service", "other states me kaam"]
+  },
+  {
+    "id": 94,
+    "question_en": "What is included in the website and ads packages?",
+    "question_hi": "वेबसाइट और ऐड्स पैकेज में क्या-क्या शामिल है?",
+    "answer_en": "Website package mein aapko custom design, mobile-responsive layouts, basic SEO setup, domain/hosting integration, aur contact forms milte hain. Ads package mein hum campaign setup, keyword research, creative ad graphics, regular optimization, aur weekly performance reports handle karte hain. Aapko website banwani hai ya business ke liye ads chalane hain?",
+    "answer_hi": "वेबसाइट पैकेज में आपको कस्टम डिज़ाइन, मोबाइल-रिस्पॉन्सिव लेआउट, बेसिक SEO, डोमेन/होस्टिंग इंटीग्रेशन और कॉन्टैक्ट फॉर्म्स मिलते हैं। ऐड्स पैकेज में कैंपेन सेटअप, कीवर्ड रिसर्च, क्रिएटिव ऐड ग्राफिक्स और वीकली रिपोर्ट शामिल हैं। आपको वेबसाइट बनवानी है या ऐड्स चलवाने हैं?",
+    "keywords": ["website mein kya kya milega", "ads package mein kya include hai", "whats included in website", "whats included in ads", "package inclusions", "package me kya milta h"]
+  },
+  {
+    "id": 95,
+    "question_en": "Can you show your past work, portfolio or sample websites?",
+    "question_hi": "क्या आप पिछला काम, पोर्टफोलियो या सैंपल वेबसाइट दिखा सकते हैं?",
+    "answer_en": "Bilkul, humne pehle bhi kaafi awesome projects pe kaam kiya hai! ClickCraft ne jo websites design ki hain aur jo active ad campaigns hain, unke samples aur live portfolio main aapko yahan share kar deta hoon. Ek baar aap dekh lijiye ki hamara kaam aapko kaisa lagta hai! [SAMPLE_IMAGE: https://i.postimg.cc/66fRTs5L/web-design-transformation.jpg]",
+    "answer_hi": "बिल्कुल, हमने पहले भी कई बेहतरीन प्रोजेक्ट्स पर काम किया है! ClickCraft की डिज़ाइन की हुई वेबसाइट्स और ऐड्स के लाइव सैंपल्स आप देख सकते हैं। [SAMPLE_IMAGE: https://i.postimg.cc/66fRTs5L/web-design-transformation.jpg]",
+    "keywords": ["pehle ka kaam dikhao", "sample website dikhao", "portfolio dikhao", "sample work", "previous work", "past work", "work samples"]
+  },
+  {
+    "id": 96,
+    "question_en": "Is there a guarantee on results? What if I don't like the work?",
+    "question_hi": "क्या रिज़ल्ट की गारंटी है? अगर काम पसंद न आए तो क्या होगा?",
+    "answer_en": "Hum fake promises ya rigid guarantees toh nahi dete, par solid performance zaroor deliver karte hain. Marketing mein cheezein test aur optimize karni padti hain. Agar shuru mein koi design ya ad pasand na aaye, toh hum use tab tak improve karte hain jab tak aap fully satisfied na hon. ClickCraft aapke paise ki poori value ensure karega.",
+    "answer_hi": "हम झूठे वादे या गारंटी तो नहीं देते, पर बेहतरीन परफॉर्मेंस ज़रूर डिलीवर करते हैं। अगर शुरू में कोई डिज़ाइन या ऐड पसंद न आए, तो हम उसे तब तक सुधारते हैं जब तक आप पूरी तरह संतुष्ट न हों। ClickCraft आपके पैसे की पूरी वैल्यू सुनिश्चित करेगा।",
+    "keywords": ["result ki guarantee hai kya", "kaam pasand na aaye to kya hoga", "guarantee of results", "satisfaction guarantee", "pasand nhi aya to"]
+  },
+  {
+    "id": 97,
+    "question_en": "How many years of experience do you have and how many clients?",
+    "question_hi": "आपको कितने साल का अनुभव है और कितने क्लाइंट्स हैं?",
+    "answer_en": "ClickCraft ki team pichle kaafi time se digital space mein active hai. Humne e-commerce brands se lekar local businesses tak, kaafi clients ke liye websites aur high-converting ads setup kiye hain. Aap apne business ke liye kya goals achieve karna chahte hain?",
+    "answer_hi": "ClickCraft की टीम लंबे समय से डिजिटल स्पेस में एक्टिव है। हमने ई-कॉमर्स ब्रांड्स से लेकर लोकल बिज़नेस तक कई क्लाइंट्स के लिए वेबसाइट्स और हाई-कन्वर्टिंग ऐड्स सेटअप किए हैं। आप अपने बिज़नेस के लिए क्या लक्ष्य हासिल करना चाहते हैं?",
+    "keywords": ["kitne saal se kaam kar rahe ho", "kitne clients hain", "experience kitna hai", "how many clients", "years of experience", "kitna purana business h"]
+  },
+  {
+    "id": 98,
+    "question_en": "How long will it take to build a website and when will ads start?",
+    "question_hi": "वेबसाइट बनाने में कितना समय लगेगा और ऐड्स कब से शुरू होंगे?",
+    "answer_en": "Ek standard professional website banane mein hume 7 se 10 days lagte hain. Jahan tak ads ki baat hai, strategy aur setup ready hone ke baad 24 se 48 hours mein aapke Google ya Social Media ads live ho jaate hain. Aapko apna project kab tak launch karna hai?",
+    "answer_hi": "एक स्टैंडर्ड प्रोफ़ेशनल वेबसाइट बनाने में हमें 7 से 10 दिन लगते हैं। ऐड्स की बात करें, तो स्ट्रैटेजी और सेटअप तैयार होने के 24 से 48 घंटे में आपके Google या सोशल मीडिया ऐड्स लाइव हो जाते हैं। आपको प्रोजेक्ट कब तक लॉन्च करना है?",
+    "keywords": ["website banane mein kitna time lagega", "ads kab se start honge", "timeline kya hai", "duration kya hai", "kitne din me ready", "kab tak ban jayegi"]
+  },
+  {
+    "id": 99,
+    "question_en": "What is the process and what do I need to provide (content, photos)?",
+    "question_hi": "काम का प्रोसेस क्या है और मुझे क्या-क्या देना होगा (कंटेंट, फ़ोटो)?",
+    "answer_en": "Process bohot simple hai! Sabse pehle hum ek brief call ya chat pe aapki requirements samajhte hain. Setup shuru karne ke liye aapko hume apna business logo, content/text, photos, aur agar koi product details hain toh wo dena hoga. Baaki ka saara tech aur marketing work ClickCraft sambhal lega.",
+    "answer_hi": "प्रोसेस बहुत सरल है! सबसे पहले हम आपकी ज़रूरतें समझते हैं। काम शुरू करने के लिए आपको हमें बिज़नेस लोगो, कंटेंट, फ़ोटोज़ और प्रोडक्ट डिटेल्स देनी होंगी। बाकी सारा टेक और मार्केटिंग काम ClickCraft संभालेगा।",
+    "keywords": ["process kya hai", "main kya kya dena hoga", "requirements kya hain", "steps to start", "content photos kya du", "kya information chahiye"]
+  },
+  {
+    "id": 100,
+    "question_en": "How many revisions or changes can I make during the design?",
+    "question_hi": "डिज़ाइन के दौरान कितनी बार बदलाव (Revisions) करवा सकते हैं?",
+    "answer_en": "Bohot flexible process hai hamara! Website design ke dauran hum 3 major revision rounds dete hain jahan aap khul kar changes bata sakte hain. Hamara goal yahi hai ki final output bilkul aapki soch jaisa ho.",
+    "answer_hi": "हमारा प्रोसेस बहुत फ्लेक्सिबल है! वेबसाइट डिज़ाइन के दौरान हम 3 मेजर रिवीज़न राउंड्स देते हैं जहाँ आप खुलकर बदलाव बता सकते हैं। हमारा लक्ष्य यही है कि फ़ाइनल आउटपुट बिल्कुल आपकी पसंद का हो।",
+    "keywords": ["kitni baar changes kara sakte hain", "revisions kitne milte h", "revision policy", "badlav kitni bar", "changes allowed"]
+  },
+  {
+    "id": 101,
+    "question_en": "How do I make payment? Do you accept UPI or bank transfer?",
+    "question_hi": "पेमेंट कैसे करूँ? क्या UPI या बैंक ट्रांसफर चलता है?",
+    "answer_en": "Ji haan, bilkul chalta hai! Aap UPI (GPay, PhonePe, Paytm) ya direct Bank Transfer (NEFT/IMPS) ke zariye ClickCraft ko easily payment kar sakte hain. Main aapko details share karoon?",
+    "answer_hi": "जी हाँ, बिल्कुल! आप UPI (GPay, PhonePe, Paytm) या सीधे बैंक ट्रांसफर (NEFT/IMPS) के ज़रिए ClickCraft को आसानी से पेमेंट कर सकते हैं। क्या मैं आपको डिटेल्स शेयर करूँ?",
+    "keywords": ["payment kaise karu", "upi bank transfer chalta hai kya", "payment mode", "gpay phonepe paytm", "payment method kya hai", "how to pay"]
+  },
+  {
+    "id": 102,
+    "question_en": "Do I need to pay advance or after the work is done?",
+    "question_hi": "क्या एडवांस देना पड़ेगा या काम होने के बाद पेमेंट होगा?",
+    "answer_en": "Hum 50% advance payment pe kaam shuru karte hain. Baaki ka 50% payment website ready hone aur aapke approval ke baad, launch ke time pe hota hai. Isse aapko bhi security rehti hai aur hamari team bhi motivate rehti hai.",
+    "answer_hi": "हम 50% एडवांस पेमेंट पर काम शुरू करते हैं। बाकी 50% पेमेंट वेबसाइट तैयार होने और आपके अप्रूवल के बाद, लॉन्च के समय होता है। इससे आपको भी सुरक्षा रहती है और हमारी टीम भी एक्टिव रहती है।",
+    "keywords": ["advance dena padega kya", "kaam ke baad payment", "advance kitna", "payment terms", "half payment advance"]
+  },
+  {
+    "id": 103,
+    "question_en": "What is your refund policy if I want to cancel?",
+    "question_hi": "अगर मुझे कैंसिल करना हो तो क्या रिफ़ंड मिलेगा?",
+    "answer_en": "Hum transparent kaam karte hain. Agar project shuru hone ke turant baad (work initiate hone se pehle) aap cancel karte hain, toh hum refund process kar dete hain. Par ek baar jab design aur development pe team kaam shuru kar deti hai, toh us stage tak ke kiye gaye kaam ka cost deduct hota hai. Waise hum poori koshish karte hain ki cancel karne ki naubat hi na aaye!",
+    "answer_hi": "हम पारदर्शी काम करते हैं। अगर काम शुरू होने से पहले आप कैंसिल करते हैं, तो हम पूरा रिफ़ंड कर देते हैं। लेकिन काम शुरू होने के बाद उस स्टेज तक की लागत काटकर बाकी राशि रिफ़ंड होती है। वैसे हम पूरी कोशिश करते हैं कि कैंसिल करने की नौबत ही न आए!",
+    "keywords": ["agar cancel karna ho to refund milega kya", "refund policy", "cancellation policy", "paise wapas milenge kya", "money back"]
+  },
+  {
+    "id": 104,
+    "question_en": "Will I get support after the website is launched?",
+    "question_hi": "क्या वेबसाइट लॉन्च होने के बाद सपोर्ट मिलेगा?",
+    "answer_en": "Bilkul milega! ClickCraft website launch hone ke baad bhi 30 days tak free technical support deta hai, taaki agar koi glitch aaye toh hum use turant theek kar sakein. Hum aapko beech raah mein nahi chhodenge!",
+    "answer_hi": "बिल्कुल मिलेगा! ClickCraft वेबसाइट लॉन्च होने के बाद भी 30 दिनों तक मुफ़्त टेक्निकल सपोर्ट देता है, ताकि कोई भी परेशानी आने पर तुरंत ठीक किया जा सके।",
+    "keywords": ["website launch hone ke baad support milega kya", "after sales support", "post launch support", "support kitne din", "launch ke baad help"]
+  },
+  {
+    "id": 105,
+    "question_en": "Who handles hosting and domain renewal?",
+    "question_hi": "होस्टिंग और डोमेन रिन्यूअल कौन संभालेगा?",
+    "answer_en": "Agar aap chahein toh ClickCraft hi ise manage karega. Domain aur hosting ki jo annual renewal fees hoti hai, wo har saal time pe renew karni hoti hai. Hum aapko 1 mahine pehle hi remind karwa denge taaki aapki website kabhi down na ho.",
+    "answer_hi": "अगर आप चाहें तो ClickCraft ही इसे मैनेज करेगा। डोमेन और होस्टिंग की सालाना रिन्यूअल फ़ीस समय पर रिन्यू करनी होती है। हम आपको 1 महीने पहले ही याद दिला देंगे ताकि वेबसाइट कभी डाउन न हो।",
+    "keywords": ["hosting domain renewal kaun sambhalega", "domain renewal", "hosting maintenance", "renewal kon karega", "domain hosting expiry"]
+  },
+  {
+    "id": 106,
+    "question_en": "If I want to change content later, will there be extra charges?",
+    "question_hi": "अगर बाद में कंटेंट चेंज करवाना हो तो क्या चार्ज लगेगा?",
+    "answer_en": "Minor updates (jaise phone number badalna ya ek do images change karna) hum free mein kar dete hain. Agar baad mein koi naya page add karna ho ya bada layout change karna ho, toh uske liye hum ek bohot hi chhota sa flat charge lete hain.",
+    "answer_hi": "छोटे बदलाव (जैसे फ़ोन नंबर बदलना या 1-2 फ़ोटोज़ बदलना) हम मुफ़्त में कर देते हैं। अगर बाद में कोई नया पेज जोड़ना हो या बड़ा बदलाव करना हो, तो उसके लिए बहुत छोटा सा चार्ज लगता है।",
+    "keywords": ["baad mein content change karwana ho to charge lagega kya", "future content updates", "website edit charge", "badlav ke paise", "content update cost"]
+  },
+  {
+    "id": 107,
+    "question_en": "Are you a bot, AI or a real human? What can you do?",
+    "question_hi": "क्या आप बोट या AI हैं या इंसान? आप क्या कर सकते हैं?",
+    "answer_en": "Main ClickCraft ka smart assistant hoon! 😊 Meri team ne mujhe is tarah train kiya hai taaki main aapko instant replies aur guidance de sakoon. Agar aapko kisi real human marketing expert se deep discussion karni hai, toh main abhi aapki call schedule karwa deta hoon (+91 9376124893). Bataiye, call kab ki set karein?",
+    "answer_hi": "मैं ClickCraft का स्मार्ट AI असिस्टेंट हूँ! 😊 मेरी टीम ने मुझे प्रशिक्षित किया है ताकि मैं आपको तुरंत सही जानकारी दे सकूँ। अगर आप किसी रियल मार्केटिंग एक्सपर्ट से बात करना चाहते हैं, तो मैं अभी आपकी कॉल (+91 9376124893) शेड्यूल कर सकता हूँ। बताइए कब कॉल सेट करें?",
+    "keywords": ["tum bot ho kya", "ai ho ya insaan", "kya kar sakte ho", "are you a bot", "are you ai or human", "robot ho kya", "real person or bot"]
+  },
+  {
+    "id": 108,
+    "question_en": "Random or off-topic conversation deflection",
+    "question_hi": "रैंडम या अन्य विषय पर बातचीत",
+    "answer_en": "Haha, wo toh badhiya hai! Waise ClickCraft par hamara poora focus aapke business ko online badhane par rehta hai. Kya hum aapki nayi website ya online Google/Social Media ads ke upar baat shuru karein? Bataiye aapka kya business hai?",
+    "answer_hi": "Haha, वो तो बढ़िया है! वैसे ClickCraft पर हमारा पूरा ध्यान आपके बिज़नेस को ऑनलाइन आगे बढ़ाने पर रहता है। क्या हम आपकी नई वेबसाइट या ऑनलाइन ऐड्स पर बात शुरू करें? बताइए आपका बिज़नेस क्या है?",
+    "keywords": ["random chat", "chitchat", "jokes", "mausam kaisa hai", "kya chal raha hai", "aur batao", "time pass"]
   }
 ]

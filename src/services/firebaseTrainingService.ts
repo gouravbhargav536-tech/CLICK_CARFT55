@@ -61,6 +61,23 @@ Official Contact:
     language: 'all',
     updatedAt: new Date().toISOString(),
   },
+  {
+    id: 'greeting_casual_chat_policy',
+    category: 'conversation_policy',
+    title: 'Greeting & Casual Chat Rules',
+    content: `GREETING & CASUAL CHAT RULES:
+1. If user just greets (hi, hello, hey, namaste, kaise ho, good morning), DO NOT pitch services immediately.
+2. Reply warmly and politely in their language:
+   - Hindi: "नमस्ते! ClickCraft Assistant में आपका स्वागत है 😊 आज मैं आपकी किस तरह मदद कर सकता हूँ?"
+   - Hinglish: "Namaste! ClickCraft Assistant me aapka swagat hai 😊 Aaj main aapki kis tarah help kar sakta hu?"
+   - English: "Hello! Welcome to ClickCraft Assistant 😊 How can I help you today?"
+3. If user says "kaise ho" / "how are you": "Main badhiya hu! Aap kaise hain? Aaj kis cheez me madad chahiye?"
+4. Only discuss services/pricing when the user explicitly asks.
+5. If user says "thanks", "ok", "theek hai", "acha", give a short, warm polite acknowledgement, never re-send service lists.`,
+    keywords: 'greeting, hello, hi, namaste, kaise ho, thanks, ok, theek hai, rules, behavior',
+    language: 'all',
+    updatedAt: new Date().toISOString(),
+  },
 ];
 
 /**
@@ -254,12 +271,66 @@ export function detectLanguageStyle(text: string): 'hindi' | 'hinglish' | 'engli
 }
 
 /**
+ * Checks for pure greetings or casual acknowledgements to avoid pushy sales responses
+ */
+export function matchGreetingOrCasualChat(userQuery: string): string | null {
+  if (!userQuery) return null;
+  const trimmed = userQuery.trim().toLowerCase();
+  const langStyle = detectLanguageStyle(userQuery);
+
+  // Pure greetings
+  const isPureGreeting = /^(hi|hello|hey|heyy|namaste|namaskar|pranam|ram ram|radhe radhe|good morning|good evening|good afternoon|hlo|hii|namastey)[!.,? ]*$/i.test(trimmed);
+  if (isPureGreeting) {
+    if (langStyle === 'hindi') {
+      return "नमस्ते! ClickCraft Assistant में आपका स्वागत है 😊 आज मैं आपकी किस तरह मदद कर सकता हूँ?";
+    } else if (langStyle === 'hinglish') {
+      return "Namaste! ClickCraft Assistant me aapka swagat hai 😊 Aaj main aapki kis tarah help kar sakta hu?";
+    } else {
+      return "Hello! Welcome to ClickCraft Assistant 😊 How can I help you today?";
+    }
+  }
+
+  // "How are you" / "Kaise ho"
+  const isHowAreYou = /^(kaise ho|kese ho|aap kaise ho|aap kese ho|how are you|how r u|kya haal hai|kya hal h)[!.,? ]*$/i.test(trimmed);
+  if (isHowAreYou) {
+    if (langStyle === 'hindi') {
+      return "मैं बिल्कुल बढ़िया हूँ, पूछने के लिए धन्यवाद! 😊 आप कैसे हैं? बताइए आज आपके बिज़नेस या वेबसाइट के लिए किस तरह मदद करूँ?";
+    } else if (langStyle === 'hinglish') {
+      return "Main badhiya hu, poochhne ke liye shukriya! 😊 Aap kaise hain? Batayiye aaj aapki kis tarah help kar sakta hu?";
+    } else {
+      return "I'm doing great, thank you for asking! 😊 How are you? How can I assist you with your business or website today?";
+    }
+  }
+
+  // Casual acknowledgements: thanks, ok, theek hai, acha
+  const isAcknowledgement = /^(thanks|thank you|dhanyawad|shukriya|ok|okay|theek hai|thik hai|acha|achha|theek h|thik h|got it|samajh gaya|samajh aa gaya)[!.,? ]*$/i.test(trimmed);
+  if (isAcknowledgement) {
+    if (langStyle === 'hindi') {
+      return "आपका बहुत-बहुत स्वागत है! 😊 अगर आपके मन में कोई और सवाल हो या किसी भी चीज़ में मदद चाहिए, तो कभी भी पूछ सकते हैं।";
+    } else if (langStyle === 'hinglish') {
+      return "Aapka swagat hai! 😊 Agar koi aur sawal ho ya kisi cheez me help chahiye, to bilkul batayiye.";
+    } else {
+      return "You're most welcome! 😊 Feel free to ask if you need help with anything else.";
+    }
+  }
+
+  return null;
+}
+
+/**
  * Checks if the user's question closely matches any question or keywords stored in the "faqs" collection in Firebase
  * using Fuse.js fuzzy search (supports typos, Hindi, English, and Hinglish keywords).
  * Returns the matching answer in the appropriate language style or null if outside knowledge base.
  */
 export function matchFAQFromFirebase(userQuery: string, faqsList?: FAQItem[]): string | null {
   if (!userQuery || typeof userQuery !== 'string') return null;
+
+  // 1. Check for greeting or casual interaction first
+  const greetingResponse = matchGreetingOrCasualChat(userQuery);
+  if (greetingResponse) {
+    return greetingResponse;
+  }
+
   const listToSearch = faqsList || getLiveFirebaseFAQs();
   const langStyle = detectLanguageStyle(userQuery);
 
