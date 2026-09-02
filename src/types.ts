@@ -68,7 +68,7 @@ export interface VoiceConfig {
   autoSpeak: boolean;
   handsFree: boolean;
   visualizerPreset: VisualizerPreset;
-  voiceEngine?: 'instant' | 'cloud';
+  voiceEngine?: 'instant' | 'cloud' | 'elevenlabs';
   vocalFeeling?: VocalFeeling;
   responseMode?: ResponseMode;
 }
@@ -93,15 +93,18 @@ export interface OSMPlace {
 export interface CustomApiKeys {
   gemini?: string;
   groq?: string;
+  elevenlabs?: string;
   geminiValidatedAt?: string;
   groqValidatedAt?: string;
+  elevenlabsValidatedAt?: string;
   geminiLatency?: number;
   groqLatency?: number;
+  elevenlabsLatency?: number;
 }
 
 export interface ApiKeyValidationResult {
   valid: boolean;
-  provider: 'gemini' | 'groq';
+  provider: 'gemini' | 'groq' | 'elevenlabs';
   latencyMs?: number;
   model?: string;
   message?: string;

@@ -47,18 +47,20 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
   onShowToast,
 }) => {
   const [activeTab, setActiveTab] = useState<'validator' | 'tools' | 'settings'>('validator');
-  const [selectedProvider, setSelectedProvider] = useState<'gemini' | 'groq'>('gemini');
+  const [selectedProvider, setSelectedProvider] = useState<'gemini' | 'groq' | 'elevenlabs'>('gemini');
   
   // Custom API key states
   const [geminiKeyInput, setGeminiKeyInput] = useState('');
   const [groqKeyInput, setGroqKeyInput] = useState('');
+  const [elevenLabsKeyInput, setElevenLabsKeyInput] = useState('');
   const [showGeminiKey, setShowGeminiKey] = useState(false);
   const [showGroqKey, setShowGroqKey] = useState(false);
+  const [showElevenLabsKey, setShowElevenLabsKey] = useState(false);
   
   // Validation progress & result states
   const [isValidating, setIsValidating] = useState(false);
   const [validationResult, setValidationResult] = useState<{
-    provider: 'gemini' | 'groq';
+    provider: 'gemini' | 'groq' | 'elevenlabs';
     valid: boolean;
     latencyMs?: number;
     message?: string;
@@ -73,23 +75,48 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
       setSavedKeys(keys);
       if (keys.gemini) setGeminiKeyInput(keys.gemini);
       if (keys.groq) setGroqKeyInput(keys.groq);
+      if (keys.elevenlabs) setElevenLabsKeyInput(keys.elevenlabs);
       setValidationResult(null);
     }
   }, [isOpen]);
 
   if (!isOpen) return null;
 
-  const currentInputKey = selectedProvider === 'gemini' ? geminiKeyInput : groqKeyInput;
-  const currentSavedKey = selectedProvider === 'gemini' ? savedKeys.gemini : savedKeys.groq;
+  const currentInputKey =
+    selectedProvider === 'gemini'
+      ? geminiKeyInput
+      : selectedProvider === 'groq'
+      ? groqKeyInput
+      : elevenLabsKeyInput;
+  const currentSavedKey =
+    selectedProvider === 'gemini'
+      ? savedKeys.gemini
+      : selectedProvider === 'groq'
+      ? savedKeys.groq
+      : savedKeys.elevenlabs;
   const currentValidatedAt =
-    selectedProvider === 'gemini' ? savedKeys.geminiValidatedAt : savedKeys.groqValidatedAt;
+    selectedProvider === 'gemini'
+      ? savedKeys.geminiValidatedAt
+      : selectedProvider === 'groq'
+      ? savedKeys.groqValidatedAt
+      : savedKeys.elevenlabsValidatedAt;
   const currentLatency =
-    selectedProvider === 'gemini' ? savedKeys.geminiLatency : savedKeys.groqLatency;
+    selectedProvider === 'gemini'
+      ? savedKeys.geminiLatency
+      : selectedProvider === 'groq'
+      ? savedKeys.groqLatency
+      : savedKeys.elevenlabsLatency;
 
   const handleValidateAndSave = async () => {
     const keyToTest = currentInputKey.trim();
+    const providerName =
+      selectedProvider === 'gemini'
+        ? 'Gemini'
+        : selectedProvider === 'groq'
+        ? 'Groq'
+        : 'ElevenLabs';
     if (!keyToTest) {
-      const msg = `Please enter a valid ${selectedProvider === 'gemini' ? 'Gemini' : 'Groq'} API key before testing.`;
+      const msg = `Please enter a valid ${providerName} API key before testing.`;
       setValidationResult({
         provider: selectedProvider,
         valid: false,
@@ -126,7 +153,7 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
         if (onShowToast) {
           onShowToast({
             type: 'success',
-            title: `${selectedProvider === 'gemini' ? 'Gemini' : 'Groq'} Key Verified & Saved!`,
+            title: `${providerName} Key Verified & Saved!`,
             description: result.message || `API key tested successfully with ${result.latencyMs}ms response time.`,
             latencyMs: result.latencyMs,
           });
@@ -135,7 +162,7 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
         if (onShowToast) {
           onShowToast({
             type: 'error',
-            title: `${selectedProvider === 'gemini' ? 'Gemini' : 'Groq'} Validation Failed`,
+            title: `${providerName} Validation Failed`,
             description: result.error || 'Authentication error. Key was not saved.',
             latencyMs: result.latencyMs,
           });
@@ -160,29 +187,34 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
     }
   };
 
-  const handleRemoveKey = (provider: 'gemini' | 'groq') => {
+  const handleRemoveKey = (provider: 'gemini' | 'groq' | 'elevenlabs') => {
     const updated = removeCustomApiKey(provider);
     setSavedKeys(updated);
     if (provider === 'gemini') setGeminiKeyInput('');
     if (provider === 'groq') setGroqKeyInput('');
+    if (provider === 'elevenlabs') setElevenLabsKeyInput('');
     setValidationResult(null);
+
+    const providerName =
+      provider === 'gemini' ? 'Gemini' : provider === 'groq' ? 'Groq' : 'ElevenLabs';
 
     if (onShowToast) {
       onShowToast({
         type: 'info',
-        title: `${provider === 'gemini' ? 'Gemini' : 'Groq'} Custom Key Removed`,
+        title: `${providerName} Custom Key Removed`,
         description: 'Reverted to standard system environment configuration.',
       });
     }
   };
 
-  const handlePasteKey = async (provider: 'gemini' | 'groq') => {
+  const handlePasteKey = async (provider: 'gemini' | 'groq' | 'elevenlabs') => {
     try {
       if (navigator.clipboard) {
         const text = await navigator.clipboard.readText();
         if (text) {
           if (provider === 'gemini') setGeminiKeyInput(text.trim());
           if (provider === 'groq') setGroqKeyInput(text.trim());
+          if (provider === 'elevenlabs') setElevenLabsKeyInput(text.trim());
         }
       }
     } catch {
@@ -268,24 +300,25 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
           {activeTab === 'validator' && (
             <div className="space-y-4 text-xs">
               {/* Provider Selection Tabs */}
-              <div className="grid grid-cols-2 gap-2 p-1.5 rounded-2xl bg-slate-950/80 border border-slate-800">
+              <div className="grid grid-cols-3 gap-2 p-1.5 rounded-2xl bg-slate-950/80 border border-slate-800">
                 <button
                   type="button"
                   onClick={() => {
                     setSelectedProvider('gemini');
                     setValidationResult(null);
                   }}
-                  className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold transition-all ${
+                  className={`flex items-center justify-center gap-2 py-2 px-2.5 rounded-xl font-bold transition-all ${
                     selectedProvider === 'gemini'
                       ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-md shadow-blue-500/20'
                       : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
                   }`}
                 >
                   <span className="text-base">⚡</span>
-                  <div className="text-left">
+                  <div className="text-left hidden sm:block">
                     <div className="text-xs">Google Gemini</div>
-                    <div className="text-[10px] opacity-75 font-normal">gemini-2.5-flash / 3.6</div>
+                    <div className="text-[10px] opacity-75 font-normal">Gemini 3.6 / Flash</div>
                   </div>
+                  <span className="sm:hidden text-xs">Gemini</span>
                   {savedKeys.gemini && (
                     <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0 ml-auto" />
                   )}
@@ -297,18 +330,42 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
                     setSelectedProvider('groq');
                     setValidationResult(null);
                   }}
-                  className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold transition-all ${
+                  className={`flex items-center justify-center gap-2 py-2 px-2.5 rounded-xl font-bold transition-all ${
                     selectedProvider === 'groq'
                       ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-md shadow-orange-500/20'
                       : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
                   }`}
                 >
                   <span className="text-base">🚀</span>
-                  <div className="text-left">
+                  <div className="text-left hidden sm:block">
                     <div className="text-xs">Groq Cloud AI</div>
-                    <div className="text-[10px] opacity-75 font-normal">Llama 3.3 / Ultra-Fast</div>
+                    <div className="text-[10px] opacity-75 font-normal">Llama 3.3 Ultra-Fast</div>
                   </div>
+                  <span className="sm:hidden text-xs">Groq</span>
                   {savedKeys.groq && (
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0 ml-auto" />
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedProvider('elevenlabs');
+                    setValidationResult(null);
+                  }}
+                  className={`flex items-center justify-center gap-2 py-2 px-2.5 rounded-xl font-bold transition-all ${
+                    selectedProvider === 'elevenlabs'
+                      ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md shadow-purple-500/20'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
+                  }`}
+                >
+                  <span className="text-base">🎙️</span>
+                  <div className="text-left hidden sm:block">
+                    <div className="text-xs">ElevenLabs</div>
+                    <div className="text-[10px] opacity-75 font-normal">Hindi Voice AI</div>
+                  </div>
+                  <span className="sm:hidden text-xs">ElevenLabs</span>
+                  {savedKeys.elevenlabs && (
                     <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0 ml-auto" />
                   )}
                 </button>
@@ -328,7 +385,11 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
                       }`}
                     />
                     <span className="font-bold text-slate-200">
-                      {selectedProvider === 'gemini' ? 'Gemini Provider Status' : 'Groq Provider Status'}:
+                      {selectedProvider === 'gemini'
+                        ? 'Gemini Provider Status'
+                        : selectedProvider === 'groq'
+                        ? 'Groq Provider Status'
+                        : 'ElevenLabs Voice Status'}:
                     </span>
                     <span
                       className={`font-semibold ${
@@ -358,7 +419,9 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
                 <p className="text-[11px] text-slate-400 leading-relaxed">
                   {selectedProvider === 'gemini'
                     ? 'Enter your personal Gemini API key from Google AI Studio to route requests directly or verify your credentials.'
-                    : 'Enter your Groq API key (gsk_...) to unlock ultra-fast Llama 3.3 and sub-100ms inference.'}
+                    : selectedProvider === 'groq'
+                    ? 'Enter your Groq API key (gsk_...) to unlock ultra-fast Llama 3.3 and sub-100ms inference.'
+                    : 'Enter your ElevenLabs API key (sk_...) for ultra-realistic Hindi speaker voice (eleven_multilingual_v2 model).'}
                 </p>
               </div>
 
@@ -366,7 +429,11 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <label className="font-bold text-slate-300">
-                    {selectedProvider === 'gemini' ? 'Gemini API Key' : 'Groq API Key'}
+                    {selectedProvider === 'gemini'
+                      ? 'Gemini API Key'
+                      : selectedProvider === 'groq'
+                      ? 'Groq API Key'
+                      : 'ElevenLabs API Key'}
                   </label>
                   <button
                     type="button"
@@ -381,19 +448,32 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
                 <div className="relative flex items-center">
                   <input
                     type={
-                      (selectedProvider === 'gemini' ? showGeminiKey : showGroqKey)
+                      (selectedProvider === 'gemini'
+                        ? showGeminiKey
+                        : selectedProvider === 'groq'
+                        ? showGroqKey
+                        : showElevenLabsKey)
                         ? 'text'
                         : 'password'
                     }
-                    value={selectedProvider === 'gemini' ? geminiKeyInput : groqKeyInput}
+                    value={
+                      selectedProvider === 'gemini'
+                        ? geminiKeyInput
+                        : selectedProvider === 'groq'
+                        ? groqKeyInput
+                        : elevenLabsKeyInput
+                    }
                     onChange={(e) => {
                       if (selectedProvider === 'gemini') setGeminiKeyInput(e.target.value);
                       if (selectedProvider === 'groq') setGroqKeyInput(e.target.value);
+                      if (selectedProvider === 'elevenlabs') setElevenLabsKeyInput(e.target.value);
                     }}
                     placeholder={
                       selectedProvider === 'gemini'
                         ? 'AIzaSy...'
-                        : 'gsk_...'
+                        : selectedProvider === 'groq'
+                        ? 'gsk_...'
+                        : 'sk_...'
                     }
                     className="w-full pl-3.5 pr-20 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition-colors"
                   />
@@ -403,15 +483,24 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
                       onClick={() => {
                         if (selectedProvider === 'gemini') setShowGeminiKey(!showGeminiKey);
                         if (selectedProvider === 'groq') setShowGroqKey(!showGroqKey);
+                        if (selectedProvider === 'elevenlabs') setShowElevenLabsKey(!showElevenLabsKey);
                       }}
                       className="p-1.5 text-slate-400 hover:text-white rounded-lg transition-colors"
                       title={
-                        (selectedProvider === 'gemini' ? showGeminiKey : showGroqKey)
+                        (selectedProvider === 'gemini'
+                          ? showGeminiKey
+                          : selectedProvider === 'groq'
+                          ? showGroqKey
+                          : showElevenLabsKey)
                           ? 'Hide Key'
                           : 'Show Key'
                       }
                     >
-                      {(selectedProvider === 'gemini' ? showGeminiKey : showGroqKey) ? (
+                      {(selectedProvider === 'gemini'
+                        ? showGeminiKey
+                        : selectedProvider === 'groq'
+                        ? showGroqKey
+                        : showElevenLabsKey) ? (
                         <EyeOff className="w-4 h-4" />
                       ) : (
                         <Eye className="w-4 h-4" />
@@ -434,7 +523,9 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
                       ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
                       : selectedProvider === 'gemini'
                       ? 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:opacity-95 shadow-cyan-500/20'
-                      : 'bg-gradient-to-r from-orange-600 to-amber-600 hover:opacity-95 shadow-orange-500/20'
+                      : selectedProvider === 'groq'
+                      ? 'bg-gradient-to-r from-orange-600 to-amber-600 hover:opacity-95 shadow-orange-500/20'
+                      : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-95 shadow-purple-500/20'
                   }`}
                 >
                   {isValidating ? (
@@ -445,7 +536,15 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
                   ) : (
                     <>
                       <Zap className="w-4 h-4" />
-                      <span>Validate & Save {selectedProvider === 'gemini' ? 'Gemini' : 'Groq'} Key</span>
+                      <span>
+                        Validate & Save{' '}
+                        {selectedProvider === 'gemini'
+                          ? 'Gemini'
+                          : selectedProvider === 'groq'
+                          ? 'Groq'
+                          : 'ElevenLabs'}{' '}
+                        Key
+                      </span>
                     </>
                   )}
                 </button>
@@ -501,9 +600,9 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
 
               {/* Quick Links to Get Free API Keys */}
               <div className="p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800 space-y-2">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-2">
                   <span className="font-bold text-slate-300 text-[11px]">Need an API Key?</span>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 flex-wrap">
                     <a
                       href="https://aistudio.google.com/app/apikey"
                       target="_blank"
@@ -523,10 +622,20 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
                       <span>Groq Console</span>
                       <ExternalLink className="w-3 h-3" />
                     </a>
+                    <span className="text-slate-600">•</span>
+                    <a
+                      href="https://elevenlabs.io/app/speech-synthesis"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-purple-400 hover:text-purple-300 font-bold text-[11px] inline-flex items-center gap-1"
+                    >
+                      <span>ElevenLabs</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
                   </div>
                 </div>
                 <p className="text-[10px] text-slate-400 leading-relaxed">
-                  Both Google AI Studio and Groq provide generous free tier quotas for real-time speech and lightning fast completions.
+                  Connect your personal API keys to power Gemini reasoning, Groq inference, and ElevenLabs ultra-realistic Hindi speech synthesis.
                 </p>
               </div>
             </div>

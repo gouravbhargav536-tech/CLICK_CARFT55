@@ -352,6 +352,73 @@ export function stopSpeech(): void {
 }
 
 /**
+ * Play text using ElevenLabs Text-to-Speech API (eleven_multilingual_v2)
+ * Ultra-realistic, emotional, authentic Hindi voice generation.
+ */
+export async function playElevenLabsTTS(
+  text: string,
+  onStart?: () => void,
+  onEnd?: () => void,
+  onError?: (err: any) => void,
+  voiceId?: string
+): Promise<void> {
+  try {
+    const cleanText = normalizeHindiTextForTTS(text);
+    if (!cleanText) {
+      if (onEnd) onEnd();
+      return;
+    }
+
+    const keys = getCustomApiKeys();
+    const apiKey = keys.elevenlabs || undefined;
+
+    const response = await fetch('/api/elevenlabs-tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text: cleanText,
+        apiKey,
+        voiceId: voiceId || 'EXAVITQu4vr4xnSDxMaL', // Sarah (Multilingual, crystal-clear Hindi tone)
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => '');
+      throw new Error(`ElevenLabs TTS failed with status ${response.status}: ${errorText}`);
+    }
+
+    const data = await response.json();
+    if (!data.audioContent) {
+      throw new Error('No audio content received from ElevenLabs TTS service.');
+    }
+
+    const audioUrl = `data:audio/mp3;base64,${data.audioContent}`;
+    const audio = new Audio(audioUrl);
+    activeCloudAudio = audio;
+
+    audio.onplay = () => {
+      if (onStart) onStart();
+    };
+
+    audio.onended = () => {
+      activeCloudAudio = null;
+      if (onEnd) onEnd();
+    };
+
+    audio.onerror = (e) => {
+      activeCloudAudio = null;
+      if (onError) onError(e);
+      if (onEnd) onEnd();
+    };
+
+    await audio.play();
+  } catch (err) {
+    activeCloudAudio = null;
+    throw err;
+  }
+}
+
+/**
  * Play text using Google Cloud Text-to-Speech REST API (hi-IN-Neural2-A / Neural2-D)
  * Automatically utilizes the user's saved Gemini / Google API Key or server credentials.
  */
@@ -710,9 +777,10 @@ export async function playEdgeTTS(
 /**
  * Main function to speak Hindi text when user clicks "Listen" or AI speaks.
  * Priority cascade:
- * 1. Google Cloud Neural2 / Gemini TTS (powered by user's API key or server key)
+ * 1. ElevenLabs TTS (eleven_multilingual_v2 - ultra-realistic, natural human Hindi voice)
  * 2. Microsoft Edge Neural TTS (hi-IN-SwaraNeural - studio-quality 96kbps natural voice)
- * 3. Browser SpeechSynthesis API with the BEST available Hindi voice
+ * 3. Google Cloud Neural2 / Gemini TTS (powered by user's API key or server key)
+ * 4. Browser SpeechSynthesis API with the BEST available Hindi voice
  */
 export async function speakHindi(
   text: string,
@@ -730,16 +798,15 @@ export async function speakHindi(
   }
 
   const customKeys = getCustomApiKeys();
+  const hasElevenLabsKey = !!customKeys.elevenlabs;
   const hasUserGeminiKey = !!customKeys.gemini;
 
-  // 1. If user provided their API Key, prioritize Google Neural2 / Gemini TTS
-  if (hasUserGeminiKey || USE_CLOUD_TTS) {
-    try {
-      await playCloudTTS(cleanText, onStart, onEnd, onError);
-      return;
-    } catch (cloudErr) {
-      console.warn('Google Cloud Neural2 TTS failed with API key, falling back to Edge Neural:', cloudErr);
-    }
+  // 1. Prioritize ElevenLabs TTS (Custom Key or Server ELEVENLABS_API_KEY)
+  try {
+    await playElevenLabsTTS(cleanText, onStart, onEnd, onError);
+    return;
+  } catch (elevenErr) {
+    console.warn('ElevenLabs TTS failed or not configured, trying Edge Neural fallback:', elevenErr);
   }
 
   // 2. Microsoft Edge Neural TTS (Studio-Quality 96kbps Neural Hindi Voice hi-IN-SwaraNeural)
@@ -748,17 +815,27 @@ export async function speakHindi(
       await playEdgeTTS(cleanText, onStart, onEnd, onError);
       return;
     } catch (edgeErr) {
-      console.warn('Edge Neural TTS failed, falling back to Browser SpeechSynthesis:', edgeErr);
+      console.warn('Edge Neural TTS failed, falling back to Cloud / Browser Speech:', edgeErr);
     }
   }
 
-  // 3. Fallback to Cloud Neural if not tried yet
+  // 3. Google Cloud Neural2 / Gemini TTS
+  if (hasUserGeminiKey || USE_CLOUD_TTS) {
+    try {
+      await playCloudTTS(cleanText, onStart, onEnd, onError);
+      return;
+    } catch (cloudErr) {
+      console.warn('Google Cloud Neural2 TTS failed:', cloudErr);
+    }
+  }
+
+  // 4. Fallback to Cloud Neural if not tried yet
   try {
     await playCloudTTS(cleanText, onStart, onEnd, onError);
     return;
   } catch {}
 
-  // 4. Browser SpeechSynthesis API with best Hindi voice
+  // 5. Browser SpeechSynthesis API with best Hindi voice
   await playBrowserSpeech(cleanText, onStart, onEnd, onError);
 }
 

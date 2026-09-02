@@ -195,13 +195,143 @@ async function startServer() {
     }
   });
 
-  // Google Cloud Neural2 Text-to-Speech API Endpoint (hi-IN-Neural2-A / hi-IN-Neural2-D)
-  app.post(["/api/tts", "/api/cloud-tts"], async (req, res) => {
+  // ElevenLabs Text-to-Speech API Endpoint (Ultra-realistic Hindi Speaker)
+  app.post("/api/elevenlabs-tts", async (req, res) => {
     try {
-      const { text, apiKey: clientApiKey, voice = "hi-IN-Neural2-A" } = req.body;
+      const { text, apiKey: clientApiKey, voiceId = "EXAVITQu4vr4xnSDxMaL" } = req.body;
       if (!text || typeof text !== "string" || !text.trim()) {
         res.status(400).json({ error: "Missing 'text' in request body." });
         return;
+      }
+
+      const apiKey =
+        clientApiKey ||
+        process.env.ELEVENLABS_API_KEY ||
+        process.env.XI_API_KEY;
+
+      if (!apiKey) {
+        // Fallback to Edge TTS Swara Neural if no ElevenLabs key is configured
+        try {
+          const tts = new MsEdgeTTS();
+          await tts.setMetadata("hi-IN-SwaraNeural", OUTPUT_FORMAT.AUDIO_24KHZ_96KBITRATE_MONO_MP3);
+          const { audioStream } = tts.toStream(text.trim(), { rate: "+6%", pitch: "+0Hz" });
+          const chunks: Buffer[] = [];
+          audioStream.on("data", (chunk: Buffer) => chunks.push(chunk));
+          audioStream.on("end", () => {
+            res.json({ audioContent: Buffer.concat(chunks).toString("base64") });
+          });
+          return;
+        } catch {
+          res.status(500).json({ error: "ELEVENLABS_API_KEY is not configured on server." });
+          return;
+        }
+      }
+
+      const selectedVoice = voiceId || "EXAVITQu4vr4xnSDxMaL"; // Sarah (Fluent multilingual Hindi voice)
+      const elevenRes = await fetch(
+        `https://api.elevenlabs.io/v1/text-to-speech/${selectedVoice}?output_format=mp3_44100_128`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "xi-api-key": apiKey,
+            "Accept": "audio/mpeg",
+          },
+          body: JSON.stringify({
+            text: text.trim(),
+            model_id: "eleven_multilingual_v2",
+            voice_settings: {
+              stability: 0.5,
+              similarity_boost: 0.8,
+              style: 0.0,
+              use_speaker_boost: true,
+            },
+          }),
+        }
+      );
+
+      if (!elevenRes.ok) {
+        const errText = await elevenRes.text();
+        console.warn("[ElevenLabs API Error, falling back to Edge Neural]:", errText);
+        // Fallback to Edge TTS Swara Neural on ElevenLabs error
+        try {
+          const tts = new MsEdgeTTS();
+          await tts.setMetadata("hi-IN-SwaraNeural", OUTPUT_FORMAT.AUDIO_24KHZ_96KBITRATE_MONO_MP3);
+          const { audioStream } = tts.toStream(text.trim(), { rate: "+6%", pitch: "+0Hz" });
+          const chunks: Buffer[] = [];
+          audioStream.on("data", (chunk: Buffer) => chunks.push(chunk));
+          audioStream.on("end", () => {
+            res.json({ audioContent: Buffer.concat(chunks).toString("base64") });
+          });
+          return;
+        } catch {
+          res.status(elevenRes.status).json({
+            error: "Failed to synthesize speech with ElevenLabs",
+            details: errText,
+          });
+          return;
+        }
+      }
+
+      const audioBuffer = await elevenRes.arrayBuffer();
+      const base64Audio = Buffer.from(audioBuffer).toString("base64");
+      res.json({ audioContent: base64Audio });
+    } catch (err: any) {
+      console.error("[ElevenLabs Server Error]:", err);
+      res.status(500).json({
+        error: err?.message || "Internal server error during ElevenLabs speech synthesis.",
+      });
+    }
+  });
+
+  // Google Cloud Neural2 & Unified Text-to-Speech API Endpoint
+  app.post(["/api/tts", "/api/cloud-tts"], async (req, res) => {
+    try {
+      const { text, apiKey: clientApiKey, voice = "hi-IN-Neural2-A", voiceId } = req.body;
+      if (!text || typeof text !== "string" || !text.trim()) {
+        res.status(400).json({ error: "Missing 'text' in request body." });
+        return;
+      }
+
+      // Check if ElevenLabs key is available first
+      const elevenKey =
+        process.env.ELEVENLABS_API_KEY ||
+        process.env.XI_API_KEY;
+
+      if (elevenKey) {
+        try {
+          const selectedVoice = voiceId || "EXAVITQu4vr4xnSDxMaL";
+          const elevenRes = await fetch(
+            `https://api.elevenlabs.io/v1/text-to-speech/${selectedVoice}?output_format=mp3_44100_128`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "xi-api-key": elevenKey,
+                "Accept": "audio/mpeg",
+              },
+              body: JSON.stringify({
+                text: text.trim(),
+                model_id: "eleven_multilingual_v2",
+                voice_settings: {
+                  stability: 0.5,
+                  similarity_boost: 0.8,
+                  style: 0.0,
+                  use_speaker_boost: true,
+                },
+              }),
+            }
+          );
+
+          if (elevenRes.ok) {
+            const audioBuffer = await elevenRes.arrayBuffer();
+            const base64Audio = Buffer.from(audioBuffer).toString("base64");
+            res.json({ audioContent: base64Audio });
+            return;
+          }
+        } catch (e) {
+          console.warn("[ElevenLabs Unified TTS fallback]:", e);
+        }
       }
 
       const apiKey =
@@ -400,10 +530,53 @@ async function startServer() {
           error: error?.message || "Failed to reach Groq API network.",
         });
       }
+    } else if (provider === "elevenlabs") {
+      try {
+        const elevenRes = await fetch("https://api.elevenlabs.io/v1/user", {
+          method: "GET",
+          headers: {
+            "xi-api-key": cleanKey,
+          },
+        });
+
+        const latencyMs = Date.now() - startTime;
+        if (elevenRes.ok) {
+          const data: any = await elevenRes.json();
+          const tier = data?.subscription?.tier || "Standard";
+          res.json({
+            valid: true,
+            provider: "elevenlabs",
+            latencyMs,
+            model: "eleven_multilingual_v2",
+            message: `ElevenLabs API key verified! Active subscription tier: ${tier} (${latencyMs}ms latency).`,
+          });
+        } else {
+          const errJson: any = await elevenRes.json().catch(() => ({}));
+          const message =
+            errJson?.detail?.message ||
+            (elevenRes.status === 401
+              ? "Invalid ElevenLabs API Key (401 Unauthorized): Please check your API key in ElevenLabs dashboard."
+              : `ElevenLabs API returned status ${elevenRes.status}`);
+          res.status(400).json({
+            valid: false,
+            provider: "elevenlabs",
+            latencyMs,
+            error: message,
+          });
+        }
+      } catch (error: any) {
+        const latencyMs = Date.now() - startTime;
+        res.status(400).json({
+          valid: false,
+          provider: "elevenlabs",
+          latencyMs,
+          error: error?.message || "Failed to reach ElevenLabs API network.",
+        });
+      }
     } else {
       res.status(400).json({
         valid: false,
-        error: `Unsupported provider '${provider}'. Supported providers are 'gemini' and 'groq'.`,
+        error: `Unsupported provider '${provider}'. Supported providers are 'gemini', 'groq', and 'elevenlabs'.`,
       });
     }
   });
