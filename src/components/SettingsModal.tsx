@@ -43,16 +43,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {/* Voice Engine Mode */}
           <div className="space-y-1.5">
             <label className="font-bold text-[#ECECF1]">Speech Engine Mode</label>
-            <select
-              value={voiceConfig.voiceEngine || 'instant'}
-              onChange={(e) =>
-                onSaveVoiceConfig({ ...voiceConfig, voiceEngine: e.target.value as 'instant' | 'cloud' })
-              }
-              className="w-full p-2.5 rounded-xl bg-[#212121] border border-[#2f2f2f] text-xs font-medium text-[#ECECF1] focus:outline-none focus:border-[#10A37F]"
-            >
-              <option value="instant">⚡ Instant Natural Voice (&lt;50ms Ultra Fast - Recommended)</option>
-              <option value="cloud">☁️ Gemini Cloud Prebuilt Voice (Aoede / Zephyr)</option>
-            </select>
+            <div className="w-full p-2.5 rounded-xl bg-[#212121] border border-purple-500/40 text-xs font-semibold text-purple-200 flex items-center justify-between">
+              <span>🎙️ ElevenLabs Multilingual v2 (Exclusive Hindi Speaker)</span>
+              <span className="text-[10px] px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-bold uppercase">Active</span>
+            </div>
           </div>
 
           {/* Voice Selection */}
@@ -193,14 +187,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   onClose();
                   onOpenApiKeys();
                 }}
-                className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-cyan-950/70 to-blue-950/70 border border-cyan-500/30 hover:border-cyan-400/60 text-cyan-200 text-xs font-bold flex items-center justify-between transition-all"
+                className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-purple-950/70 via-cyan-950/70 to-blue-950/70 border border-purple-500/30 hover:border-purple-400/60 text-purple-200 text-xs font-bold flex items-center justify-between transition-all"
               >
                 <div className="flex items-center gap-2">
                   <span>🔑</span>
-                  <span>API Key Validator & Engines (Gemini / Groq)</span>
+                  <span>API Keys (ElevenLabs Voice / Gemini / Groq)</span>
                 </div>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-semibold">
-                  Test Keys
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-semibold">
+                  Manage Keys
                 </span>
               </button>
             </div>

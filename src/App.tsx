@@ -366,39 +366,12 @@ export default function App() {
     updateCurrentSession(sessionWithUser);
     setIsThinking(true);
 
-    // Prepare Zero-Delay SentenceSpeechQueue for immediate voice start (<200ms)
-    let speechQueue: SentenceSpeechQueue | null = null;
-    if (voiceConfig.autoSpeak && (!voiceConfig.voiceEngine || voiceConfig.voiceEngine === 'instant')) {
-      speechQueue = new SentenceSpeechQueue(
-        currentLanguage.speechCode || 'hi-IN',
-        {
-          speed: voiceConfig.speed,
-          pitch: voiceConfig.pitch,
-          voiceName: voiceConfig.voiceName,
-          vocalFeeling: voiceConfig.vocalFeeling,
-        },
-        () => setIsSpeaking(true),
-        () => {
-          setIsSpeaking(false);
-          speechQueueRef.current = null;
-          if (voiceConfig.handsFree) {
-            startListeningProcess();
-          }
-        }
-      );
-      speechQueueRef.current = speechQueue;
-    }
-
     // Behavior Rules 1 & 2:
     // 1. Check if user's question closely matches any question stored in "faqs" collection in Firebase.
     // 2. If a close match is found, return ONLY that stored answer exactly as written in Firebase.
     const directFaqAnswer = matchFAQFromFirebase(promptText);
     if (directFaqAnswer) {
       setIsThinking(false);
-      if (speechQueue) {
-        speechQueue.addChunk(directFaqAnswer);
-        speechQueue.flush();
-      }
 
       setActiveSession((curr) => {
         if (!curr) return null;
@@ -418,7 +391,7 @@ export default function App() {
         return updated;
       });
 
-      if (!speechQueue && voiceConfig.autoSpeak) {
+      if (voiceConfig.autoSpeak) {
         handlePlaySpeech(directFaqAnswer, currentLanguage.speechCode, assistantMsgId);
       }
 
@@ -490,10 +463,6 @@ export default function App() {
                 if (parsed.text) {
                   streamedText += parsed.text;
 
-                  if (speechQueue) {
-                    speechQueue.addChunk(parsed.text);
-                  }
-
                   setSessions((prevSessions) => {
                     return prevSessions.map((s) => {
                       if (s.id === activeSession.id) {
@@ -513,10 +482,6 @@ export default function App() {
             }
           }
         }
-      }
-
-      if (speechQueue) {
-        speechQueue.flush();
       }
 
       setIsThinking(false);
@@ -561,8 +526,8 @@ export default function App() {
         return updated;
       });
 
-      // Fallback or Cloud Voice speech trigger if speechQueue was not active
-      if (!speechQueue && voiceConfig.autoSpeak && finalAssistantMsgText) {
+      // Automatic ElevenLabs speech playback trigger
+      if (voiceConfig.autoSpeak && finalAssistantMsgText) {
         handlePlaySpeech(finalAssistantMsgText, currentLanguage.speechCode, assistantMsgId);
       }
     } catch (error: any) {
@@ -571,13 +536,6 @@ export default function App() {
       // Check if we can answer immediately from Firebase Knowledge Base
       const firebaseDirectAnswer = findInstantFirebaseAnswer(promptText, currentLanguage.code || 'hi-IN');
       const fallbackMsg = firebaseDirectAnswer || 'ClickCraft डिजिटल मार्केटिंग असिस्टेंट: हमारी सर्विसेज़ (₹500 Ads, ₹5000 Website, ₹10000 Combo) और अन्य सहायता के लिए WhatsApp (+91 9376124893) पर संपर्क करें।';
-
-      if (speechQueue) {
-        speechQueue.addChunk(fallbackMsg);
-        speechQueue.flush();
-      } else if (voiceConfig.autoSpeak) {
-        handlePlaySpeech(fallbackMsg, currentLanguage.speechCode, assistantMsgId);
-      }
 
       setIsThinking(false);
 
@@ -598,6 +556,10 @@ export default function App() {
         saveSession(updated);
         return updated;
       });
+
+      if (voiceConfig.autoSpeak) {
+        handlePlaySpeech(fallbackMsg, currentLanguage.speechCode, assistantMsgId);
+      }
     }
   };
 

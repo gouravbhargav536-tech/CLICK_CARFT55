@@ -195,8 +195,8 @@ async function startServer() {
     }
   });
 
-  // ElevenLabs Text-to-Speech API Endpoint (Ultra-realistic Hindi Speaker)
-  app.post("/api/elevenlabs-tts", async (req, res) => {
+  // ElevenLabs Text-to-Speech API Endpoint (Exclusive Ultra-realistic Hindi Speaker)
+  app.post(["/api/elevenlabs-tts", "/api/tts", "/api/cloud-tts"], async (req, res) => {
     try {
       const { text, apiKey: clientApiKey, voiceId = "EXAVITQu4vr4xnSDxMaL" } = req.body;
       if (!text || typeof text !== "string" || !text.trim()) {
@@ -210,24 +210,13 @@ async function startServer() {
         process.env.XI_API_KEY;
 
       if (!apiKey) {
-        // Fallback to Edge TTS Swara Neural if no ElevenLabs key is configured
-        try {
-          const tts = new MsEdgeTTS();
-          await tts.setMetadata("hi-IN-SwaraNeural", OUTPUT_FORMAT.AUDIO_24KHZ_96KBITRATE_MONO_MP3);
-          const { audioStream } = tts.toStream(text.trim(), { rate: "+6%", pitch: "+0Hz" });
-          const chunks: Buffer[] = [];
-          audioStream.on("data", (chunk: Buffer) => chunks.push(chunk));
-          audioStream.on("end", () => {
-            res.json({ audioContent: Buffer.concat(chunks).toString("base64") });
-          });
-          return;
-        } catch {
-          res.status(500).json({ error: "ELEVENLABS_API_KEY is not configured on server." });
-          return;
-        }
+        res.status(400).json({
+          error: "ElevenLabs API key is required. Please add your ElevenLabs API Key in Settings to enable the Hindi voice.",
+        });
+        return;
       }
 
-      const selectedVoice = voiceId || "EXAVITQu4vr4xnSDxMaL"; // Sarah (Fluent multilingual Hindi voice)
+      const selectedVoice = voiceId || "EXAVITQu4vr4xnSDxMaL"; // Sarah (Crystal-clear, emotionally expressive Hindi voice)
       const elevenRes = await fetch(
         `https://api.elevenlabs.io/v1/text-to-speech/${selectedVoice}?output_format=mp3_44100_128`,
         {
@@ -252,25 +241,12 @@ async function startServer() {
 
       if (!elevenRes.ok) {
         const errText = await elevenRes.text();
-        console.warn("[ElevenLabs API Error, falling back to Edge Neural]:", errText);
-        // Fallback to Edge TTS Swara Neural on ElevenLabs error
-        try {
-          const tts = new MsEdgeTTS();
-          await tts.setMetadata("hi-IN-SwaraNeural", OUTPUT_FORMAT.AUDIO_24KHZ_96KBITRATE_MONO_MP3);
-          const { audioStream } = tts.toStream(text.trim(), { rate: "+6%", pitch: "+0Hz" });
-          const chunks: Buffer[] = [];
-          audioStream.on("data", (chunk: Buffer) => chunks.push(chunk));
-          audioStream.on("end", () => {
-            res.json({ audioContent: Buffer.concat(chunks).toString("base64") });
-          });
-          return;
-        } catch {
-          res.status(elevenRes.status).json({
-            error: "Failed to synthesize speech with ElevenLabs",
-            details: errText,
-          });
-          return;
-        }
+        console.error("[ElevenLabs API Error]:", errText);
+        res.status(elevenRes.status).json({
+          error: "Failed to synthesize speech with ElevenLabs",
+          details: errText,
+        });
+        return;
       }
 
       const audioBuffer = await elevenRes.arrayBuffer();
@@ -280,151 +256,6 @@ async function startServer() {
       console.error("[ElevenLabs Server Error]:", err);
       res.status(500).json({
         error: err?.message || "Internal server error during ElevenLabs speech synthesis.",
-      });
-    }
-  });
-
-  // Google Cloud Neural2 & Unified Text-to-Speech API Endpoint
-  app.post(["/api/tts", "/api/cloud-tts"], async (req, res) => {
-    try {
-      const { text, apiKey: clientApiKey, voice = "hi-IN-Neural2-A", voiceId } = req.body;
-      if (!text || typeof text !== "string" || !text.trim()) {
-        res.status(400).json({ error: "Missing 'text' in request body." });
-        return;
-      }
-
-      // Check if ElevenLabs key is available first
-      const elevenKey =
-        process.env.ELEVENLABS_API_KEY ||
-        process.env.XI_API_KEY;
-
-      if (elevenKey) {
-        try {
-          const selectedVoice = voiceId || "EXAVITQu4vr4xnSDxMaL";
-          const elevenRes = await fetch(
-            `https://api.elevenlabs.io/v1/text-to-speech/${selectedVoice}?output_format=mp3_44100_128`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "xi-api-key": elevenKey,
-                "Accept": "audio/mpeg",
-              },
-              body: JSON.stringify({
-                text: text.trim(),
-                model_id: "eleven_multilingual_v2",
-                voice_settings: {
-                  stability: 0.5,
-                  similarity_boost: 0.8,
-                  style: 0.0,
-                  use_speaker_boost: true,
-                },
-              }),
-            }
-          );
-
-          if (elevenRes.ok) {
-            const audioBuffer = await elevenRes.arrayBuffer();
-            const base64Audio = Buffer.from(audioBuffer).toString("base64");
-            res.json({ audioContent: base64Audio });
-            return;
-          }
-        } catch (e) {
-          console.warn("[ElevenLabs Unified TTS fallback]:", e);
-        }
-      }
-
-      const apiKey =
-        clientApiKey ||
-        process.env.GOOGLE_TTS_API_KEY ||
-        process.env.GOOGLE_CLOUD_API_KEY ||
-        process.env.GEMINI_API_KEY;
-
-      if (!apiKey) {
-        // Automatically fallback to Edge TTS Swara Neural if no Google Cloud key is set!
-        try {
-          const tts = new MsEdgeTTS();
-          await tts.setMetadata("hi-IN-SwaraNeural", OUTPUT_FORMAT.AUDIO_24KHZ_96KBITRATE_MONO_MP3);
-          const { audioStream } = tts.toStream(text.trim(), { rate: "+6%", pitch: "+0Hz" });
-          const chunks: Buffer[] = [];
-
-          audioStream.on("data", (chunk: Buffer) => {
-            chunks.push(chunk);
-          });
-
-          audioStream.on("end", () => {
-            const audioBuffer = Buffer.concat(chunks);
-            res.json({ audioContent: audioBuffer.toString("base64") });
-          });
-
-          audioStream.on("error", (err) => {
-            res.status(500).json({ error: "Edge TTS fallback failed" });
-          });
-          return;
-        } catch (edgeErr) {
-          res.status(500).json({
-            error: "GOOGLE_TTS_API_KEY is not configured on server.",
-          });
-          return;
-        }
-      }
-
-      // Try Google Cloud Neural2 high-definition voices
-      const ttsRes = await fetch(
-        `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            input: { text: text.trim() },
-            voice: {
-              languageCode: "hi-IN",
-              name: voice || "hi-IN-Neural2-A",
-            },
-            audioConfig: {
-              audioEncoding: "MP3",
-              speakingRate: 1.05,
-              pitch: 0.0,
-            },
-          }),
-        }
-      );
-
-      if (!ttsRes.ok) {
-        const errText = await ttsRes.text();
-        console.warn("[Google Cloud TTS API Error, trying Edge Neural TTS]:", errText);
-        // If Google Cloud fails (e.g. quota or permissions), fallback immediately to Edge TTS Neural voice
-        try {
-          const tts = new MsEdgeTTS();
-          await tts.setMetadata("hi-IN-SwaraNeural", OUTPUT_FORMAT.AUDIO_24KHZ_96KBITRATE_MONO_MP3);
-          const { audioStream } = tts.toStream(text.trim(), { rate: "+6%", pitch: "+0Hz" });
-          const chunks: Buffer[] = [];
-          audioStream.on("data", (chunk: Buffer) => chunks.push(chunk));
-          audioStream.on("end", () => {
-            res.json({ audioContent: Buffer.concat(chunks).toString("base64") });
-          });
-          audioStream.on("error", () => {
-            res.status(ttsRes.status).json({
-              error: "Failed to synthesize speech with Google Cloud TTS",
-              details: errText,
-            });
-          });
-          return;
-        } catch {
-          res.status(ttsRes.status).json({
-            error: "Failed to synthesize speech with Google Cloud TTS",
-            details: errText,
-          });
-          return;
-        }
-      }
-
-      const data: any = await ttsRes.json();
-      res.json({ audioContent: data.audioContent });
-    } catch (err: any) {
-      console.error("[TTS Server Error]:", err);
-      res.status(500).json({
-        error: err?.message || "Internal server error during speech synthesis.",
       });
     }
   });

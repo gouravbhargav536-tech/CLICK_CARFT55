@@ -8,13 +8,13 @@ const STORAGE_KEYS = {
 };
 
 export const DEFAULT_VOICE_CONFIG: VoiceConfig = {
-  voiceName: 'Swara / Google हिन्दी (Fast Hindi)',
-  speed: 1.25,
-  pitch: 1.05,
+  voiceName: 'ElevenLabs Multilingual v2 (Hindi)',
+  speed: 1.0,
+  pitch: 1.0,
   autoSpeak: true,
   handsFree: false,
   visualizerPreset: 'quantum',
-  voiceEngine: 'instant',
+  voiceEngine: 'elevenlabs',
   vocalFeeling: 'natural',
   responseMode: 'quick',
 };
@@ -83,7 +83,7 @@ export function getVoiceConfig(): VoiceConfig {
   const raw = localStorage.getItem(STORAGE_KEYS.VOICE_CONFIG);
   if (!raw) return DEFAULT_VOICE_CONFIG;
   const decoded = decodeData(raw);
-  return { ...DEFAULT_VOICE_CONFIG, ...decoded };
+  return { ...DEFAULT_VOICE_CONFIG, ...decoded, voiceEngine: 'elevenlabs', autoSpeak: true };
 }
 
 export function saveVoiceConfig(config: VoiceConfig): void {

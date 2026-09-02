@@ -419,8 +419,7 @@ export async function playElevenLabsTTS(
 }
 
 /**
- * Play text using Google Cloud Text-to-Speech REST API (hi-IN-Neural2-A / Neural2-D)
- * Automatically utilizes the user's saved Gemini / Google API Key or server credentials.
+ * Play text using Google Cloud Text-to-Speech REST API - Routed to ElevenLabs exclusive voice
  */
 export async function playCloudTTS(
   text: string,
@@ -428,59 +427,11 @@ export async function playCloudTTS(
   onEnd?: () => void,
   onError?: (err: any) => void
 ): Promise<void> {
-  try {
-    const keys = getCustomApiKeys();
-    const apiKey = keys.gemini || undefined;
-
-    const response = await fetch('/api/cloud-tts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        text,
-        apiKey,
-        voice: 'hi-IN-Neural2-A',
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => '');
-      throw new Error(`Cloud TTS failed with status ${response.status}: ${errorText}`);
-    }
-
-    const data = await response.json();
-    if (!data.audioContent) {
-      throw new Error('No audio content received from TTS service.');
-    }
-
-    const audioUrl = `data:audio/mp3;base64,${data.audioContent}`;
-    const audio = new Audio(audioUrl);
-    activeCloudAudio = audio;
-
-    audio.onplay = () => {
-      if (onStart) onStart();
-    };
-
-    audio.onended = () => {
-      activeCloudAudio = null;
-      if (onEnd) onEnd();
-    };
-
-    audio.onerror = (e) => {
-      activeCloudAudio = null;
-      if (onError) onError(e);
-      if (onEnd) onEnd();
-    };
-
-    await audio.play();
-  } catch (err) {
-    activeCloudAudio = null;
-    throw err;
-  }
+  return playElevenLabsTTS(text, onStart, onEnd, onError);
 }
 
 /**
- * Play text using Gemini 3.1 Flash TTS (gemini-3.1-flash-tts-preview)
- * Ultra-natural conversational AI prosody powered by your Google / Gemini API key.
+ * Play text using Gemini TTS - Routed to ElevenLabs exclusive voice
  */
 export async function playGeminiTTS(
   text: string,
@@ -488,113 +439,19 @@ export async function playGeminiTTS(
   onEnd?: () => void,
   onError?: (err: any) => void
 ): Promise<void> {
-  try {
-    const keys = getCustomApiKeys();
-    const apiKey = keys.gemini || undefined;
-
-    const response = await fetch('/api/gemini-tts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        text,
-        apiKey,
-        voice: 'Kore',
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => '');
-      throw new Error(`Gemini TTS failed with status ${response.status}: ${errorText}`);
-    }
-
-    const data = await response.json();
-    if (!data.audioContent) {
-      throw new Error('No audio content received from Gemini TTS service.');
-    }
-
-    const audioUrl = `data:audio/mp3;base64,${data.audioContent}`;
-    const audio = new Audio(audioUrl);
-    activeCloudAudio = audio;
-
-    audio.onplay = () => {
-      if (onStart) onStart();
-    };
-
-    audio.onended = () => {
-      activeCloudAudio = null;
-      if (onEnd) onEnd();
-    };
-
-    audio.onerror = (e) => {
-      activeCloudAudio = null;
-      if (onError) onError(e);
-      if (onEnd) onEnd();
-    };
-
-    await audio.play();
-  } catch (err) {
-    activeCloudAudio = null;
-    throw err;
-  }
+  return playElevenLabsTTS(text, onStart, onEnd, onError);
 }
 
 /**
- * Play text using the Browser SpeechSynthesis API with the best available Hindi voice
+ * Play text using Browser Speech - Routed to ElevenLabs exclusive voice
  */
 export async function playBrowserSpeech(
   text: string,
   onStart?: () => void,
   onEnd?: () => void,
-  onError?: (err: any) => void,
-  customOptions?: { rate?: number; pitch?: number; volume?: number }
+  onError?: (err: any) => void
 ): Promise<void> {
-  if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
-    if (onEnd) onEnd();
-    return;
-  }
-
-  const cleanText = normalizeHindiTextForTTS(text);
-  if (!cleanText) {
-    if (onEnd) onEnd();
-    return;
-  }
-
-  try {
-    window.speechSynthesis.cancel();
-  } catch {}
-
-  const voices = await getBrowserVoices();
-  const bestVoice = getBestHindiVoice(voices);
-
-  const utterance = new SpeechSynthesisUtterance(cleanText);
-  utterance.lang = 'hi-IN';
-  
-  // Rate 1.10 (fast, crisp, energetic cadence), Pitch 1.02, Volume 1.0
-  utterance.rate = customOptions?.rate ?? 1.10;
-  utterance.pitch = customOptions?.pitch ?? 1.02;
-  utterance.volume = customOptions?.volume ?? 1.0;
-
-  if (bestVoice) {
-    utterance.voice = bestVoice;
-  }
-
-  let hasStarted = false;
-
-  utterance.onstart = () => {
-    hasStarted = true;
-    if (onStart) onStart();
-  };
-
-  utterance.onend = () => {
-    if (onEnd) onEnd();
-  };
-
-  utterance.onerror = (event) => {
-    if (onError) onError(event);
-    if (onEnd) onEnd();
-  };
-
-  window.speechSynthesis.speak(utterance);
+  return playElevenLabsTTS(text, onStart, onEnd, onError);
 }
 
 /**
@@ -711,8 +568,7 @@ export function normalizeHindiTextForTTS(rawText: string): string {
 }
 
 /**
- * Play text using Microsoft Edge Neural TTS (hi-IN-SwaraNeural / hi-IN-MadhurNeural)
- * Produces hyper-realistic, human-like Hindi voice without requiring any API key.
+ * Play text using Edge TTS - Routed to ElevenLabs exclusive voice
  */
 export async function playEdgeTTS(
   text: string,
@@ -720,67 +576,12 @@ export async function playEdgeTTS(
   onEnd?: () => void,
   onError?: (err: any) => void
 ): Promise<void> {
-  try {
-    const cleanText = normalizeHindiTextForTTS(text);
-    if (!cleanText) {
-      if (onEnd) onEnd();
-      return;
-    }
-
-    const response = await fetch('/api/edge-tts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        text: cleanText,
-        voice: 'hi-IN-SwaraNeural',
-        rate: '+10%',
-        pitch: '+0Hz',
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => '');
-      throw new Error(`Edge TTS failed with status ${response.status}: ${errorText}`);
-    }
-
-    const data = await response.json();
-    if (!data.audioContent) {
-      throw new Error('No audio content received from Edge TTS service.');
-    }
-
-    const audioUrl = `data:audio/mp3;base64,${data.audioContent}`;
-    const audio = new Audio(audioUrl);
-    activeCloudAudio = audio;
-
-    audio.onplay = () => {
-      if (onStart) onStart();
-    };
-
-    audio.onended = () => {
-      activeCloudAudio = null;
-      if (onEnd) onEnd();
-    };
-
-    audio.onerror = (e) => {
-      activeCloudAudio = null;
-      if (onError) onError(e);
-      if (onEnd) onEnd();
-    };
-
-    await audio.play();
-  } catch (err) {
-    activeCloudAudio = null;
-    throw err;
-  }
+  return playElevenLabsTTS(text, onStart, onEnd, onError);
 }
 
 /**
  * Main function to speak Hindi text when user clicks "Listen" or AI speaks.
- * Priority cascade:
- * 1. ElevenLabs TTS (eleven_multilingual_v2 - ultra-realistic, natural human Hindi voice)
- * 2. Microsoft Edge Neural TTS (hi-IN-SwaraNeural - studio-quality 96kbps natural voice)
- * 3. Google Cloud Neural2 / Gemini TTS (powered by user's API key or server key)
- * 4. Browser SpeechSynthesis API with the BEST available Hindi voice
+ * Exclusively uses ElevenLabs multilingual voice (eleven_multilingual_v2).
  */
 export async function speakHindi(
   text: string,
@@ -797,46 +598,18 @@ export async function speakHindi(
     return;
   }
 
-  const customKeys = getCustomApiKeys();
-  const hasElevenLabsKey = !!customKeys.elevenlabs;
-  const hasUserGeminiKey = !!customKeys.gemini;
-
-  // 1. Prioritize ElevenLabs TTS (Custom Key or Server ELEVENLABS_API_KEY)
+  // Strictly and exclusively use ElevenLabs TTS
   try {
     await playElevenLabsTTS(cleanText, onStart, onEnd, onError);
-    return;
-  } catch (elevenErr) {
-    console.warn('ElevenLabs TTS failed or not configured, trying Edge Neural fallback:', elevenErr);
-  }
-
-  // 2. Microsoft Edge Neural TTS (Studio-Quality 96kbps Neural Hindi Voice hi-IN-SwaraNeural)
-  if (USE_EDGE_TTS) {
-    try {
-      await playEdgeTTS(cleanText, onStart, onEnd, onError);
-      return;
-    } catch (edgeErr) {
-      console.warn('Edge Neural TTS failed, falling back to Cloud / Browser Speech:', edgeErr);
+  } catch (elevenErr: any) {
+    console.error('ElevenLabs exclusive TTS error:', elevenErr);
+    if (onError) {
+      onError(elevenErr);
+    }
+    if (onEnd) {
+      onEnd();
     }
   }
-
-  // 3. Google Cloud Neural2 / Gemini TTS
-  if (hasUserGeminiKey || USE_CLOUD_TTS) {
-    try {
-      await playCloudTTS(cleanText, onStart, onEnd, onError);
-      return;
-    } catch (cloudErr) {
-      console.warn('Google Cloud Neural2 TTS failed:', cloudErr);
-    }
-  }
-
-  // 4. Fallback to Cloud Neural if not tried yet
-  try {
-    await playCloudTTS(cleanText, onStart, onEnd, onError);
-    return;
-  } catch {}
-
-  // 5. Browser SpeechSynthesis API with best Hindi voice
-  await playBrowserSpeech(cleanText, onStart, onEnd, onError);
 }
 
 // Text to speech playback helper (Compatible with legacy callers & queues)
@@ -944,7 +717,7 @@ export class SentenceSpeechQueue {
     }
   }
 
-  private playNext() {
+  private async playNext() {
     if (this.queue.length === 0) {
       this.isPlaying = false;
       if (this.textBuffer.length === 0 && this.onFinishedAll) {
@@ -961,65 +734,29 @@ export class SentenceSpeechQueue {
 
     const sentence = this.queue.shift()!;
 
-    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+    try {
+      await playElevenLabsTTS(
+        sentence,
+        undefined,
+        () => {
+          setTimeout(() => {
+            this.playNext();
+          }, 35);
+        },
+        () => {
+          this.playNext();
+        }
+      );
+    } catch {
       this.playNext();
-      return;
     }
-
-    const isHindiText = /[\u0900-\u097F]/.test(sentence);
-    const effectiveLang = isHindiText ? 'hi-IN' : this.langCode;
-    const utterance = new SpeechSynthesisUtterance(sentence);
-    utterance.lang = effectiveLang;
-
-    const feeling = this.options.vocalFeeling || 'natural';
-    let pitch = this.options.pitch || 1.05;
-    let speed = this.options.speed || (effectiveLang.startsWith('hi') ? 1.25 : 1.15);
-
-    if (feeling === 'sad') {
-      pitch = 0.90;
-      speed = 0.95;
-    } else if (feeling === 'warm') {
-      pitch = 1.04;
-      speed = 1.15;
-    } else if (feeling === 'upbeat') {
-      pitch = 1.10;
-      speed = 1.30;
-    } else if (feeling === 'calm') {
-      pitch = 1.00;
-      speed = 1.10;
-    }
-
-    utterance.rate = Math.max(0.5, Math.min(2.0, speed));
-    utterance.pitch = Math.max(0.5, Math.min(1.5, pitch));
-
-    const matchedVoice = getBestHumanVoice(effectiveLang, feeling, this.options.voiceName);
-    if (matchedVoice) {
-      utterance.voice = matchedVoice;
-    }
-
-    utterance.onend = () => {
-      // Fast, snappy delay (35ms) between sentences
-      setTimeout(() => {
-        this.playNext();
-      }, 35);
-    };
-
-    utterance.onerror = () => {
-      this.playNext();
-    };
-
-    window.speechSynthesis.speak(utterance);
   }
 
   public clear() {
     this.queue = [];
     this.textBuffer = '';
     this.isPlaying = false;
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      try {
-        window.speechSynthesis.cancel();
-      } catch {}
-    }
+    stopSpeech();
   }
 }
 
