@@ -87,18 +87,18 @@ export const ServicesShowcaseCard: React.FC<ServicesShowcaseCardProps> = ({
                     </span>
                   )}
                 </div>
-                <p className="text-[11px] text-[#B0B0B0] leading-relaxed">
+                <p className="text-[11.5px] font-medium text-white/90 leading-relaxed">
                   {service.subtitle}
                 </p>
               </div>
 
               {/* Price Tag */}
               <div className="text-right shrink-0">
-                <span className="text-base font-extrabold text-[#D4A017]">
+                <span className="text-base font-black text-[#D4A017]">
                   {service.priceFormatted}
                 </span>
                 {service.originalPrice && (
-                  <p className="text-[10px] text-[#707070] line-through">
+                  <p className="text-[10.5px] text-[#A0A0A0] line-through font-semibold">
                     {service.originalPrice}
                   </p>
                 )}
@@ -109,10 +109,10 @@ export const ServicesShowcaseCard: React.FC<ServicesShowcaseCardProps> = ({
             <div className="mt-2.5 pt-2 border-t border-[#242A32] flex items-center justify-between gap-2">
               <button
                 onClick={(e) => handleWhatsAppRedirect(service, e)}
-                className="text-[11px] font-medium text-[#B0B0B0] hover:text-[#D4A017] flex items-center gap-1.5 transition-colors"
+                className="text-[11.5px] font-semibold text-white/80 hover:text-[#D4A017] flex items-center gap-1.5 transition-colors"
                 title="Quick chat on WhatsApp"
               >
-                <MessageSquare className="w-3 h-3 text-[#D4A017]" />
+                <MessageSquare className="w-3.5 h-3.5 text-[#D4A017]" />
                 <span>WhatsApp inquiry</span>
               </button>
 

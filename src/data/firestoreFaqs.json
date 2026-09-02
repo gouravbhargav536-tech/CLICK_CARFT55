@@ -1,0 +1,722 @@
+[
+  {
+    "id": 1,
+    "question_en": "What is digital marketing?",
+    "question_hi": "डिजिटल मार्केटिंग क्या है?",
+    "answer_en": "Digital marketing means promoting your product or service using the internet — through Facebook, Instagram, Google, WhatsApp, or a website — instead of traditional posters or newspaper ads. It lets you reach the right people with a much smaller budget.",
+    "answer_hi": "डिजिटल मार्केटिंग का मतलब है इंटरनेट के ज़रिए अपने बिज़नेस को बढ़ावा देना — Facebook, Instagram, Google, WhatsApp या वेबसाइट के ज़रिए। इससे बहुत कम बजट में सही लोगों तक पहुँचा जा सकता है।",
+    "keywords": ["digital marketing kya hai", "digital marketing meaning", "what is digital marketing", "digital marketng", "digitl marketing", "online marketing kya h"]
+  },
+  {
+    "id": 2,
+    "question_en": "How is digital marketing different from traditional marketing?",
+    "question_hi": "डिजिटल मार्केटिंग और पारंपरिक मार्केटिंग में क्या फर्क है?",
+    "answer_en": "Traditional marketing (posters, pamphlets, newspaper ads) doesn't tell you how many people actually saw it. Digital marketing shows exact numbers — views, clicks, and purchases — so every rupee is accounted for.",
+    "answer_hi": "पारंपरिक मार्केटिंग (पोस्टर, पर्चे) में पता नहीं चलता कितनों ने देखा। डिजिटल मार्केटिंग में views, clicks और खरीदारी का पूरा हिसाब मिलता है।",
+    "keywords": ["difference digital traditional marketing", "traditional vs digital", "purani marketing v naya marketing", "old marketing vs new"]
+  },
+  {
+    "id": 3,
+    "question_en": "Is digital marketing necessary for small businesses?",
+    "question_hi": "क्या छोटे बिज़नेस के लिए डिजिटल मार्केटिंग ज़रूरी है?",
+    "answer_en": "Yes, absolutely — it's even more useful for small businesses because it doesn't need a big budget. With just ₹500, you can reach the right nearby customers, something traditional ads can't do.",
+    "answer_hi": "बिल्कुल ज़रूरी है, खासकर छोटे बिज़नेस के लिए क्योंकि इसमें बड़े बजट की ज़रूरत नहीं। सिर्फ ₹500 से सही आस-पास के ग्राहकों तक पहुँच सकते हैं।",
+    "keywords": ["small business digital marketing", "chota business ke liye marketing", "is it necessary for small business"]
+  },
+  {
+    "id": 4,
+    "question_en": "What benefits does digital marketing bring to a business?",
+    "question_hi": "डिजिटल मार्केटिंग से बिज़नेस को क्या फायदा होता है?",
+    "answer_en": "It helps your business reach more people, get new customers, increase sales, and — most importantly — makes your brand look trustworthy and professional in people's eyes.",
+    "answer_hi": "इससे बिज़नेस ज़्यादा लोगों तक पहुँचता है, नए ग्राहक मिलते हैं, बिक्री बढ़ती है, और ब्रांड भरोसेमंद व प्रोफेशनल दिखता है।",
+    "keywords": ["benefits of digital marketing", "digital marketing se fayda", "kya fayda hota h", "advantages digital marketing"]
+  },
+  {
+    "id": 5,
+    "question_en": "How long does it take to see results from digital marketing?",
+    "question_hi": "डिजिटल मार्केटिंग में रिज़ल्ट कितने दिन में दिखता है?",
+    "answer_en": "It depends — social media ads can bring inquiries in 2-3 days, but building strong brand trust usually takes 3-4 weeks of consistent effort. Those who stay consistent see the best long-term results.",
+    "answer_hi": "ये निर्भर करता है — सोशल मीडिया ऐड्स से 2-3 दिन में पूछताछ शुरू हो सकती है, लेकिन मज़बूत भरोसा बनाने में 3-4 हफ्ते लगते हैं। लगातार कोशिश करने वालों को सबसे ज़्यादा फायदा होता है।",
+    "keywords": ["result kitne din me", "how long results", "kb tk result milega", "time lagta h kitna"]
+  },
+  {
+    "id": 6,
+    "question_en": "Is digital marketing expensive?",
+    "question_hi": "क्या डिजिटल मार्केटिंग महंगी होती है?",
+    "answer_en": "No, it's customized to your budget. You can start with just ₹500 and increase spending as results come in — it works out far cheaper than traditional advertising.",
+    "answer_hi": "नहीं, ये आपके बजट के हिसाब से होती है। ₹500 से शुरुआत कर सकते हैं और रिज़ल्ट मिलने पर बढ़ा सकते हैं — पारंपरिक विज्ञापन से कई गुना सस्ती।",
+    "keywords": ["expensive kya", "costly h kya", "budget kitna chahiye", "kitna kharcha ata h"]
+  },
+  {
+    "id": 7,
+    "question_en": "Should I learn digital marketing myself or hire someone?",
+    "question_hi": "क्या मुझे डिजिटल मार्केटिंग खुद सीखनी चाहिए या किसी से करवानी चाहिए?",
+    "answer_en": "If you have time you can learn it, but it needs daily attention, testing, and experience. Most business owners prefer to focus on their product and hand marketing to an expert — this reduces mistakes and makes sure the budget is spent well.",
+    "answer_hi": "अगर समय है तो सीख सकते हैं, लेकिन इसमें रोज़ाना समय और experience चाहिए। ज़्यादातर लोग अपना ध्यान प्रोडक्ट पर रखते हैं और मार्केटिंग एक्सपर्ट को सौंप देते हैं — गलतियाँ कम होती हैं।",
+    "keywords": ["khud sikhu ya kisi se karwau", "myself learn or hire", "self learning marketing"]
+  },
+  {
+    "id": 8,
+    "question_en": "What is advertisement?",
+    "question_hi": "विज्ञापन (Advertisement) क्या है?",
+    "answer_en": "Advertisement is a way of telling people about your product or service so they buy it. Online, we show your product to the right people on Facebook, Instagram, or Google — people who are genuinely interested in buying.",
+    "answer_hi": "विज्ञापन एक तरीका है जिससे लोगों को आपके प्रोडक्ट/सर्विस के बारे में बताया जाता है ताकि वो खरीदें। ऑनलाइन हम आपके प्रोडक्ट को सही, दिलचस्पी रखने वाले लोगों तक Facebook/Instagram/Google पर दिखाते हैं।",
+    "keywords": ["what is advertisement", "advertisment kya h", "ads kya hota h", "vigyapan kya hai", "adverticement"]
+  },
+  {
+    "id": 9,
+    "question_en": "How do Facebook and Instagram ads work?",
+    "question_hi": "Facebook/Instagram Ads कैसे काम करते हैं?",
+    "answer_en": "We define your audience — age, location, interests — and show your ad only to those specific people. This means no wasted budget, and your message reaches genuinely interested customers.",
+    "answer_hi": "हम आपकी ऑडियंस तय करते हैं — उम्र, लोकेशन, दिलचस्पी — और विज्ञापन सिर्फ उन्हीं सही लोगों को दिखाते हैं, जिससे पैसा बर्बाद नहीं होता।",
+    "keywords": ["facebook ads kaise kaam karte h", "instagram ads how work", "fb ads kya h"]
+  },
+  {
+    "id": 10,
+    "question_en": "What are Google Ads?",
+    "question_hi": "Google Ads क्या होते हैं?",
+    "answer_en": "When someone searches for something on Google (like 'good salon near me'), Google Ads shows your business right at the top. Since the customer is actively searching, leads from here tend to be genuine buyers.",
+    "answer_hi": "जब कोई Google पर कुछ सर्च करता है, Google Ads आपके बिज़नेस को सबसे ऊपर दिखाता है। ग्राहक खुद ढूंढ रहा होता है, इसलिए यहाँ से मिलने वाले ग्राहक असली खरीदार होते हैं।",
+    "keywords": ["google ads kya h", "google ad kese kaam krta h", "what is google ads"]
+  },
+  {
+    "id": 11,
+    "question_en": "What kind of advertisement should I choose?",
+    "question_hi": "मुझे किस तरह का विज्ञापन लेना चाहिए?",
+    "answer_en": "It depends on your business. Local shops/services do best with Facebook/Instagram Ads. If customers search for you on Google (like doctors, clinics, service centers), Google Ads works better. I can suggest the right fit once I know more about your business.",
+    "answer_hi": "ये आपके बिज़नेस पर निर्भर करता है। लोकल दुकान के लिए Facebook/Instagram Ads सही रहते हैं, और अगर लोग Google पर ढूंढते हैं तो Google Ads बेहतर। बताइए आपका बिज़नेस क्या है, मैं सुझाव दे दूँगा।",
+    "keywords": ["konsa ad lu", "which ad choose", "kaunsa advertisement sahi rahega"]
+  },
+  {
+    "id": 12,
+    "question_en": "Can a low budget still give good ad results?",
+    "question_hi": "कम बजट में भी अच्छा विज्ञापन चल सकता है क्या?",
+    "answer_en": "Yes — an ad's effectiveness depends more on the right targeting and design than the budget size. Our ₹500 'Buy Ads' package includes targeted campaigns, daily reports, and correct audience targeting.",
+    "answer_hi": "हाँ बिल्कुल — विज्ञापन का असर बजट से ज़्यादा सही टार्गेटिंग और डिज़ाइन पर निर्भर करता है। हमारे ₹500 वाले पैकेज में targeted campaign और daily report शामिल है।",
+    "keywords": ["kam budget me ad", "low budget ads possible", "sasta advertisement"]
+  },
+  {
+    "id": 13,
+    "question_en": "How will I know if the ad is giving results?",
+    "question_hi": "विज्ञापन से मुझे कैसे पता चलेगा कि रिज़ल्ट मिल रहा है?",
+    "answer_en": "We provide a daily performance report showing how many people saw the ad, how many clicked, and how many inquired — so you can clearly see where your money is going.",
+    "answer_hi": "हम daily performance report देते हैं — कितनों ने देखा, क्लिक किया, पूछताछ आई — ताकि आपको पूरा हिसाब पता चले।",
+    "keywords": ["result kaise pata chalega", "report milegi kya", "performance kaise dekhu"]
+  },
+  {
+    "id": 14,
+    "question_en": "Will running an ad once bring customers forever?",
+    "question_hi": "क्या विज्ञापन एक बार चलाने से हमेशा के लिए ग्राहक मिलते रहेंगे?",
+    "answer_en": "No — an ad's effect lasts only while it's running, like a shop signboard is only visible while it's up. That's why consistent, well-run advertising is important to keep new customers coming.",
+    "answer_hi": "नहीं, विज्ञापन का असर तब तक रहता है जब तक चल रहा हो — जैसे दुकान का बोर्ड जब तक लगा है तभी दिखता है। इसलिए लगातार विज्ञापन ज़रूरी है।",
+    "keywords": ["ek baar ad chalane se hamesha customer", "one time ad forever customer"]
+  },
+  {
+    "id": 15,
+    "question_en": "What is a website?",
+    "question_hi": "वेबसाइट क्या होती है?",
+    "answer_en": "A website is your business's online home — where people can see your products, services, prices, photos and contact details, any time of day. It's your shop's digital identity.",
+    "answer_hi": "वेबसाइट आपके बिज़नेस का ऑनलाइन घर है — जहाँ लोग आपके प्रोडक्ट, सर्विस, कीमत, फोटो, contact details कभी भी देख सकते हैं।",
+    "keywords": ["website kya h", "what is website", "websait kya hoti h", "webste kya h"]
+  },
+  {
+    "id": 16,
+    "question_en": "Why do I need a website when I have a Facebook page?",
+    "question_hi": "वेबसाइट क्यों ज़रूरी है, जब मेरे पास Facebook पेज है?",
+    "answer_en": "A Facebook page is good, but a website makes you look far more professional and trustworthy. When a new customer Googles your name and finds a good website, their trust increases instantly — a Facebook page alone doesn't give that effect.",
+    "answer_hi": "Facebook पेज अच्छा है, पर वेबसाइट आपको ज़्यादा भरोसेमंद और प्रोफेशनल दिखाती है। जब कोई नया ग्राहक Google पर आपका नाम सर्च करके अच्छी वेबसाइट देखता है, भरोसा तुरंत बढ़ता है।",
+    "keywords": ["fb page hote huye website kyu", "why website when facebook page", "sirf fb page kafi h kya"]
+  },
+  {
+    "id": 17,
+    "question_en": "How long does it take to build a website?",
+    "question_hi": "वेबसाइट बनवाने में कितना समय लगता है?",
+    "answer_en": "A basic 5-page website (like our 'Buy Web' package) is usually ready within a few days after we receive your content and photos.",
+    "answer_hi": "एक basic 5-page वेबसाइट कुछ दिनों में तैयार हो जाती है, आपके कंटेंट और फोटो मिलने के बाद।",
+    "keywords": ["website banane me kitna time", "kitne din me website", "website timing"]
+  },
+  {
+    "id": 18,
+    "question_en": "Will my website look good on mobile phones?",
+    "question_hi": "क्या वेबसाइट मोबाइल पर भी अच्छे से दिखेगी?",
+    "answer_en": "Yes, every website we build is mobile-optimized — since most of your customers will visit it from their phones, this is essential.",
+    "answer_hi": "हाँ, हम जो वेबसाइट बनाते हैं वो mobile-optimized होती है, क्योंकि ज़्यादातर ग्राहक मोबाइल से ही देखेंगे।",
+    "keywords": ["mobile me website theek dikhegi", "website mobile friendly h kya"]
+  },
+  {
+    "id": 19,
+    "question_en": "Why is SEO important for a website?",
+    "question_hi": "वेबसाइट में SEO क्यों ज़रूरी है?",
+    "answer_en": "SEO means preparing your website so it shows up when someone searches on Google for something related to your business. Without SEO, even a great website won't reach people.",
+    "answer_hi": "SEO का मतलब है वेबसाइट को इस तरह तैयार करना कि Google सर्च में ऊपर दिखे। बिना SEO के अच्छी वेबसाइट भी लोगों तक नहीं पहुँच पाती।",
+    "keywords": ["seo kyu jaruri h", "seo kya h website me", "why seo needed"]
+  },
+  {
+    "id": 20,
+    "question_en": "Can I take orders or bookings directly from my website?",
+    "question_hi": "क्या वेबसाइट से सीधे ऑर्डर/बुकिंग भी ली जा सकती है?",
+    "answer_en": "Yes, we can add a contact form, WhatsApp button, or booking form to your website, so customers can reach you or place orders directly from there.",
+    "answer_hi": "हाँ, हम वेबसाइट में Contact Form, WhatsApp बटन या Booking फॉर्म जोड़ सकते हैं, जिससे ग्राहक सीधे वहीं से संपर्क कर सकें।",
+    "keywords": ["website se order le sakte h kya", "booking form website me", "direct order website"]
+  },
+  {
+    "id": 21,
+    "question_en": "Why should I choose ClickCraft?",
+    "question_hi": "मुझे ClickCraft क्यों चुनना चाहिए?",
+    "answer_en": "ClickCraft doesn't just give you a service — we help your business genuinely grow, whether that's the right ads, a professional website, or both together. We understand your needs and suggest what's affordable and effective.",
+    "answer_hi": "ClickCraft सिर्फ एक सर्विस नहीं देता, बल्कि आपके बिज़नेस को असल में बढ़ाने में मदद करता है — सही विज्ञापन, वेबसाइट, या दोनों। हम आपकी ज़रूरत समझकर सही तरीका सुझाते हैं।",
+    "keywords": ["clickcraft kyu chuno", "why choose clickcraft", "clkl crft kyu le", "click kraft kyu"]
+  },
+  {
+    "id": 22,
+    "question_en": "How does ClickCraft help with advertisement?",
+    "question_hi": "ClickCraft advertisement में कैसे मदद करता है?",
+    "answer_en": "We define your right audience, design good ads, and give daily performance reports — so every rupee spent is targeted and reaches real customers.",
+    "answer_hi": "हम सही ऑडियंस तय करते हैं, अच्छा विज्ञापन डिज़ाइन बनाते हैं, और daily report देते हैं — ताकि हर रुपया सही जगह खर्च हो।",
+    "keywords": ["clickcraft advertisement me kaise help", "ads me clickcraft kya karta h"]
+  },
+  {
+    "id": 23,
+    "question_en": "How does ClickCraft help with website design?",
+    "question_hi": "ClickCraft website design में कैसे मदद करता है?",
+    "answer_en": "We build a professional, mobile-friendly, fast website with SEO, a contact form, and your business's correct information — which builds customer trust.",
+    "answer_hi": "हम प्रोफेशनल, mobile-friendly, तेज़ वेबसाइट बनाते हैं जिसमें SEO, contact form और सही जानकारी शामिल होती है — जो ग्राहकों का भरोसा जीतती है।",
+    "keywords": ["clickcraft website me kaise help", "web design me clickcraft"]
+  },
+  {
+    "id": 24,
+    "question_en": "How will ClickCraft help grow my sales?",
+    "question_hi": "ClickCraft मेरी बिक्री (sell) बढ़ाने में कैसे मदद करेगा?",
+    "answer_en": "By reaching the right audience with ads and building trust through your website, more people see you, trust you, and eventually buy — that full process is what grows sales.",
+    "answer_hi": "सही ऑडियंस तक विज्ञापन पहुँचाकर और वेबसाइट से भरोसा बनाकर, ज़्यादा लोग आपको देखते हैं, भरोसा करते हैं, और खरीदारी करते हैं — यही बिक्री बढ़ाता है।",
+    "keywords": ["sale kaise badhega", "grow sell kaise hoga", "sales growth kaise"]
+  },
+  {
+    "id": 25,
+    "question_en": "How will ClickCraft grow my brand value?",
+    "question_hi": "ClickCraft मेरी brand value कैसे बढ़ाएगा?",
+    "answer_en": "A good website, professional ads, and the right social media presence together make your business look trustworthy, established, and professional — even if you're starting small.",
+    "answer_hi": "अच्छी वेबसाइट, प्रोफेशनल विज्ञापन और सही सोशल मीडिया प्रेजेंस मिलकर आपके बिज़नेस को भरोसेमंद और प्रोफेशनल ब्रांड की तरह दिखाते हैं।",
+    "keywords": ["brand value kaise badhegi", "brand grow kaise", "brand banau kaise"]
+  },
+  {
+    "id": 26,
+    "question_en": "Can I just talk to you for help, without buying a service?",
+    "question_hi": "अगर मुझे सिर्फ मदद चाहिए, सर्विस नहीं लेनी — तब भी बात कर सकता हूँ?",
+    "answer_en": "Of course — you can ask me anything about digital marketing, websites, or ads. Whenever it's relevant I'll mention our services, but clearing your doubts comes first.",
+    "answer_hi": "बिल्कुल, आप मुझसे कोई भी सवाल पूछ सकते हैं। जब भी ज़रूरी लगे मैं सर्विस के बारे में बता दूँगा, पहले आपकी उलझन दूर करना ज़रूरी है।",
+    "keywords": ["sirf help chahiye service nhi", "bina service ke baat kar sakte h"]
+  },
+  {
+    "id": 27,
+    "question_en": "How will ClickCraft help me earn more money?",
+    "question_hi": "ClickCraft से मुझे पैसे कमाने (earn money) में कैसे मदद मिलेगी?",
+    "answer_en": "Better ads and a good website mean more people reach your business, more inquiries come in, and more sales happen — which directly impacts your income.",
+    "answer_hi": "सही विज्ञापन और अच्छी वेबसाइट से ज़्यादा लोग पहुँचते हैं, ज़्यादा पूछताछ आती है, और ज़्यादा बिक्री होती है — सीधा असर कमाई पर पड़ता है।",
+    "keywords": ["paisa kaise kamau", "earn money kaise hoga", "income badhegi kaise"]
+  },
+  {
+    "id": 28,
+    "question_en": "How does ClickCraft help me get more customers?",
+    "question_hi": "ClickCraft ज़्यादा ग्राहक (customer) पाने में कैसे मदद करता है?",
+    "answer_en": "We identify your right target audience and reach only them with your message — this brings people who are genuinely interested in your product/service, not just random traffic.",
+    "answer_hi": "हम आपके सही टार्गेट ऑडियंस को पहचानकर उन्हीं तक मैसेज पहुँचाते हैं — इससे असल दिलचस्पी रखने वाले लोग जुड़ते हैं।",
+    "keywords": ["jyada customer kaise milenge", "more customer kaise", "customer badhau kaise"]
+  },
+  {
+    "id": 29,
+    "question_en": "What is included in ClickCraft's packages?",
+    "question_hi": "ClickCraft के पैकेज में क्या-क्या शामिल है?",
+    "answer_en": "We have three packages — 'Buy Ads' (₹500, targeted ad campaign), 'Buy Web' (₹5,000, 5-page professional website), and 'Premium Package' (₹10,000, full website + ads + branding). I can suggest the right one based on your need.",
+    "answer_hi": "हमारे तीन पैकेज हैं — 'Buy Ads' (₹500, टारगेटेड ऐड कैंपेन), 'Buy Web' (₹5,000, 5-पेज प्रोफ़ेशनल वेबसाइट), और 'Premium Package' (₹10,000, पूरी वेबसाइट + विज्ञापन + ब्रांडिंग)। आपकी ज़रूरत बताइए, मैं सही पैकेज सुझा दूँगा।",
+    "keywords": ["package me kya kya h", "packages details", "kitne package h", "services offered", "services kya hai"]
+  },
+  {
+    "id": 30,
+    "question_en": "How is ClickCraft different from other agencies?",
+    "question_hi": "ClickCraft दूसरी एजेंसियों से कैसे अलग है?",
+    "answer_en": "We keep things affordable, transparent (with daily reports), and tailored to small businesses — no confusing jargon, no unnecessary upselling, just what actually helps your business grow.",
+    "answer_hi": "हम चीज़ों को किफ़ायती, transparent (daily reports के साथ) और छोटे बिज़नेस के हिसाब से रखते हैं — कोई confusing शब्द नहीं, सिर्फ वही जो असल में मदद करे।",
+    "keywords": ["other agency se alag kaise", "different from other companies"]
+  },
+  {
+    "id": 31,
+    "question_en": "My business is offline, how do I bring it online?",
+    "question_hi": "मेरा बिज़नेस offline है, इसे online कैसे लाएँ?",
+    "answer_en": "First, create a professional website or Facebook/Instagram page where people can find you. Then reach your local audience through the right ads. Gradually, your offline business builds an online identity too.",
+    "answer_hi": "सबसे पहले वेबसाइट या Facebook/Instagram पेज बनाना ज़रूरी है। इसके बाद सही विज्ञापन से आस-पास के लोगों तक पहुँचें। धीरे-धीरे ऑफलाइन बिज़नेस को ऑनलाइन पहचान मिलती है।",
+    "keywords": ["offline business online kaise laye", "shop ko online kaise le jau", "dukaan online kaise karu"]
+  },
+  {
+    "id": 32,
+    "question_en": "What should I do first to go online?",
+    "question_hi": "ऑनलाइन आने के लिए मुझे सबसे पहले क्या करना चाहिए?",
+    "answer_en": "First build a clear identity — name, logo, photos, and correct service info. Then set up a website or social media page with this, and start targeted ads for your local audience.",
+    "answer_hi": "सबसे पहले साफ पहचान बनाएँ — नाम, लोगो, फोटो, सही जानकारी। फिर वेबसाइट/सोशल मीडिया पेज बनाकर लोकल ऑडियंस को टार्गेट करें।",
+    "keywords": ["sabse pehle kya kare online ane ke liye", "first step online business"]
+  },
+  {
+    "id": 33,
+    "question_en": "Is having just a Facebook page enough?",
+    "question_hi": "क्या सिर्फ Facebook पेज बनाना काफी है?",
+    "answer_en": "It's fine as a start, but a website is better long-term since it builds more trust and also appears in Google search, which a Facebook page alone doesn't achieve.",
+    "answer_hi": "शुरुआत के लिए ठीक है, लेकिन लंबे समय में वेबसाइट बेहतर है क्योंकि वो भरोसा बढ़ाती है और Google सर्च में भी दिखती है।",
+    "keywords": ["sirf fb page kafi h", "only facebook page enough"]
+  },
+  {
+    "id": 34,
+    "question_en": "How will my local customers find me online?",
+    "question_hi": "मेरे local customers ऑनलाइन कैसे मुझे ढूंढेंगे?",
+    "answer_en": "When you use local keywords (your city name + your service) in Google Ads or SEO, nearby people will find your business whenever they search for that service.",
+    "answer_hi": "जब आप local keywords (शहर + सर्विस) के साथ Google Ads या SEO करते हैं, आस-पास के लोग सर्च करने पर आपका बिज़नेस देखेंगे।",
+    "keywords": ["local customer kaise dhundenge", "nearby customer online kaise mile"]
+  },
+  {
+    "id": 35,
+    "question_en": "Will going online affect my offline shop's sales?",
+    "question_hi": "ऑनलाइन आने से मेरी offline दुकान की बिक्री पर क्या असर पड़ेगा?",
+    "answer_en": "The effect is direct and positive — people who trust you online after seeing your presence are the same people who visit your shop and buy. Online presence becomes a way to boost offline sales too.",
+    "answer_hi": "असर सीधा और अच्छा पड़ता है — ऑनलाइन भरोसा करने वाले लोग ही दुकान पर आकर खरीदारी करते हैं। ऑनलाइन प्रेजेंस offline बिक्री को भी बढ़ाती है।",
+    "keywords": ["online ane se offline sale par asar", "dukaan ki sale badhegi kya"]
+  },
+  {
+    "id": 36,
+    "question_en": "How do I show my business on Google Maps?",
+    "question_hi": "Google Maps पर अपना बिज़नेस कैसे दिखाएँ?",
+    "answer_en": "Create a Google Business Profile with your location, photos, hours, and services. Then whenever someone nearby searches for your service, your shop appears on Google Maps.",
+    "answer_hi": "Google Business Profile बनाकर लोकेशन, फोटो, समय और सर्विस डालें — आस-पास सर्च करने पर आपकी दुकान Google Maps पर दिखेगी।",
+    "keywords": ["google maps par business kaise dikhau", "google business profile kaise banau"]
+  },
+  {
+    "id": 37,
+    "question_en": "Should I use WhatsApp Business?",
+    "question_hi": "क्या मुझे WhatsApp Business का इस्तेमाल करना चाहिए?",
+    "answer_en": "Yes, WhatsApp Business lets customers message you directly, place orders, and view your catalog — it's a very simple and effective tool for small businesses.",
+    "answer_hi": "हाँ, WhatsApp Business से ग्राहक सीधे बात कर सकते हैं, ऑर्डर दे सकते हैं और catalog देख सकते हैं — छोटे बिज़नेस के लिए बहुत असरदार।",
+    "keywords": ["whatsapp business use karu kya", "whatsapp business kya h"]
+  },
+  {
+    "id": 38,
+    "question_en": "How much does it cost to bring my business online?",
+    "question_hi": "ऑनलाइन आने में कितना खर्च आता है?",
+    "answer_en": "It depends on your budget — a basic start can be as low as ₹500 (ads), and a full website + marketing setup falls between ₹5,000-₹10,000.",
+    "answer_hi": "ये आपके बजट पर निर्भर करता है — बेसिक शुरुआत ₹500 से हो सकती है, और पूरी वेबसाइट + मार्केटिंग ₹5,000-₹10,000 के बीच।",
+    "keywords": ["online ane me kharcha kitna", "cost to go online"]
+  },
+  {
+    "id": 39,
+    "question_en": "What is SEO?",
+    "question_hi": "SEO क्या है?",
+    "answer_en": "SEO (Search Engine Optimization) is a way to make your website appear on Google without paying, when someone searches for something related to your business.",
+    "answer_hi": "SEO वो तरीका है जिससे आपकी वेबसाइट बिना पैसे खर्च किए Google में ऊपर दिखने लगती है।",
+    "keywords": ["seo kya h", "what is seo", "seo meaning"]
+  },
+  {
+    "id": 40,
+    "question_en": "What's the difference between SEO and Google Ads?",
+    "question_hi": "SEO और Google Ads में क्या फर्क है?",
+    "answer_en": "Google Ads gets you to the top instantly by paying, while SEO takes weeks/months but is free after setup. Using both together gives the best result.",
+    "answer_hi": "Google Ads में पैसे देकर तुरंत ऊपर दिखते हैं, SEO में समय लगता है लेकिन मुफ्त है। दोनों साथ मिलकर सबसे अच्छा रिज़ल्ट देते हैं।",
+    "keywords": ["seo aur google ads me fark", "difference seo ads"]
+  },
+  {
+    "id": 41,
+    "question_en": "What is a keyword?",
+    "question_hi": "Keyword क्या होता है?",
+    "answer_en": "A keyword is the word or phrase people type into Google — like 'web designer in Jaipur'. Using the right keywords helps your website reach the right people.",
+    "answer_hi": "Keyword वो शब्द है जो लोग Google पर सर्च करते हैं — जैसे 'जयपुर में वेब डिज़ाइनर'। सही keywords से वेबसाइट सही लोगों तक पहुँचती है।",
+    "keywords": ["keyword kya hota h", "what is keyword"]
+  },
+  {
+    "id": 42,
+    "question_en": "How do I find the right keywords for my business?",
+    "question_hi": "मुझे अपने बिज़नेस के लिए सही keywords कैसे मिलेंगे?",
+    "answer_en": "Combine your service, your city, and the language your customers search in — that's how the right keywords are built. I can suggest good keywords for your website/ads.",
+    "answer_hi": "आपकी सर्विस, शहर और ग्राहक जिस भाषा में सर्च करते हैं — इन्हें मिलाकर सही keywords बनते हैं। मैं सुझाव दे सकता/सकती हूँ।",
+    "keywords": ["sahi keyword kaise dhunde", "keyword research kaise kare"]
+  },
+  {
+    "id": 43,
+    "question_en": "How long does SEO take to show results?",
+    "question_hi": "SEO में कितना समय लगता है असर दिखने में?",
+    "answer_en": "Usually results start appearing in 4-8 weeks, and it keeps improving the longer you stay consistent.",
+    "answer_hi": "आमतौर पर 4-8 हफ्ते में असर दिखना शुरू होता है, और लगातार काम करने से बेहतर होता जाता है।",
+    "keywords": ["seo me kitna time lagta h", "seo result timing"]
+  },
+  {
+    "id": 44,
+    "question_en": "What is social media marketing?",
+    "question_hi": "सोशल मीडिया मार्केटिंग क्या है?",
+    "answer_en": "It means using platforms like Facebook and Instagram — through posts, stories, and ads — to make people know, follow, and eventually become customers of your business.",
+    "answer_hi": "इसमें Facebook, Instagram पर पोस्ट, स्टोरी और विज्ञापन के ज़रिए बिज़नेस को दिखाया जाता है, ताकि लोग जानें, फॉलो करें और ग्राहक बनें।",
+    "keywords": ["social media marketing kya h", "smm kya hota h"]
+  },
+  {
+    "id": 45,
+    "question_en": "How often should I post on social media?",
+    "question_hi": "मुझे कितनी बार पोस्ट डालनी चाहिए?",
+    "answer_en": "Posting at least 3-4 times a week is good — it keeps your page looking active and maintains people's trust.",
+    "answer_hi": "हफ्ते में कम से कम 3-4 बार पोस्ट डालना अच्छा रहता है — इससे पेज active दिखता है।",
+    "keywords": ["kitni baar post dalu", "posting frequency kitni honi chahiye"]
+  },
+  {
+    "id": 46,
+    "question_en": "Instagram or Facebook — which is better for my business?",
+    "question_hi": "Instagram या Facebook, कौन सा बेहतर है मेरे बिज़नेस के लिए?",
+    "answer_en": "If your product is visual (fashion, food, design), Instagram works better. If your audience is a bit older or it's a local service, Facebook is often more effective. Using both together usually works best.",
+    "answer_hi": "अगर प्रोडक्ट विज़ुअल है (फैशन, फूड) तो Instagram बेहतर है। बड़ी उम्र की ऑडियंस या लोकल सर्विस के लिए Facebook असरदार। दोनों साथ इस्तेमाल करना सबसे अच्छा रहता है।",
+    "keywords": ["instagram ya facebook konsa better", "kaunsa platform sahi h"]
+  },
+  {
+    "id": 47,
+    "question_en": "Should I make reels or videos?",
+    "question_hi": "क्या मुझे reels/video बनानी चाहिए?",
+    "answer_en": "Yes, video content (especially reels) reaches the most people today and builds trust quickly — especially when you show your actual work or product.",
+    "answer_hi": "हाँ, वीडियो कंटेंट (खासकर reels) आजकल सबसे ज़्यादा लोगों तक पहुँचता है और भरोसा जल्दी बनाता है।",
+    "keywords": ["reels banana chahiye kya", "video content jaruri h"]
+  },
+  {
+    "id": 48,
+    "question_en": "I have few followers, can I still get sales?",
+    "question_hi": "मेरे फॉलोअर्स कम हैं, क्या फिर भी बिक्री हो सकती है?",
+    "answer_en": "Yes definitely — sales come from reaching the right audience, not follower count. Targeted ads can bring good customers even without a large following.",
+    "answer_hi": "हाँ बिल्कुल — बिक्री सही ऑडियंस तक पहुँचने से होती है, फॉलोअर्स की संख्या से नहीं। targeted ads से अच्छे ग्राहक मिल सकते हैं।",
+    "keywords": ["kam followers me sale hogi kya", "few followers still sales"]
+  },
+  {
+    "id": 49,
+    "question_en": "What is brand value?",
+    "question_hi": "Brand value क्या होती है?",
+    "answer_en": "Brand value means how much people trust your name. When someone hears your name and trusts you instantly, without thinking much, before buying — that's strong brand value.",
+    "answer_hi": "Brand value का मतलब है लोग आपके नाम पर कितना भरोसा करते हैं। बिना ज़्यादा सोचे खरीद लें — वही मज़बूत brand value है।",
+    "keywords": ["brand value kya hoti h", "what is brand value"]
+  },
+  {
+    "id": 50,
+    "question_en": "How do I make my business look trustworthy?",
+    "question_hi": "मैं अपने बिज़नेस को भरोसेमंद कैसे दिखाऊं?",
+    "answer_en": "A professional logo, good website, real customer reviews, and a consistent design theme — together these make your business look trustworthy and professional.",
+    "answer_hi": "प्रोफेशनल लोगो, अच्छी वेबसाइट, असली रिव्यू और consistent डिज़ाइन थीम — ये सब मिलकर भरोसेमंद बनाते हैं।",
+    "keywords": ["business trustworthy kaise dikhau", "bharosemand kaise banau"]
+  },
+  {
+    "id": 51,
+    "question_en": "Why is a logo and branding important?",
+    "question_hi": "Logo और branding क्यों ज़रूरी है?",
+    "answer_en": "A logo and consistent branding build your identity — once someone sees your logo, they recognize it next time, which builds both trust and memorability.",
+    "answer_hi": "लोगो और branding पहचान बनाते हैं — एक बार दिख जाए तो अगली बार पहचान लेते हैं, जिससे भरोसा और याद रहने की क्षमता बढ़ती है।",
+    "keywords": ["logo jaruri h kya", "branding kyu chahiye"]
+  },
+  {
+    "id": 52,
+    "question_en": "What is the process to get a service from ClickCraft?",
+    "question_hi": "सर्विस लेने का process क्या है?",
+    "answer_en": "First we understand your need, suggest the right package, then collect necessary info (photos, content, business details) from you and start the work.",
+    "answer_hi": "पहले हम आपकी ज़रूरत समझते हैं, सही पैकेज सुझाते हैं, फिर आपसे जानकारी लेकर काम शुरू करते हैं।",
+    "keywords": ["process kya h service lene ka", "kaise start kare"]
+  },
+  {
+    "id": 53,
+    "question_en": "How do I make the payment?",
+    "question_hi": "पेमेंट कैसे करना होता है?",
+    "answer_en": "You can contact us on WhatsApp to know about payment and the next steps — I can connect you directly there.",
+    "answer_hi": "आप WhatsApp पर संपर्क करके पेमेंट और आगे की प्रोसेस जान सकते हैं — मैं सीधे कनेक्ट कर सकता/सकती हूँ।",
+    "keywords": ["payment kaise kare", "paise kaise de"]
+  },
+  {
+    "id": 54,
+    "question_en": "Is there a guarantee of results?",
+    "question_hi": "क्या रिज़ल्ट की गारंटी है?",
+    "answer_en": "We put in full effort and the right strategy for good results, but digital marketing results depend on several factors (budget, timing, product). We provide transparent reports so you can track every step.",
+    "answer_hi": "हम पूरी मेहनत के साथ काम करते हैं, लेकिन रिज़ल्ट कई चीज़ों पर निर्भर करता है। हम transparent report देते हैं ताकि आप हर स्टेप देख सकें।",
+    "keywords": ["result ki guarantee h kya", "guarantee milegi kya"]
+  },
+  {
+    "id": 55,
+    "question_en": "Can I change my package later?",
+    "question_hi": "क्या मैं बाद में पैकेज बदल सकता हूँ?",
+    "answer_en": "Yes, absolutely — you can upgrade to a bigger package whenever you need to.",
+    "answer_hi": "हाँ बिल्कुल, आप जब चाहें छोटे से बड़े पैकेज में जा सकते हैं।",
+    "keywords": ["package badal sakte h kya", "change package later"]
+  },
+  {
+    "id": 56,
+    "question_en": "How do I know which package is right for me?",
+    "question_hi": "मुझे कैसे पता चलेगा कौन सा पैकेज मेरे लिए सही है?",
+    "answer_en": "If you need customers immediately, 'Buy Ads' (₹500) is right. If you don't have a website, get 'Buy Web' (₹5,000). If you want both together for full growth, 'Premium Package' (₹10,000) works best. Tell me your need and I'll suggest.",
+    "answer_hi": "तुरंत ग्राहक चाहिए तो 'Buy Ads' (₹500) सही है। वेबसाइट नहीं है तो 'Buy Web' (₹5,000) लें। दोनों साथ चाहिए तो 'Premium Package' (₹10,000) सबसे अच्छा। बताइए आपकी ज़रूरत क्या है।",
+    "keywords": ["konsa package sahi h mere liye", "which package suits me"]
+  },
+  {
+    "id": 57,
+    "question_en": "What is email marketing?",
+    "question_hi": "Email मार्केटिंग क्या है?",
+    "answer_en": "Email marketing means sending offers, updates, or news directly to customers' email inboxes — useful for staying in touch with existing customers and encouraging repeat purchases.",
+    "answer_hi": "Email मार्केटिंग का मतलब है ग्राहकों को सीधे email पर offers/updates भेजना — पुराने ग्राहकों से जुड़े रहने के लिए उपयोगी।",
+    "keywords": ["email marketing kya h", "email marketing kaise hoti h"]
+  },
+  {
+    "id": 58,
+    "question_en": "What is content marketing?",
+    "question_hi": "Content Marketing क्या है?",
+    "answer_en": "Content marketing means creating useful posts, videos, or articles that attract people naturally — building trust before you even ask them to buy.",
+    "answer_hi": "Content Marketing का मतलब है ऐसे पोस्ट/वीडियो बनाना जो लोगों को खुद खींचें — खरीदने से पहले ही भरोसा बना देते हैं।",
+    "keywords": ["content marketing kya h", "content marketing kaise kare"]
+  },
+  {
+    "id": 59,
+    "question_en": "What does 'target audience' mean?",
+    "question_hi": "'Target audience' का क्या मतलब है?",
+    "answer_en": "Target audience means the specific group of people most likely to buy your product — defined by age, location, interests, and more, so your marketing reaches the right people.",
+    "answer_hi": "Target audience का मतलब है वो खास लोग जो आपका प्रोडक्ट सबसे ज़्यादा खरीद सकते हैं — उम्र, लोकेशन, दिलचस्पी के आधार पर तय होता है।",
+    "keywords": ["target audience kya hota h", "target audience meaning"]
+  },
+  {
+    "id": 60,
+    "question_en": "What is a landing page?",
+    "question_hi": "Landing page क्या होता है?",
+    "answer_en": "A landing page is a single, focused webpage designed to convert visitors into customers — usually built for one specific offer or product, without distracting menus or links.",
+    "answer_hi": "Landing page एक फोकस्ड webpage होता है, जो किसी एक खास ऑफर/प्रोडक्ट के लिए बनाया जाता है, ताकि visitor सीधे ग्राहक बने।",
+    "keywords": ["landing page kya h", "landing page meaning"]
+  },
+  {
+    "id": 61,
+    "question_en": "Do you also design logos?",
+    "question_hi": "क्या आप लोगो भी डिज़ाइन करते हैं?",
+    "answer_en": "Yes, logo design can be included as part of your website or branding package — let me know if you'd like this added.",
+    "answer_hi": "हाँ, लोगो डिज़ाइन को वेबसाइट या branding पैकेज में शामिल किया जा सकता है — बताइए अगर ये चाहिए।",
+    "keywords": ["logo design karte h kya", "do you make logo"]
+  },
+  {
+    "id": 62,
+    "question_en": "Can you help with an e-commerce/online store website?",
+    "question_hi": "क्या आप e-commerce/online store वेबसाइट बना सकते हैं?",
+    "answer_en": "Yes, we can build an online store where customers can browse products and place orders directly — let's discuss your specific requirement.",
+    "answer_hi": "हाँ, हम ऐसी वेबसाइट बना सकते हैं जहाँ ग्राहक प्रोडक्ट देखकर सीधे ऑर्डर कर सकें — अपनी ज़रूरत बताइए।",
+    "keywords": ["online store website bana sakte h", "ecommerce website banate h kya"]
+  },
+  {
+    "id": 63,
+    "question_en": "How do I get more reviews for my business?",
+    "question_hi": "मुझे अपने बिज़नेस के लिए ज़्यादा reviews कैसे मिलेंगे?",
+    "answer_en": "Ask happy customers directly for a review after a good experience, and make it easy by sharing a direct Google review link — most people leave reviews when it's quick and simple.",
+    "answer_hi": "अच्छे अनुभव के बाद खुश ग्राहकों से सीधे review माँगें और Google review का direct link शेयर करें — आसान होने पर लोग review देते हैं।",
+    "keywords": ["reviews kaise le", "more reviews kaise milenge"]
+  },
+  {
+    "id": 64,
+    "question_en": "What is a call-to-action (CTA)?",
+    "question_hi": "Call-to-action (CTA) क्या होता है?",
+    "answer_en": "A CTA is a clear instruction like 'Book Now' or 'Get Started' that tells visitors exactly what to do next — good CTAs directly increase how many visitors turn into customers.",
+    "answer_hi": "CTA एक साफ निर्देश है जैसे 'Book Now' या 'Get Started', जो बताता है visitor को आगे क्या करना है — अच्छे CTA से ज़्यादा visitors ग्राहक बनते हैं।",
+    "keywords": ["call to action kya h", "cta kya hota h"]
+  },
+  {
+    "id": 65,
+    "question_en": "What is conversion rate?",
+    "question_hi": "Conversion rate क्या है?",
+    "answer_en": "Conversion rate is the percentage of visitors who take the action you want — like buying or filling a form. A higher conversion rate means your website/ad is doing its job well.",
+    "answer_hi": "Conversion rate उन visitors का प्रतिशत है जो आपकी चाही हुई कार्रवाई करते हैं — जैसे खरीदना या फॉर्म भरना।",
+    "keywords": ["conversion rate kya h", "conversion rate meaning"]
+  },
+  {
+    "id": 66,
+    "question_en": "Should I run ads on WhatsApp too?",
+    "question_hi": "क्या मुझे WhatsApp पर भी ads चलानी चाहिए?",
+    "answer_en": "WhatsApp works best for direct communication and orders rather than paid ads — using WhatsApp Business alongside your Facebook/Instagram ads gives the best combination.",
+    "answer_hi": "WhatsApp सीधे बातचीत और ऑर्डर के लिए बेहतर है, paid ads के लिए नहीं — WhatsApp Business को Facebook/Instagram ads के साथ इस्तेमाल करना सबसे अच्छा रहता है।",
+    "keywords": ["whatsapp par ads chalau kya", "whatsapp ads possible h kya"]
+  },
+  {
+    "id": 67,
+    "question_en": "Can you design my restaurant/shop menu or catalog?",
+    "question_hi": "क्या आप मेरा restaurant/shop मेनू या catalog डिज़ाइन कर सकते हैं?",
+    "answer_en": "Yes, we can design a professional digital menu or product catalog that you can share on WhatsApp, Instagram, or your website.",
+    "answer_hi": "हाँ, हम प्रोफेशनल digital menu या product catalog डिज़ाइन कर सकते हैं, जिसे WhatsApp, Instagram या वेबसाइट पर शेयर किया जा सके।",
+    "keywords": ["menu design karte h kya", "catalog banate h kya"]
+  },
+  {
+    "id": 68,
+    "question_en": "What information do you need from me to start?",
+    "question_hi": "शुरू करने के लिए आपको मुझसे क्या जानकारी चाहिए?",
+    "answer_en": "We usually need your business name, services/products, photos, price list, and any preferred colors or style — the more details you share, the better we can represent your business.",
+    "answer_hi": "आमतौर पर बिज़नेस का नाम, सर्विस/प्रोडक्ट, फोटो, price list और पसंदीदा रंग/स्टाइल चाहिए होते हैं।",
+    "keywords": ["kya jankari chahiye start karne ke liye", "information kya de"]
+  },
+  {
+    "id": 69,
+    "question_en": "Do I need to provide my own photos, or can you take them?",
+    "question_hi": "क्या मुझे खुद फोटो देनी होंगी, या आप ले सकते हैं?",
+    "answer_en": "You can share your own photos, or we can suggest good stock images to use temporarily — professional photography can also be arranged separately if needed.",
+    "answer_hi": "आप खुद फोटो दे सकते हैं, या हम temporary अच्छे stock images सुझा सकते हैं — ज़रूरत पड़ने पर professional photography भी arrange हो सकती है।",
+    "keywords": ["khud photo du ya aap dete h", "photo kon dega"]
+  },
+  {
+    "id": 70,
+    "question_en": "Can you manage my social media pages for me?",
+    "question_hi": "क्या आप मेरे सोशल मीडिया पेज मैनेज कर सकते हैं?",
+    "answer_en": "Yes, this can be included in the Premium Package, where we handle your posts, ads, and overall social media presence for you.",
+    "answer_hi": "हाँ, ये Premium Package में शामिल हो सकता है, जहाँ हम आपकी पोस्ट, विज्ञापन और पूरी सोशल मीडिया प्रेजेंस संभालते हैं।",
+    "keywords": ["social media manage karte h kya", "page manage karoge kya"]
+  },
+  {
+    "id": 71,
+    "question_en": "How is my ad budget actually spent?",
+    "question_hi": "मेरा ad budget असल में कैसे खर्च होता है?",
+    "answer_en": "Your budget is spent on showing the ad to your defined audience on the platform (Facebook/Google) — we monitor it daily and adjust for the best results within your set budget.",
+    "answer_hi": "आपका बजट platform (Facebook/Google) पर तय ऑडियंस को विज्ञापन दिखाने में खर्च होता है — हम रोज़ाना monitor करके बेहतर रिज़ल्ट के लिए adjust करते हैं।",
+    "keywords": ["ad budget kaise kharcha hota h", "budget kaha jata h"]
+  },
+  {
+    "id": 72,
+    "question_en": "What if the ad doesn't get good results?",
+    "question_hi": "अगर विज्ञापन का अच्छा रिज़ल्ट नहीं मिला तो?",
+    "answer_en": "We review the daily report together, adjust the targeting, design, or budget, and improve the campaign — marketing usually needs small optimizations along the way.",
+    "answer_hi": "हम daily report देखकर targeting, डिज़ाइन या बजट में बदलाव करते हैं और campaign को बेहतर बनाते हैं — मार्केटिंग में समय-समय पर सुधार ज़रूरी होता है।",
+    "keywords": ["result nhi mila to kya", "ad nhi chali to"]
+  },
+  {
+    "id": 73,
+    "question_en": "Can you help me write good ad copy/captions?",
+    "question_hi": "क्या आप अच्छी ad copy/captions लिखने में मदद कर सकते हैं?",
+    "answer_en": "Yes, writing engaging ad text and captions is part of our ad service — good copy is what actually makes people stop scrolling and pay attention.",
+    "answer_hi": "हाँ, आकर्षक ad text और captions लिखना हमारी सर्विस का हिस्सा है — अच्छी copy ही लोगों को रोकती है और ध्यान खींचती है।",
+    "keywords": ["ad copy likhte h kya", "caption likhne me help"]
+  },
+  {
+    "id": 74,
+    "question_en": "What is a sales funnel?",
+    "question_hi": "Sales funnel क्या होता है?",
+    "answer_en": "A sales funnel is the journey a customer takes — from first seeing your ad, to visiting your website, to finally buying. Understanding this helps improve every stage of that journey.",
+    "answer_hi": "Sales funnel वो सफर है जो ग्राहक तय करता है — विज्ञापन देखने से लेकर वेबसाइट पर आने और आखिर में खरीदने तक।",
+    "keywords": ["sales funnel kya h", "funnel meaning"]
+  },
+  {
+    "id": 75,
+    "question_en": "Can you help rebrand my existing business (new look)?",
+    "question_hi": "क्या आप मेरे मौजूदा बिज़नेस को rebrand (नया लुक) कर सकते हैं?",
+    "answer_en": "Yes, we can refresh your logo, colors, website, and overall online presence to give your business a more modern, professional look while keeping your identity intact.",
+    "answer_hi": "हाँ, हम आपके लोगो, रंग, वेबसाइट और पूरी ऑनलाइन प्रेजेंस को refresh करके एक modern, प्रोफेशनल लुक दे सकते हैं।",
+    "keywords": ["rebrand kar sakte h kya", "naya look de sakte h business ko"]
+  },
+  {
+    "id": 76,
+    "question_en": "How do I compete with bigger businesses online?",
+    "question_hi": "बड़े बिज़नेस से ऑनलाइन कैसे मुकाबला करूँ?",
+    "answer_en": "Focus on your local audience and personal touch — big businesses can't match local trust and relationships. A well-targeted ad and a professional website can make a small business look just as credible.",
+    "answer_hi": "अपने लोकल ऑडियंस और personal touch पर ध्यान दें — बड़े बिज़नेस लोकल भरोसा नहीं दे सकते। सही टार्गेटेड ad और प्रोफेशनल वेबसाइट छोटे बिज़नेस को भी उतना ही भरोसेमंद दिखा सकती है।",
+    "keywords": ["bade business se muqabla kaise karu", "compete with big brands"]
+  },
+  {
+    "id": 77,
+    "question_en": "Do you provide monthly maintenance for the website?",
+    "question_hi": "क्या आप वेबसाइट का monthly maintenance देते हैं?",
+    "answer_en": "Yes, our 'Buy Web' package includes 1 month of support and maintenance, and this can be extended if you'd like ongoing updates.",
+    "answer_hi": "हाँ, हमारे 'Buy Web' पैकेज में 1 महीने का support और maintenance शामिल है, ज़रूरत पर इसे बढ़ाया भी जा सकता है।",
+    "keywords": ["monthly maintenance dete h kya", "website maintenance milegi kya"]
+  },
+  {
+    "id": 78,
+    "question_en": "Can I see examples of your previous work?",
+    "question_hi": "क्या मैं आपका पिछला काम/portfolio देख सकता हूँ?",
+    "answer_en": "Yes, I can share sample designs and website examples with you — just let me know if you're more interested in web design samples or ad design samples.",
+    "answer_hi": "हाँ, मैं sample design और वेबसाइट examples शेयर कर सकता/सकती हूँ — बताइए web design या ad design सैंपल चाहिए।",
+    "keywords": ["portfolio dikhao", "purana kaam dikhao", "sample dikhao"]
+  },
+  {
+    "id": 79,
+    "question_en": "What industries or businesses do you usually work with?",
+    "question_hi": "आप आमतौर पर किन industries/बिज़नेस के साथ काम करते हैं?",
+    "answer_en": "We work with a wide range of small and medium businesses — shops, clinics, salons, restaurants, service providers, and more — the strategy is always customized to what fits your business.",
+    "answer_hi": "हम कई तरह के छोटे-मंझले बिज़नेस के साथ काम करते हैं — दुकान, क्लिनिक, सैलून, रेस्टोरेंट, सर्विस प्रोवाइडर आदि — रणनीति हमेशा आपके बिज़नेस के हिसाब से बनती है।",
+    "keywords": ["kis industry ke sath kaam karte h", "kaunse business ke liye kaam karte h"]
+  },
+  {
+    "id": 80,
+    "question_en": "How do I contact ClickCraft directly?",
+    "question_hi": "मैं ClickCraft से सीधे संपर्क कैसे करूँ?",
+    "answer_en": "You can message us directly on WhatsApp — I can share the contact (+91 9376124893) so you can talk to the owner and discuss your requirement in detail.",
+    "answer_hi": "आप सीधे WhatsApp (+91 9376124893) पर मैसेज कर सकते हैं — मैं contact शेयर कर देता/देती हूँ ताकि आप owner से विस्तार से बात कर सकें।",
+    "keywords": ["contact kaise karu", "direct baat kaise karu owner se"]
+  },
+  {
+    "id": 81,
+    "question_en": "Is there a discount for buying multiple services together?",
+    "question_hi": "क्या एक साथ कई services लेने पर discount मिलता है?",
+    "answer_en": "Yes, the Premium Package itself is a bundled, better-value option combining website + ads + branding — I can also check if any additional offer is currently running.",
+    "answer_hi": "हाँ, Premium Package खुद एक bundled बेहतर-वैल्यू ऑप्शन है (वेबसाइट + विज्ञापन + branding) — कोई और offer चल रहा हो तो भी बता सकता/सकती हूँ।",
+    "keywords": ["ek sath multiple service par discount", "combo offer h kya"]
+  },
+  {
+    "id": 82,
+    "question_en": "How do you measure success of a marketing campaign?",
+    "question_hi": "आप marketing campaign की सफलता कैसे मापते हैं?",
+    "answer_en": "We track views, clicks, inquiries, and actual sales/bookings that come from the campaign — these numbers together tell us if the campaign is working well.",
+    "answer_hi": "हम views, clicks, पूछताछ और campaign से आई असली बिक्री/booking को track करते हैं — ये मिलकर बताते हैं campaign कितनी सफल रही।",
+    "keywords": ["campaign ki success kaise measure kare", "kaise pata chale campaign chal rha h"]
+  },
+  {
+    "id": 83,
+    "question_en": "What mistakes do small businesses usually make in marketing?",
+    "question_hi": "छोटे बिज़नेस मार्केटिंग में आमतौर पर क्या गलतियाँ करते हैं?",
+    "answer_en": "Common mistakes include posting inconsistently, targeting too broad an audience, not tracking results, and stopping ads too early before they've had time to work.",
+    "answer_hi": "आम गलतियाँ हैं — अनियमित पोस्टिंग, बहुत बड़ी ऑडियंस टार्गेट करना, रिज़ल्ट track न करना, और समय से पहले ads बंद कर देना।",
+    "keywords": ["chote business ki galtiyan marketing me", "common mistakes marketing"]
+  },
+  {
+    "id": 84,
+    "question_en": "Can you help translate my website/content into Hindi and English both?",
+    "question_hi": "क्या आप मेरी वेबसाइट/content को Hindi और English दोनों में बना सकते हैं?",
+    "answer_en": "Yes, we can create your website and content in both Hindi and English (or Hinglish), so it reaches a wider audience comfortably.",
+    "answer_hi": "हाँ, हम आपकी वेबसाइट और content Hindi और English (या Hinglish) दोनों में बना सकते हैं, ताकि ज़्यादा लोगों तक आराम से पहुँचे।",
+    "keywords": ["hindi english dono me website", "bilingual website bana sakte h kya"]
+  },
+  {
+    "id": 85,
+    "question_en": "What is retargeting in ads?",
+    "question_hi": "Ads में retargeting क्या होता है?",
+    "answer_en": "Retargeting means showing ads again to people who already visited your website or page but didn't buy — it's a very effective way to bring back interested customers.",
+    "answer_hi": "Retargeting का मतलब है उन लोगों को फिर से विज्ञापन दिखाना जो पहले आपकी वेबसाइट/पेज पर आए थे लेकिन खरीदा नहीं — ये दिलचस्पी रखने वाले ग्राहकों को वापस लाने का असरदार तरीका है।",
+    "keywords": ["retargeting kya h", "retargeting meaning ads"]
+  },
+  {
+    "id": 86,
+    "question_en": "Can I run ads only in my city or area?",
+    "question_hi": "क्या मैं सिर्फ अपने शहर/इलाके में ads चला सकता हूँ?",
+    "answer_en": "Yes, ads can be targeted to a specific city, area, or even a radius around your shop — this is ideal for local businesses.",
+    "answer_hi": "हाँ, ads को खास शहर, इलाके या दुकान के आस-पास के दायरे में टार्गेट किया जा सकता है — लोकल बिज़नेस के लिए ये सबसे सही रहता है।",
+    "keywords": ["sirf apne sheher me ads chala sakte h", "local area ads possible"]
+  },
+  {
+    "id": 87,
+    "question_en": "Do you offer a free consultation before I decide?",
+    "question_hi": "क्या फैसला लेने से पहले free consultation मिलती है?",
+    "answer_en": "Yes, you can discuss your business and requirements with us on WhatsApp (+91 9376124893) before deciding — there's no pressure, we just help you understand what fits best.",
+    "answer_hi": "हाँ, फैसला लेने से पहले आप WhatsApp (+91 9376124893) पर अपना बिज़नेस और ज़रूरत discuss कर सकते हैं — कोई दबाव नहीं, बस सही रास्ता समझने में मदद।",
+    "keywords": ["free consultation milti h kya", "pehle baat kar sakte h kya"]
+  },
+  {
+    "id": 88,
+    "question_en": "How is ClickCraft's pricing compared to hiring a full-time employee?",
+    "question_hi": "ClickCraft की pricing full-time employee रखने से कैसे बेहतर है?",
+    "answer_en": "Hiring a full-time marketing employee costs a monthly salary regardless of results. With ClickCraft, you pay per project/campaign, get expert-level work, and don't carry ongoing salary or training costs.",
+    "answer_hi": "फुल-टाइम employee रखने पर हर महीने salary देनी पड़ती है, रिज़ल्ट चाहे जो हो। ClickCraft में आप project/campaign के हिसाब से पेमेंट करते हैं और expert-level काम मिलता है, बिना salary के बोझ के।",
+    "keywords": ["employee rakhne se sasta h kya", "full time employee vs clickcraft"]
+  },
+  {
+    "id": 89,
+    "question_en": "What happens after my ad campaign or website is delivered?",
+    "question_hi": "मेरा ad campaign या वेबसाइट deliver होने के बाद क्या होता है?",
+    "answer_en": "You'll get full access along with a report/handover. For websites, 1 month support is included; for ads, we can discuss ongoing management if you want the campaign to continue.",
+    "answer_hi": "आपको पूरा access और report/handover मिलेगा। वेबसाइट पर 1 महीने का support शामिल है; ads के लिए अगर campaign जारी रखनी हो तो ongoing management पर बात कर सकते हैं।",
+    "keywords": ["delivery ke baad kya hota h", "website milne ke baad kya"]
+  },
+  {
+    "id": 90,
+    "question_en": "I'm not sure digital marketing will work for my type of business — how do I decide?",
+    "question_hi": "मुझे यकीन नहीं कि मेरे बिज़नेस के लिए डिजिटल मार्केटिंग काम करेगी — कैसे तय करूँ?",
+    "answer_en": "Almost every business benefits from being visible online today — even a small, low-budget test campaign can show you real results within weeks. Tell me about your business and I can share what usually works for businesses like yours.",
+    "answer_hi": "आज लगभग हर बिज़नेस को ऑनलाइन दिखने से फायदा होता है — छोटा, कम-बजट test campaign भी हफ्तों में असली रिज़ल्ट दिखा सकता है। अपने बिज़नेस के बारे में बताइए, मैं सुझाव दे सकता/सकती हूँ।",
+    "keywords": ["mere business ke liye kaam karega kya", "sure nhi hu digital marketing kaam karegi"]
+  }
+]

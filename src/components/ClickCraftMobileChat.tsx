@@ -18,6 +18,12 @@ import {
   Zap,
   ChevronDown,
   Square,
+  ExternalLink,
+  Maximize2,
+  Eye,
+  X,
+  Image as ImageIcon,
+  CheckCircle2,
 } from 'lucide-react';
 import { ChatMessage, Language } from '../types';
 import { POPULAR_LANGUAGES } from '../constants/languages';
@@ -48,12 +54,12 @@ interface ClickCraftMobileChatProps {
 
 // Quick Suggestion Topics for ClickCraft
 const QUICK_PROMPTS = [
-  { label: '🛍️ Services & Pricing', query: 'ClickCraft की सभी सर्विसेज़ और प्राइसिंग लिस्ट बताएं (500 Ads, 5000 Website, 10000 Combo).' },
-  { label: '🚀 Ads Package (₹500)', query: '₹500 वाले Advertisement Campaign पैकेज में क्या-क्या मिलता है और इसे कैसे खरीदें?' },
-  { label: '💻 Website (₹5,000)', query: '₹5,000 वाले Professional Website Development पैकेज की पूरी जानकारी और फीचर्स बताएं।' },
-  { label: '🌟 Premium Offer (₹10,000)', query: '₹10,000 वाले Premium Offer (Website + 1 Week Ads) के बारे में बताएं और इसे कैसे बुक करें?' },
-  { label: '🚗 Sell Old Car Ads', query: 'पुरानी कार बेचने के लिए ऐड कैसे बनाएं? Sell Old Car by Ad के बारे में बताएं।' },
-  { label: '📞 Contact & WhatsApp', query: 'ClickCraft टीम का WhatsApp नंबर, कॉल नंबर और संपर्क जानकारी क्या है?' },
+  { label: '🔹 Website Sample', query: 'Website Design Sample दिखाओ' },
+  { label: '🔹 Ad Sample', query: 'Ad Design Sample दिखाओ' },
+  { label: '🔹 Portfolio', query: 'Portfolio और पिछला काम दिखाओ' },
+  { label: '🔹 Before/After', query: 'Before/After Result दिखाओ' },
+  { label: '🛍️ Services & Pricing', query: 'अपनी सभी सर्विसेज़ और प्राइसिंग (₹500 Ads, ₹5,000 Web, ₹10,000 Combo) के बारे में बताएं।' },
+  { label: '📞 Contact Owner', query: 'ClickCraft के owner से सीधे कैसे संपर्क करें?' },
 ];
 
 export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
@@ -78,9 +84,60 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [logoLoaded, setLogoLoaded] = useState(true);
   const [isServicesModalOpen, setIsServicesModalOpen] = useState(false);
+  const [activeLightboxImage, setActiveLightboxImage] = useState<{ url: string; title: string } | null>(null);
 
   // Network connection status monitoring
   const { isOnline, justReconnected } = useNetworkStatus();
+
+  const extractImageUrls = (text: string) => {
+    // Check for [SAMPLE_IMAGE: url] tag first
+    const tagMatch = text.match(/\[SAMPLE_IMAGE:\s*(https?:\/\/[^\s\]]+)\]/i);
+    if (tagMatch && tagMatch[1]) {
+      return [tagMatch[1]];
+    }
+
+    const urlRegex = /(https?:\/\/[^\s\)\<\>\"\'\]]+\.(?:jpg|jpeg|png|webp|gif))/gi;
+    const matches = text.match(urlRegex);
+    // Guarantee only the single most relevant requested image is shown (dont give all images)
+    return matches && matches.length > 0 ? [matches[0]] : [];
+  };
+
+  const getImageMeta = (url: string) => {
+    if (url.includes('web-design-transformation')) {
+      return {
+        title: 'Professional Website Design Sample',
+        category: 'Buy Web (₹5,000)',
+        badge: 'Website Transformation',
+        desc: 'आधुनिक मोबाइल-रिस्पॉन्सिव लेआउट, फ़ास्ट लोडिंग स्पीड, इन-बिल्ट SEO, और WhatsApp चैट बटन के साथ बिज़नेस वेबसाइट।',
+        features: ['100% Mobile Responsive', 'Fast Page Load', 'SEO & WhatsApp Ready', 'SSL Secure'],
+      };
+    }
+    if (url.includes('image-c8a91ffd')) {
+      return {
+        title: 'Targeted Ad Creative Sample',
+        category: 'Buy Ads (₹500)',
+        badge: 'Social Media Ad',
+        desc: 'Instagram/Facebook के लिए हाई-ROI ऐड डिज़ाइन्स, बोल्ड टाइपोग्राफी, आकर्षक ऑफ़र और सीधे WhatsApp पर आने वाली कस्टमर लीड्स।',
+        features: ['High-Converting Creative', 'Meta & Google Ads', 'Local Audience Targeting', 'Direct WhatsApp Leads'],
+      };
+    }
+    if (url.includes('Screenshot-2026-09-01-204720')) {
+      return {
+        title: 'ClickCraft Live Client Portfolio',
+        category: 'Portfolio Showcase',
+        badge: 'Client Results',
+        desc: '500+ संतुष्ट क्लाइंट्स के लिए बनाए गए लाइव प्रोजेक्ट्स, प्रीमियम ब्रांडिंग और रिजल्ट-ओरिएंटेड हाई-कन्वर्टिंग डिज़ाइन्स।',
+        features: ['500+ Happy Clients', '1,200+ Campaigns Run', 'Proven 5-Star Track Record', 'Custom UI/UX'],
+      };
+    }
+    return {
+      title: 'ClickCraft Design Sample',
+      category: 'Design Showcase',
+      badge: 'Official Sample',
+      desc: 'प्रोफेशनल डिजिटल मार्केटिंग व वेबसाइट डिज़ाइन सैंपल।',
+      features: ['Custom Graphic Design', 'Optimized for Conversion'],
+    };
+  };
 
   // Auto-typing animation for "Type something to start..." and business questions
   const TYPING_PHRASES = [
@@ -326,32 +383,32 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
                   </div>
                 </div>
 
-                <p className="text-[#B0B0B0] leading-relaxed text-xs sm:text-[13px] mb-3">
+                <p className="text-white/90 leading-relaxed text-xs sm:text-[13px] mb-3 font-medium">
                   We offer digital marketing services to help grow your business online, including:
                 </p>
 
-                <div className="space-y-2 text-xs sm:text-[12.5px] text-[#B0B0B0] bg-[#111418] p-3.5 rounded-xl border border-[#242A32]">
+                <div className="space-y-2 text-xs sm:text-[12.5px] text-white bg-[#111418] p-3.5 rounded-xl border border-[#242A32] font-medium">
                   <div className="flex items-start gap-2">
                     <span className="text-[#D4A017] font-bold">•</span>
-                    <span><strong className="text-white">Targeted Advertisement Campaigns</strong> starting at <strong className="text-[#D4A017]">₹500</strong></span>
+                    <span><strong className="text-white font-bold">Targeted Advertisement Campaigns</strong> starting at <strong className="text-[#D4A017] font-bold">₹500</strong></span>
                   </div>
                   <div className="flex items-start gap-2">
                     <span className="text-[#D4A017] font-bold">•</span>
-                    <span><strong className="text-white">Professional Website Development</strong> for <strong className="text-[#D4A017]">₹5,000</strong></span>
+                    <span><strong className="text-white font-bold">Professional Website Development</strong> for <strong className="text-[#D4A017] font-bold">₹5,000</strong></span>
                   </div>
                   <div className="flex items-start gap-2">
                     <span className="text-[#D4A017] font-bold">•</span>
-                    <span><strong className="text-white">Premium Offer</strong> (Website + 1 Week Ads) for <strong className="text-[#D4A017]">₹10,000</strong></span>
+                    <span><strong className="text-white font-bold">Premium Offer</strong> (Website + 1 Week Ads) for <strong className="text-[#D4A017] font-bold">₹10,000</strong></span>
                   </div>
                 </div>
 
                 {/* Data Synchronization Pill */}
-                <div className="flex items-center gap-1.5 text-[10.5px] text-[#707070] mt-3 pt-2.5 border-t border-[#242A32]">
+                <div className="flex items-center gap-1.5 text-[11px] text-[#A0A0A0] mt-3 pt-2.5 border-t border-[#242A32] font-medium">
                   <Database className="w-3 h-3 text-[#D4A017]" />
                   <span>Cloud Data Synced • 24/7 Agency AI</span>
                 </div>
               </div>
-              <span className="text-[10.5px] text-[#707070] mt-1 pl-1">ClickCraft AI • Ready</span>
+              <span className="text-[11px] text-[#A0A0A0] mt-1 pl-1 font-semibold">ClickCraft AI • Ready</span>
             </div>
 
             {/* Official Services & Pricing Showcase with Buy Buttons */}
@@ -366,11 +423,11 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
               <button
                 id="clickcraft-auto-typing-featured-card"
                 onClick={() => onSendMessage(typedPlaceholder || TYPING_PHRASES[0])}
-                className="w-full p-3 rounded-xl bg-[#111418] hover:bg-[#181C22] border border-[#D4A017]/70 hover:border-[#D4A017] transition-all flex items-center justify-between text-left group shadow-[0_0_14px_rgba(212,160,23,0.15)] active:scale-[0.99] cursor-pointer"
+                className="w-full p-3 rounded-xl bg-[#111418] hover:bg-[#181C22] border border-[#D4A017]/80 hover:border-[#D4A017] transition-all flex items-center justify-between text-left group shadow-[0_0_14px_rgba(212,160,23,0.18)] active:scale-[0.99] cursor-pointer"
                 title="Click to ask this question"
               >
                 <div className="flex items-center gap-2.5 min-w-0 pr-2">
-                  <div className="w-6 h-6 rounded-lg bg-[#181C22] border border-[#D4A017]/40 flex items-center justify-center text-[#D4A017] shrink-0">
+                  <div className="w-6 h-6 rounded-lg bg-[#181C22] border border-[#D4A017]/60 flex items-center justify-center text-[#D4A017] shrink-0">
                     <Sparkles className="w-3.5 h-3.5" />
                   </div>
                   <div className="flex items-center text-[15px] sm:text-[16px] font-bold font-script-bold text-white text-luminous-white truncate">
@@ -378,14 +435,14 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
                     <span className="inline-block w-1.5 h-4 bg-[#D4A017] ml-0.5 animate-pulse shrink-0" />
                   </div>
                 </div>
-                <span className="text-[10.5px] font-semibold text-[#D4A017] px-2 py-0.5 rounded-full bg-[#181C22] border border-[#D4A017]/40 shrink-0 group-hover:bg-[#D4A017] group-hover:text-[#111418] transition-colors">
+                <span className="text-[11px] font-bold text-[#D4A017] px-2.5 py-0.5 rounded-full bg-[#181C22] border border-[#D4A017]/40 shrink-0 group-hover:bg-[#D4A017] group-hover:text-[#111418] transition-colors">
                   Ask AI →
                 </span>
               </button>
 
               <div className="flex items-center gap-1.5 px-1">
                 <Sparkles className="w-3.5 h-3.5 text-[#D4A017]" />
-                <p className="text-[11px] font-bold text-[#B0B0B0] uppercase tracking-wider">
+                <p className="text-[11px] font-extrabold text-white uppercase tracking-wider">
                   सुझाए गए सवाल (Popular Topics)
                 </p>
               </div>
@@ -395,10 +452,10 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
                   <button
                     key={idx}
                     onClick={() => onSendMessage(prompt.query)}
-                    className="text-[12px] px-3.5 py-1.5 rounded-full bg-[#181C22] hover:bg-[#202630] text-[#B0B0B0] hover:text-[#D4A017] border border-[#242A32] hover:border-[#D4A017]/40 transition-all text-left flex items-center gap-1.5 shadow-sm active:scale-95"
+                    className="text-[12px] font-semibold px-3.5 py-1.5 rounded-full bg-[#181C22] hover:bg-[#202630] text-white hover:text-[#D4A017] border border-[#2E3642] hover:border-[#D4A017]/60 transition-all text-left flex items-center gap-1.5 shadow-sm active:scale-95"
                   >
                     <span>{prompt.label}</span>
-                    <ArrowRight className="w-3 h-3 opacity-60" />
+                    <ArrowRight className="w-3 h-3 text-[#D4A017] opacity-80" />
                   </button>
                 ))}
               </div>
@@ -411,7 +468,19 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
           const isUser = msg.sender === 'user';
           const isThisMsgPlaying = isSpeaking && activeSpeakingId === msg.id;
           const hasRealtimeTag = msg.text.includes('[REALTIME_CONSULTATION]');
-          const cleanText = msg.text.replace(/\[REALTIME_CONSULTATION\]/g, '').trim();
+          
+          // Extract single relevant image requested
+          const extractedImages = !isUser ? extractImageUrls(msg.text) : [];
+
+          // Clean text for speech and display: strip raw URLs, image tags, and link brackets
+          const cleanText = msg.text
+            .replace(/\[SAMPLE_IMAGE:\s*https?:\/\/[^\s\]]+\]/gi, '')
+            .replace(/👉\s*यहाँ अपना[^\n\r]*👈/gi, '')
+            .replace(/https?:\/\/[^\s\)\<\>\"\'\]]+\.(?:jpg|jpeg|png|webp|gif)/gi, '')
+            .replace(/!\[.*?\]\((https?:\/\/[^\s\)]+)\)/gi, '')
+            .replace(/\[REALTIME_CONSULTATION\]/g, '')
+            .replace(/\n{3,}/g, '\n\n')
+            .trim();
 
           return (
             <div
@@ -437,17 +506,105 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
                   </div>
                 )}
 
-                {/* Message Bubble with High Readability Spacing */}
+                {/* Message Bubble with High Readability Spacing & Pure White High Contrast Text */}
                 <div
-                  className={`p-4 sm:p-5 rounded-[20px] text-[13.5px] leading-relaxed sm:leading-7 shadow-md relative ${
+                  className={`p-4 sm:p-5 rounded-[20px] text-[14px] sm:text-[14.5px] leading-relaxed sm:leading-7 shadow-md relative ${
                     isUser
-                      ? 'bg-[#181C22] border border-[#D4A017]/40 text-white rounded-tr-[4px]'
-                      : 'bg-[#181C22] border border-[#242A32] text-[#B0B0B0] rounded-tl-[4px]'
+                      ? 'bg-[#181C22] border border-[#D4A017]/60 text-white font-semibold rounded-tr-[4px]'
+                      : 'bg-[#181C22] border border-[#242A32] text-white font-medium rounded-tl-[4px]'
                   }`}
                 >
-                  <div className="whitespace-pre-wrap break-words font-normal">
+                  <div className="whitespace-pre-wrap break-words font-medium text-white tracking-wide text-[14px] sm:text-[14.5px]">
                     {cleanText || (msg.isStreaming ? 'Typing response...' : '')}
                   </div>
+
+                  {/* Render Single Requested Visual Sample Image Card with Rich Description */}
+                  {extractedImages.length > 0 && (
+                    <div className="mt-4 space-y-3">
+                      {extractedImages.map((imgUrl, imgIdx) => {
+                        const meta = getImageMeta(imgUrl);
+                        return (
+                          <div
+                            key={imgIdx}
+                            className="rounded-2xl overflow-hidden border border-[#D4A017]/80 bg-[#111418] shadow-2xl group hover:border-[#D4A017] transition-all"
+                          >
+                            {/* Card Header with Category & Badge */}
+                            <div className="p-3 bg-[#181C22] border-b border-[#242A32] flex items-center justify-between">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <div className="w-6 h-6 rounded-lg bg-[#D4A017]/20 border border-[#D4A017]/60 flex items-center justify-center text-[#D4A017] shrink-0">
+                                  <ImageIcon className="w-3.5 h-3.5" />
+                                </div>
+                                <span className="text-xs font-bold text-white truncate">{meta.title}</span>
+                              </div>
+                              <span className="text-[10px] font-bold text-[#D4A017] px-2.5 py-0.5 rounded-full bg-[#111418] border border-[#D4A017]/50 shadow-inner">
+                                {meta.category}
+                              </span>
+                            </div>
+                            
+                            {/* Clickable High-Res Image Container */}
+                            <div
+                              onClick={() => setActiveLightboxImage({ url: imgUrl, title: meta.title })}
+                              className="relative cursor-pointer overflow-hidden bg-black/80 aspect-[16/10] flex items-center justify-center group/img"
+                            >
+                              <img
+                                src={imgUrl}
+                                alt={meta.title}
+                                referrerPolicy="no-referrer"
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-105"
+                                loading="lazy"
+                              />
+                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                <span className="px-3.5 py-1.5 rounded-xl bg-[#111418]/95 text-white text-xs font-bold flex items-center gap-2 border border-[#D4A017] shadow-lg backdrop-blur-sm">
+                                  <Eye className="w-3.5 h-3.5 text-[#D4A017]" />
+                                  <span>View Full Image</span>
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Informative Description & Value Highlights in Crisp White */}
+                            <div className="p-3.5 bg-[#14181E] border-t border-[#242A32] space-y-2.5">
+                              <p className="text-[12.5px] font-medium text-white leading-relaxed">
+                                {meta.desc}
+                              </p>
+
+                              {/* Feature tags */}
+                              {meta.features && meta.features.length > 0 && (
+                                <div className="grid grid-cols-2 gap-1.5 pt-1">
+                                  {meta.features.map((feat, fIdx) => (
+                                    <div
+                                      key={fIdx}
+                                      className="flex items-center gap-1.5 text-[11.5px] font-bold text-white bg-[#181C22] px-2.5 py-1.5 rounded-lg border border-[#2E3642]"
+                                    >
+                                      <CheckCircle2 className="w-3.5 h-3.5 text-[#D4A017] shrink-0" />
+                                      <span className="truncate">{feat}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+
+                              {/* Action Footer */}
+                              <div className="pt-2 flex items-center justify-between border-t border-[#242A32]">
+                                <button
+                                  onClick={() => setActiveLightboxImage({ url: imgUrl, title: meta.title })}
+                                  className="text-[12px] text-[#D4A017] hover:underline flex items-center gap-1.5 font-bold"
+                                >
+                                  <Maximize2 className="w-3.5 h-3.5" />
+                                  <span>Zoom Preview</span>
+                                </button>
+                                <button
+                                  onClick={() => setIsServicesModalOpen(true)}
+                                  className="px-3.5 py-1.5 rounded-lg bg-[#D4A017] hover:bg-[#E5B228] text-[#111418] text-[12px] font-bold flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
+                                >
+                                  <span>Order Package</span>
+                                  <ArrowRight className="w-3 h-3" />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
 
                   {/* Interactive Buy Buttons Bar (When AI mentions services / pricing) */}
                   {!isUser && (cleanText.includes('500') || cleanText.includes('5000') || cleanText.includes('5,000') || cleanText.includes('10000') || cleanText.includes('10,000') || cleanText.toLowerCase().includes('website') || cleanText.toLowerCase().includes('advertisement') || cleanText.toLowerCase().includes('package') || cleanText.toLowerCase().includes('पैकेज') || cleanText.toLowerCase().includes('प्राइस') || cleanText.toLowerCase().includes('सर्विस')) && (
@@ -753,6 +910,67 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
         isOpen={isServicesModalOpen}
         onClose={() => setIsServicesModalOpen(false)}
       />
+
+      {/* ============================================================
+          7. IMAGE SAMPLE LIGHTBOX MODAL
+      ============================================================ */}
+      {activeLightboxImage && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4 animate-fadeIn"
+          onClick={() => setActiveLightboxImage(null)}
+        >
+          <div
+            className="relative max-w-3xl w-full max-h-[90vh] bg-[#111418] border border-[#D4A017] rounded-2xl overflow-hidden shadow-2xl flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="p-4 bg-[#181C22] border-b border-[#242A32] flex items-center justify-between">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-7 h-7 rounded-lg bg-[#D4A017]/20 border border-[#D4A017] flex items-center justify-center text-[#D4A017]">
+                  <ImageIcon className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white truncate">{activeLightboxImage.title}</h3>
+                  <p className="text-[11px] text-[#A0A0A0]">ClickCraft Official Design Sample</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setActiveLightboxImage(null)}
+                  className="p-2 rounded-xl bg-[#181C22] hover:bg-[#202630] text-white hover:text-[#D4A017] border border-[#242A32] hover:border-[#D4A017]/50 transition-colors"
+                  aria-label="Close image preview"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Image Preview Container */}
+            <div className="p-3 bg-black flex items-center justify-center overflow-auto max-h-[70vh]">
+              <img
+                src={activeLightboxImage.url}
+                alt={activeLightboxImage.title}
+                referrerPolicy="no-referrer"
+                className="max-h-[65vh] w-auto object-contain rounded-lg shadow-md"
+              />
+            </div>
+
+            {/* Footer Action */}
+            <div className="p-3.5 bg-[#181C22] border-t border-[#242A32] flex items-center justify-between text-xs">
+              <span className="text-white font-medium">Like this design? We can build this for your brand!</span>
+              <button
+                onClick={() => {
+                  setActiveLightboxImage(null);
+                  setIsServicesModalOpen(true);
+                }}
+                className="px-4 py-2 rounded-xl bg-[#D4A017] hover:bg-[#E5B228] text-[#111418] font-bold transition-all shadow-md active:scale-95"
+              >
+                Order This Package →
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

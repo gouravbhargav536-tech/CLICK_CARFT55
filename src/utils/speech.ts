@@ -1,5 +1,6 @@
 // Speech Recognition & Audio Processing Utility
 import { VocalFeeling } from '../types';
+import { getCustomApiKeys } from './storage';
 
 export interface SpeechRecognitionResult {
   transcript: string;
@@ -351,8 +352,8 @@ export function stopSpeech(): void {
 }
 
 /**
- * Play text using Google Cloud Text-to-Speech REST API (WaveNet voice hi-IN-Wavenet-A)
- * Calls Netlify serverless function or Express backend proxy.
+ * Play text using Google Cloud Text-to-Speech REST API (hi-IN-Neural2-A / Neural2-D)
+ * Automatically utilizes the user's saved Gemini / Google API Key or server credentials.
  */
 export async function playCloudTTS(
   text: string,
@@ -361,28 +362,18 @@ export async function playCloudTTS(
   onError?: (err: any) => void
 ): Promise<void> {
   try {
-    // Try Netlify Function endpoint first, fallback to Express backend
-    let response: Response;
-    try {
-      response = await fetch('/.netlify/functions/tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text }),
-      });
-      if (!response.ok && response.status === 404) {
-        response = await fetch('/api/cloud-tts', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text }),
-        });
-      }
-    } catch {
-      response = await fetch('/api/cloud-tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text }),
-      });
-    }
+    const keys = getCustomApiKeys();
+    const apiKey = keys.gemini || undefined;
+
+    const response = await fetch('/api/cloud-tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text,
+        apiKey,
+        voice: 'hi-IN-Neural2-A',
+      }),
+    });
 
     if (!response.ok) {
       const errorText = await response.text().catch(() => '');
@@ -392,6 +383,66 @@ export async function playCloudTTS(
     const data = await response.json();
     if (!data.audioContent) {
       throw new Error('No audio content received from TTS service.');
+    }
+
+    const audioUrl = `data:audio/mp3;base64,${data.audioContent}`;
+    const audio = new Audio(audioUrl);
+    activeCloudAudio = audio;
+
+    audio.onplay = () => {
+      if (onStart) onStart();
+    };
+
+    audio.onended = () => {
+      activeCloudAudio = null;
+      if (onEnd) onEnd();
+    };
+
+    audio.onerror = (e) => {
+      activeCloudAudio = null;
+      if (onError) onError(e);
+      if (onEnd) onEnd();
+    };
+
+    await audio.play();
+  } catch (err) {
+    activeCloudAudio = null;
+    throw err;
+  }
+}
+
+/**
+ * Play text using Gemini 3.1 Flash TTS (gemini-3.1-flash-tts-preview)
+ * Ultra-natural conversational AI prosody powered by your Google / Gemini API key.
+ */
+export async function playGeminiTTS(
+  text: string,
+  onStart?: () => void,
+  onEnd?: () => void,
+  onError?: (err: any) => void
+): Promise<void> {
+  try {
+    const keys = getCustomApiKeys();
+    const apiKey = keys.gemini || undefined;
+
+    const response = await fetch('/api/gemini-tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text,
+        apiKey,
+        voice: 'Kore',
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => '');
+      throw new Error(`Gemini TTS failed with status ${response.status}: ${errorText}`);
+    }
+
+    const data = await response.json();
+    if (!data.audioContent) {
+      throw new Error('No audio content received from Gemini TTS service.');
     }
 
     const audioUrl = `data:audio/mp3;base64,${data.audioContent}`;
@@ -490,7 +541,9 @@ export function normalizeHindiTextForTTS(rawText: string): string {
     .replace(/```[\s\S]*?```/g, '')
     .replace(/\[REALTIME_DATA_NEEDED\]/g, '')
     .replace(/\[REALTIME_CONSULTATION\]/g, '')
-    .replace(/https?:\/\/[^\s]+/g, 'लिंक')
+    .replace(/\[SAMPLE_IMAGE:\s*https?:\/\/[^\s\]]+\]/gi, '')
+    .replace(/👉\s*यहाँ अपना[^\n\r]*👈/gi, '')
+    .replace(/https?:\/\/[^\s\)\<\>\"\'\]]+/g, '')
     .replace(/\[(.*?)\]\((.*?)\)/g, '$1')
     .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}]/gu, '')
     .replace(/[*#_~`>]/g, ' ');
@@ -655,10 +708,10 @@ export async function playEdgeTTS(
 }
 
 /**
- * Main function to speak Hindi text when user clicks "Listen".
+ * Main function to speak Hindi text when user clicks "Listen" or AI speaks.
  * Priority cascade:
- * 1. Microsoft Edge Neural TTS (if USE_EDGE_TTS is true, hi-IN-SwaraNeural - ultra natural)
- * 2. Google Cloud TTS (if USE_CLOUD_TTS is true)
+ * 1. Google Cloud Neural2 / Gemini TTS (powered by user's API key or server key)
+ * 2. Microsoft Edge Neural TTS (hi-IN-SwaraNeural - studio-quality 96kbps natural voice)
  * 3. Browser SpeechSynthesis API with the BEST available Hindi voice
  */
 export async function speakHindi(
@@ -676,27 +729,36 @@ export async function speakHindi(
     return;
   }
 
-  // 1. Microsoft Edge Neural TTS (Free, Studio-Quality 96kbps Neural Hindi Voice)
+  const customKeys = getCustomApiKeys();
+  const hasUserGeminiKey = !!customKeys.gemini;
+
+  // 1. If user provided their API Key, prioritize Google Neural2 / Gemini TTS
+  if (hasUserGeminiKey || USE_CLOUD_TTS) {
+    try {
+      await playCloudTTS(cleanText, onStart, onEnd, onError);
+      return;
+    } catch (cloudErr) {
+      console.warn('Google Cloud Neural2 TTS failed with API key, falling back to Edge Neural:', cloudErr);
+    }
+  }
+
+  // 2. Microsoft Edge Neural TTS (Studio-Quality 96kbps Neural Hindi Voice hi-IN-SwaraNeural)
   if (USE_EDGE_TTS) {
     try {
       await playEdgeTTS(cleanText, onStart, onEnd, onError);
       return;
     } catch (edgeErr) {
-      console.warn('Edge TTS failed, falling back to Cloud / Browser:', edgeErr);
+      console.warn('Edge Neural TTS failed, falling back to Browser SpeechSynthesis:', edgeErr);
     }
   }
 
-  // 2. Google Cloud Text-to-Speech (WaveNet) if config flag is enabled
-  if (USE_CLOUD_TTS) {
-    try {
-      await playCloudTTS(cleanText, onStart, onEnd, onError);
-      return;
-    } catch (cloudErr) {
-      console.warn('Google Cloud TTS failed, falling back to Browser SpeechSynthesis:', cloudErr);
-    }
-  }
+  // 3. Fallback to Cloud Neural if not tried yet
+  try {
+    await playCloudTTS(cleanText, onStart, onEnd, onError);
+    return;
+  } catch {}
 
-  // 3. Browser SpeechSynthesis API with best Hindi voice
+  // 4. Browser SpeechSynthesis API with best Hindi voice
   await playBrowserSpeech(cleanText, onStart, onEnd, onError);
 }
 

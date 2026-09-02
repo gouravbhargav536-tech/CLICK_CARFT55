@@ -634,19 +634,39 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
 
               {/* Default Voice */}
               <div className="space-y-2 p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800">
-                <label className="font-semibold text-slate-300">Gemini Cloud Voice Profile</label>
+                <div className="flex items-center justify-between">
+                  <label className="font-semibold text-slate-300">Neural Voice Profile</label>
+                  <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                    HD Studio
+                  </span>
+                </div>
                 <select
                   value={voiceConfig.voiceName}
                   onChange={(e) => onSaveVoiceConfig({ ...voiceConfig, voiceName: e.target.value })}
                   className="w-full p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 focus:outline-none focus:border-cyan-500 text-xs"
                 >
-                  <option value="Aoede">Aoede (Warm Conversational Female)</option>
-                  <option value="Kore">Kore (Balanced Professional Female)</option>
-                  <option value="Zephyr">Zephyr (Warm Natural Expressive Male)</option>
-                  <option value="Puck">Puck (Energetic Clear Lively Male)</option>
-                  <option value="Fenrir">Fenrir (Deep Resonant Male)</option>
-                  <option value="Charon">Charon (Rich Calm Deep Male)</option>
+                  <optgroup label="Google Neural2 Voices (Ultra-Natural Hindi)">
+                    <option value="hi-IN-Neural2-A">Google Neural2-A (Female - Clear Studio Pro)</option>
+                    <option value="hi-IN-Neural2-D">Google Neural2-D (Female - Warm Conversational)</option>
+                    <option value="hi-IN-Neural2-B">Google Neural2-B (Male - Confident Professional)</option>
+                    <option value="hi-IN-Neural2-C">Google Neural2-C (Male - Natural Deep)</option>
+                  </optgroup>
+                  <optgroup label="Gemini AI Studio Voices">
+                    <option value="Aoede">Aoede (Warm Conversational Female)</option>
+                    <option value="Kore">Kore (Balanced Expressive Female)</option>
+                    <option value="Zephyr">Zephyr (Warm Natural Expressive Male)</option>
+                    <option value="Puck">Puck (Energetic Clear Lively Male)</option>
+                    <option value="Fenrir">Fenrir (Deep Resonant Male)</option>
+                    <option value="Charon">Charon (Rich Calm Deep Male)</option>
+                  </optgroup>
+                  <optgroup label="Edge Neural (Free Fallback)">
+                    <option value="hi-IN-SwaraNeural">Swara Neural (Female - Natural Hindi)</option>
+                    <option value="hi-IN-MadhurNeural">Madhur Neural (Male - Smooth Hindi)</option>
+                  </optgroup>
                 </select>
+                <p className="text-[10.5px] text-slate-400">
+                  Your Gemini / Google API Key unlocks Google Cloud Neural2 and Gemini Flash AI speech synthesis.
+                </p>
               </div>
             </div>
           )}
