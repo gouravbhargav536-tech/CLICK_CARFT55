@@ -56,6 +56,7 @@ import { ClickCraftMobileChat } from './components/ClickCraftMobileChat';
 import { ToastContainer } from './components/Toast';
 import { isLocationSearchQuery } from './services/osmPlaces';
 import { getStoredGoogleAccessToken } from './services/calendarService';
+import { classifyTopic } from './services/topicRelevanceService';
 import {
   seedTrainingDataToFirestore,
   logConversationToFirebase,
@@ -325,13 +326,16 @@ export default function App() {
     const isSearchActive = isWebSearchActive || modelMode === 'search';
     const isThinkingActive = modelMode === 'thinking';
     const isLowLatencyActive = modelMode === 'low-latency';
+    const hasDeepSeekKey = !!getCustomApiKeys().deepseek;
 
-    const aiUsedType: 'gemini' | 'groq' | 'search' | 'thinking' = isLowLatencyActive
+    const aiUsedType: 'gemini' | 'groq' | 'deepseek' | 'search' | 'thinking' = isLowLatencyActive
       ? 'groq'
       : isSearchActive
       ? 'search'
       : isThinkingActive
       ? 'thinking'
+      : hasDeepSeekKey
+      ? 'deepseek'
       : 'gemini';
 
     const userMessage: ChatMessage = {
@@ -366,9 +370,9 @@ export default function App() {
     updateCurrentSession(sessionWithUser);
     setIsThinking(true);
 
-    // Behavior Rules 1 & 2:
-    // 1. Check if user's question closely matches any question stored in "faqs" collection in Firebase.
-    // 2. If a close match is found, return ONLY that stored answer exactly as written in Firebase.
+    // STEP 1 — Firebase Check:
+    // - सबसे पहले Firebase में मौजूद fixed Q&A में जवाब ढूंढो
+    // - अगर मिल जाए → वही जवाब सीधे दो, DeepSeek API मत बुलाओ
     const directFaqAnswer = matchFAQFromFirebase(promptText);
     if (directFaqAnswer) {
       setIsThinking(false);
@@ -403,6 +407,51 @@ export default function App() {
       return;
     }
 
+    // STEP 2 — अगर Firebase में जवाब नहीं मिला, तो पहले टॉपिक चेक करो:
+    // B) अगर सवाल हमारी service से बिल्कुल unrelated है
+    //    (जैसे: weather, cricket score, general knowledge, किसी और topic पर advice, movie, recipe, आदि):
+    //    → DeepSeek API मत बुलाओ (टोकन/cost बचाओ)
+    //    → इसकी जगह politely वापस मोड़ो:
+    //      "यह मेरे expertise से बाहर है 😊 मैं आपकी website, ads और digital marketing से जुड़ी मदद कर सकता हूं। क्या आपके business के लिए कुछ पूछना चाहेंगे?"
+    const topicClassification = classifyTopic(promptText);
+    if (!topicClassification.isRelated) {
+      setIsThinking(false);
+      const deflectionAnswer = topicClassification.deflectionText;
+
+      setActiveSession((curr) => {
+        if (!curr) return null;
+        const finalMsgs = curr.messages.map((m) => {
+          if (m.id === assistantMsgId) {
+            return {
+              ...m,
+              text: deflectionAnswer,
+              isStreaming: false,
+              aiUsed: 'deflection',
+            };
+          }
+          return m;
+        });
+        const updated = { ...curr, messages: finalMsgs };
+        saveSession(updated);
+        return updated;
+      });
+
+      if (voiceConfig.autoSpeak) {
+        handlePlaySpeech(deflectionAnswer, currentLanguage.speechCode, assistantMsgId);
+      }
+
+      logConversationToFirebase(
+        promptText,
+        deflectionAnswer,
+        currentLanguage.label || currentLanguage.name
+      );
+      return;
+    }
+
+    // STEP 2 — A) अगर सवाल digital marketing/website/ads/business growth से related है:
+    //    → DeepSeek API कॉल करो (Fallback to Gemini if no DeepSeek key)
+    //    → API से मिला जवाब user-friendly Hindi/Hinglish में दो
+    //    → जवाब ClickCraft की service से जोड़ने की कोशिश करो
     try {
       const promptToSend = isSearchActive
         ? `[Search Grounding Enabled] ${promptText}`
@@ -428,6 +477,7 @@ export default function App() {
           history: activeSession.messages,
           accessToken: getStoredGoogleAccessToken() || undefined,
           customGeminiKey: getCustomApiKeys().gemini || undefined,
+          customDeepSeekKey: getCustomApiKeys().deepseek || undefined,
         }),
       });
 

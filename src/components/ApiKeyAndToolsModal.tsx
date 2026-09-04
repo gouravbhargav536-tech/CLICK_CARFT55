@@ -47,20 +47,22 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
   onShowToast,
 }) => {
   const [activeTab, setActiveTab] = useState<'validator' | 'tools' | 'settings'>('validator');
-  const [selectedProvider, setSelectedProvider] = useState<'gemini' | 'groq' | 'elevenlabs'>('gemini');
+  const [selectedProvider, setSelectedProvider] = useState<'gemini' | 'groq' | 'deepseek' | 'elevenlabs'>('gemini');
   
   // Custom API key states
   const [geminiKeyInput, setGeminiKeyInput] = useState('');
   const [groqKeyInput, setGroqKeyInput] = useState('');
+  const [deepseekKeyInput, setDeepseekKeyInput] = useState('');
   const [elevenLabsKeyInput, setElevenLabsKeyInput] = useState('');
   const [showGeminiKey, setShowGeminiKey] = useState(false);
   const [showGroqKey, setShowGroqKey] = useState(false);
+  const [showDeepseekKey, setShowDeepseekKey] = useState(false);
   const [showElevenLabsKey, setShowElevenLabsKey] = useState(false);
   
   // Validation progress & result states
   const [isValidating, setIsValidating] = useState(false);
   const [validationResult, setValidationResult] = useState<{
-    provider: 'gemini' | 'groq' | 'elevenlabs';
+    provider: 'gemini' | 'groq' | 'deepseek' | 'elevenlabs';
     valid: boolean;
     latencyMs?: number;
     message?: string;
@@ -75,6 +77,7 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
       setSavedKeys(keys);
       if (keys.gemini) setGeminiKeyInput(keys.gemini);
       if (keys.groq) setGroqKeyInput(keys.groq);
+      if (keys.deepseek) setDeepseekKeyInput(keys.deepseek);
       if (keys.elevenlabs) setElevenLabsKeyInput(keys.elevenlabs);
       setValidationResult(null);
     }
@@ -87,24 +90,32 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
       ? geminiKeyInput
       : selectedProvider === 'groq'
       ? groqKeyInput
+      : selectedProvider === 'deepseek'
+      ? deepseekKeyInput
       : elevenLabsKeyInput;
   const currentSavedKey =
     selectedProvider === 'gemini'
       ? savedKeys.gemini
       : selectedProvider === 'groq'
       ? savedKeys.groq
+      : selectedProvider === 'deepseek'
+      ? savedKeys.deepseek
       : savedKeys.elevenlabs;
   const currentValidatedAt =
     selectedProvider === 'gemini'
       ? savedKeys.geminiValidatedAt
       : selectedProvider === 'groq'
       ? savedKeys.groqValidatedAt
+      : selectedProvider === 'deepseek'
+      ? savedKeys.deepseekValidatedAt
       : savedKeys.elevenlabsValidatedAt;
   const currentLatency =
     selectedProvider === 'gemini'
       ? savedKeys.geminiLatency
       : selectedProvider === 'groq'
       ? savedKeys.groqLatency
+      : selectedProvider === 'deepseek'
+      ? savedKeys.deepseekLatency
       : savedKeys.elevenlabsLatency;
 
   const handleValidateAndSave = async () => {
@@ -114,6 +125,8 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
         ? 'Gemini'
         : selectedProvider === 'groq'
         ? 'Groq'
+        : selectedProvider === 'deepseek'
+        ? 'DeepSeek'
         : 'ElevenLabs';
     if (!keyToTest) {
       const msg = `Please enter a valid ${providerName} API key before testing.`;
@@ -187,16 +200,23 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
     }
   };
 
-  const handleRemoveKey = (provider: 'gemini' | 'groq' | 'elevenlabs') => {
+  const handleRemoveKey = (provider: 'gemini' | 'groq' | 'deepseek' | 'elevenlabs') => {
     const updated = removeCustomApiKey(provider);
     setSavedKeys(updated);
     if (provider === 'gemini') setGeminiKeyInput('');
     if (provider === 'groq') setGroqKeyInput('');
+    if (provider === 'deepseek') setDeepseekKeyInput('');
     if (provider === 'elevenlabs') setElevenLabsKeyInput('');
     setValidationResult(null);
 
     const providerName =
-      provider === 'gemini' ? 'Gemini' : provider === 'groq' ? 'Groq' : 'ElevenLabs';
+      provider === 'gemini'
+        ? 'Gemini'
+        : provider === 'groq'
+        ? 'Groq'
+        : provider === 'deepseek'
+        ? 'DeepSeek'
+        : 'ElevenLabs';
 
     if (onShowToast) {
       onShowToast({
@@ -207,13 +227,14 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
     }
   };
 
-  const handlePasteKey = async (provider: 'gemini' | 'groq' | 'elevenlabs') => {
+  const handlePasteKey = async (provider: 'gemini' | 'groq' | 'deepseek' | 'elevenlabs') => {
     try {
       if (navigator.clipboard) {
         const text = await navigator.clipboard.readText();
         if (text) {
           if (provider === 'gemini') setGeminiKeyInput(text.trim());
           if (provider === 'groq') setGroqKeyInput(text.trim());
+          if (provider === 'deepseek') setDeepseekKeyInput(text.trim());
           if (provider === 'elevenlabs') setElevenLabsKeyInput(text.trim());
         }
       }
@@ -300,7 +321,7 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
           {activeTab === 'validator' && (
             <div className="space-y-4 text-xs">
               {/* Provider Selection Tabs */}
-              <div className="grid grid-cols-3 gap-2 p-1.5 rounded-2xl bg-slate-950/80 border border-slate-800">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-1.5 rounded-2xl bg-slate-950/80 border border-slate-800">
                 <button
                   type="button"
                   onClick={() => {
@@ -315,11 +336,34 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
                 >
                   <span className="text-base">⚡</span>
                   <div className="text-left hidden sm:block">
-                    <div className="text-xs">Google Gemini</div>
-                    <div className="text-[10px] opacity-75 font-normal">Gemini 3.6 / Flash</div>
+                    <div className="text-xs">Gemini AI</div>
+                    <div className="text-[10px] opacity-75 font-normal">Gemini 3.7</div>
                   </div>
                   <span className="sm:hidden text-xs">Gemini</span>
                   {savedKeys.gemini && (
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0 ml-auto" />
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedProvider('deepseek');
+                    setValidationResult(null);
+                  }}
+                  className={`flex items-center justify-center gap-2 py-2 px-2.5 rounded-xl font-bold transition-all ${
+                    selectedProvider === 'deepseek'
+                      ? 'bg-gradient-to-r from-cyan-600 to-teal-600 text-white shadow-md shadow-teal-500/20'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
+                  }`}
+                >
+                  <span className="text-base">🧠</span>
+                  <div className="text-left hidden sm:block">
+                    <div className="text-xs">DeepSeek</div>
+                    <div className="text-[10px] opacity-75 font-normal">deepseek-chat</div>
+                  </div>
+                  <span className="sm:hidden text-xs">DeepSeek</span>
+                  {savedKeys.deepseek && (
                     <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0 ml-auto" />
                   )}
                 </button>
@@ -338,8 +382,8 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
                 >
                   <span className="text-base">🚀</span>
                   <div className="text-left hidden sm:block">
-                    <div className="text-xs">Groq Cloud AI</div>
-                    <div className="text-[10px] opacity-75 font-normal">Llama 3.3 Ultra-Fast</div>
+                    <div className="text-xs">Groq AI</div>
+                    <div className="text-[10px] opacity-75 font-normal">Llama 3.3 Fast</div>
                   </div>
                   <span className="sm:hidden text-xs">Groq</span>
                   {savedKeys.groq && (
@@ -362,9 +406,9 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
                   <span className="text-base">🎙️</span>
                   <div className="text-left hidden sm:block">
                     <div className="text-xs">ElevenLabs</div>
-                    <div className="text-[10px] opacity-75 font-normal">Hindi Voice AI</div>
+                    <div className="text-[10px] opacity-75 font-normal">Hindi Voice</div>
                   </div>
-                  <span className="sm:hidden text-xs">ElevenLabs</span>
+                  <span className="sm:hidden text-xs">Voice</span>
                   {savedKeys.elevenlabs && (
                     <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0 ml-auto" />
                   )}
@@ -387,6 +431,8 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
                     <span className="font-bold text-slate-200">
                       {selectedProvider === 'gemini'
                         ? 'Gemini Provider Status'
+                        : selectedProvider === 'deepseek'
+                        ? 'DeepSeek Provider Status'
                         : selectedProvider === 'groq'
                         ? 'Groq Provider Status'
                         : 'ElevenLabs Voice Status'}:
@@ -419,6 +465,8 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
                 <p className="text-[11px] text-slate-400 leading-relaxed">
                   {selectedProvider === 'gemini'
                     ? 'Enter your personal Gemini API key from Google AI Studio to route requests directly or verify your credentials.'
+                    : selectedProvider === 'deepseek'
+                    ? 'Enter your DeepSeek API key (sk-...) to power relevant digital marketing and business queries with deepseek-chat.'
                     : selectedProvider === 'groq'
                     ? 'Enter your Groq API key (gsk_...) to unlock ultra-fast Llama 3.3 and sub-100ms inference.'
                     : 'Enter your ElevenLabs API key (sk_...) for ultra-realistic Hindi speaker voice (eleven_multilingual_v2 model).'}
@@ -431,6 +479,8 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
                   <label className="font-bold text-slate-300">
                     {selectedProvider === 'gemini'
                       ? 'Gemini API Key'
+                      : selectedProvider === 'deepseek'
+                      ? 'DeepSeek API Key'
                       : selectedProvider === 'groq'
                       ? 'Groq API Key'
                       : 'ElevenLabs API Key'}
@@ -450,6 +500,8 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
                     type={
                       (selectedProvider === 'gemini'
                         ? showGeminiKey
+                        : selectedProvider === 'deepseek'
+                        ? showDeepseekKey
                         : selectedProvider === 'groq'
                         ? showGroqKey
                         : showElevenLabsKey)
@@ -459,18 +511,23 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
                     value={
                       selectedProvider === 'gemini'
                         ? geminiKeyInput
+                        : selectedProvider === 'deepseek'
+                        ? deepseekKeyInput
                         : selectedProvider === 'groq'
                         ? groqKeyInput
                         : elevenLabsKeyInput
                     }
                     onChange={(e) => {
                       if (selectedProvider === 'gemini') setGeminiKeyInput(e.target.value);
+                      if (selectedProvider === 'deepseek') setDeepseekKeyInput(e.target.value);
                       if (selectedProvider === 'groq') setGroqKeyInput(e.target.value);
                       if (selectedProvider === 'elevenlabs') setElevenLabsKeyInput(e.target.value);
                     }}
                     placeholder={
                       selectedProvider === 'gemini'
                         ? 'AIzaSy...'
+                        : selectedProvider === 'deepseek'
+                        ? 'sk-...'
                         : selectedProvider === 'groq'
                         ? 'gsk_...'
                         : 'sk_...'
@@ -482,6 +539,7 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
                       type="button"
                       onClick={() => {
                         if (selectedProvider === 'gemini') setShowGeminiKey(!showGeminiKey);
+                        if (selectedProvider === 'deepseek') setShowDeepseekKey(!showDeepseekKey);
                         if (selectedProvider === 'groq') setShowGroqKey(!showGroqKey);
                         if (selectedProvider === 'elevenlabs') setShowElevenLabsKey(!showElevenLabsKey);
                       }}
@@ -489,6 +547,8 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
                       title={
                         (selectedProvider === 'gemini'
                           ? showGeminiKey
+                          : selectedProvider === 'deepseek'
+                          ? showDeepseekKey
                           : selectedProvider === 'groq'
                           ? showGroqKey
                           : showElevenLabsKey)
@@ -498,6 +558,8 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
                     >
                       {(selectedProvider === 'gemini'
                         ? showGeminiKey
+                        : selectedProvider === 'deepseek'
+                        ? showDeepseekKey
                         : selectedProvider === 'groq'
                         ? showGroqKey
                         : showElevenLabsKey) ? (
@@ -523,6 +585,8 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
                       ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
                       : selectedProvider === 'gemini'
                       ? 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:opacity-95 shadow-cyan-500/20'
+                      : selectedProvider === 'deepseek'
+                      ? 'bg-gradient-to-r from-cyan-600 to-teal-600 hover:opacity-95 shadow-teal-500/20'
                       : selectedProvider === 'groq'
                       ? 'bg-gradient-to-r from-orange-600 to-amber-600 hover:opacity-95 shadow-orange-500/20'
                       : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-95 shadow-purple-500/20'
@@ -540,6 +604,8 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
                         Validate & Save{' '}
                         {selectedProvider === 'gemini'
                           ? 'Gemini'
+                          : selectedProvider === 'deepseek'
+                          ? 'DeepSeek'
                           : selectedProvider === 'groq'
                           ? 'Groq'
                           : 'ElevenLabs'}{' '}
@@ -610,6 +676,16 @@ export const ApiKeyAndToolsModal: React.FC<ApiKeyAndToolsModalProps> = ({
                       className="text-cyan-400 hover:text-cyan-300 font-bold text-[11px] inline-flex items-center gap-1"
                     >
                       <span>Google AI Studio</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                    <span className="text-slate-600">•</span>
+                    <a
+                      href="https://platform.deepseek.com/api_keys"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-teal-400 hover:text-teal-300 font-bold text-[11px] inline-flex items-center gap-1"
+                    >
+                      <span>DeepSeek Platform</span>
                       <ExternalLink className="w-3 h-3" />
                     </a>
                     <span className="text-slate-600">•</span>

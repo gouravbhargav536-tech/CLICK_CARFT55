@@ -4,6 +4,7 @@ import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { createServer as createViteServer } from "vite";
 import dotenv from "dotenv";
 import { MsEdgeTTS, OUTPUT_FORMAT } from "msedge-tts";
+import { classifyTopic } from "./src/services/topicRelevanceService";
 
 dotenv.config();
 
@@ -404,10 +405,54 @@ async function startServer() {
           error: error?.message || "Failed to reach ElevenLabs API network.",
         });
       }
+    } else if (provider === "deepseek") {
+      try {
+        const deepseekRes = await fetch("https://api.deepseek.com/models", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${cleanKey}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        const latencyMs = Date.now() - startTime;
+        if (deepseekRes.ok) {
+          const data: any = await deepseekRes.json();
+          const modelCount = data?.data?.length || 0;
+          res.json({
+            valid: true,
+            provider: "deepseek",
+            latencyMs,
+            model: "deepseek-chat",
+            message: `DeepSeek API key verified! Access to ${modelCount} models confirmed (${latencyMs}ms latency).`,
+          });
+        } else {
+          const errJson: any = await deepseekRes.json().catch(() => ({}));
+          const message =
+            errJson?.error?.message ||
+            (deepseekRes.status === 401
+              ? "Invalid DeepSeek API Key (401 Unauthorized): Please verify key in DeepSeek platform."
+              : `DeepSeek API returned HTTP status ${deepseekRes.status}`);
+          res.status(400).json({
+            valid: false,
+            provider: "deepseek",
+            latencyMs,
+            error: message,
+          });
+        }
+      } catch (error: any) {
+        const latencyMs = Date.now() - startTime;
+        res.status(400).json({
+          valid: false,
+          provider: "deepseek",
+          latencyMs,
+          error: error?.message || "Failed to connect to DeepSeek API endpoint.",
+        });
+      }
     } else {
       res.status(400).json({
         valid: false,
-        error: `Unsupported provider '${provider}'. Supported providers are 'gemini', 'groq', and 'elevenlabs'.`,
+        error: `Unsupported provider '${provider}'. Supported providers are 'gemini', 'groq', 'elevenlabs', and 'deepseek'.`,
       });
     }
   });
@@ -821,14 +866,126 @@ If a question is completely outside your knowledge base or cannot be answered, p
         geminiConfig.temperature = 0.6;
       }
 
-      // Candidate models in order of priority
+      // FALLBACK & API USAGE RULES:
+      // STEP 2 (B): Check if query is completely unrelated to ClickCraft services
+      // (e.g., weather, cricket score, cooking recipes, movies, general knowledge, etc.)
+      // -> DO NOT call DeepSeek API or Gemini API (saves tokens & cost)
+      // -> Politely deflect back to digital marketing expertise
+      if (mode !== "translator") {
+        const topicCheck = classifyTopic(prompt);
+        if (!topicCheck.isRelated) {
+          console.log(`[server.ts] Topic Deflection: Query "${prompt.slice(0, 40)}" categorized as "${topicCheck.detectedCategory}". Deflecting without API call.`);
+          const words = topicCheck.deflectionText.split(" ");
+          for (let i = 0; i < words.length; i += 4) {
+            const chunk = words.slice(i, i + 4).join(" ") + " ";
+            res.write(`data: ${JSON.stringify({ text: chunk })}\n\n`);
+            await new Promise((r) => setTimeout(r, 20));
+          }
+          res.write("data: [DONE]\n\n");
+          res.end();
+          return;
+        }
+      }
+
+      let streamSuccess = false;
+
+      // STEP 2 (A): Query is related to digital marketing/website/ads/business growth
+      // Check for DeepSeek API Key first!
+      const deepseekApiKey = req.body.customDeepSeekKey || process.env.DEEPSEEK_API_KEY;
+      if (mode !== "translator" && deepseekApiKey && typeof deepseekApiKey === "string" && deepseekApiKey.trim()) {
+        try {
+          console.log("[DeepSeek API] Initiating streaming chat completion with deepseek-chat...");
+          
+          const deepseekSystemPrompt = systemInstruction + `\n\nCRITICAL API RESPONSE RULES:
+- Provide an expert, user-friendly response in conversational Hindi or Hinglish matching the user's language style.
+- Wherever natural and relevant, tie the solution back to ClickCraft's professional services:
+  • ₹500 Buy Ads (Targeted campaign setup on Meta/Instagram/Google with high-converting creatives)
+  • ₹5,000 Buy Web (5-page mobile-responsive fast business website with SEO)
+  • ₹10,000 Premium Combo (Complete website + 1 week managed ads + reels + branding)
+  • WhatsApp/Call: +91 9376124893.`;
+
+          const deepseekMessages: any[] = [
+            { role: "system", content: deepseekSystemPrompt },
+          ];
+
+          if (Array.isArray(history)) {
+            for (const item of history.slice(-6)) {
+              if (item.role && item.text) {
+                deepseekMessages.push({
+                  role: item.role === "user" ? "user" : "assistant",
+                  content: item.text,
+                });
+              }
+            }
+          }
+
+          deepseekMessages.push({
+            role: "user",
+            content: prompt + (calendarContextNotice ? `\n${calendarContextNotice}` : ""),
+          });
+
+          const deepseekRes = await fetch("https://api.deepseek.com/chat/completions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${deepseekApiKey.trim()}`,
+            },
+            body: JSON.stringify({
+              model: "deepseek-chat",
+              messages: deepseekMessages,
+              temperature: 0.7,
+              stream: true,
+            }),
+          });
+
+          if (deepseekRes.ok && deepseekRes.body) {
+            const reader = deepseekRes.body.getReader();
+            const decoder = new TextDecoder();
+            let dsBuffer = "";
+            let dsChunkCount = 0;
+
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              dsBuffer += decoder.decode(value, { stream: true });
+              const lines = dsBuffer.split("\n");
+              dsBuffer = lines.pop() || "";
+
+              for (const line of lines) {
+                const trimmed = line.trim();
+                if (!trimmed || !trimmed.startsWith("data: ")) continue;
+                const dataPayload = trimmed.slice(6).trim();
+                if (dataPayload === "[DONE]") break;
+                try {
+                  const parsed = JSON.parse(dataPayload);
+                  const content = parsed.choices?.[0]?.delta?.content;
+                  if (content) {
+                    dsChunkCount++;
+                    res.write(`data: ${JSON.stringify({ text: content })}\n\n`);
+                  }
+                } catch {}
+              }
+            }
+
+            if (dsChunkCount > 0) {
+              streamSuccess = true;
+              console.log(`[DeepSeek API] Successfully streamed ${dsChunkCount} chunks to client.`);
+            }
+          } else {
+            const errText = await deepseekRes.text().catch(() => "");
+            console.warn(`[DeepSeek API Non-200] ${deepseekRes.status}: ${errText}`);
+          }
+        } catch (dsErr: any) {
+          console.warn("[DeepSeek API Execution Error, falling back to Gemini]:", dsErr?.message || dsErr);
+        }
+      }
+
+      // Candidate models in order of priority (used when DeepSeek is not active or as fallback)
       const candidateModels = [
         selectedModel,
         ...(selectedModel !== "gemini-2.5-flash" ? ["gemini-2.5-flash"] : []),
         ...(selectedModel !== "gemini-3.1-flash-lite" ? ["gemini-3.1-flash-lite"] : []),
       ];
-
-      let streamSuccess = false;
 
       for (const modelToTry of candidateModels) {
         if (streamSuccess) break;

@@ -111,7 +111,7 @@ export function getCustomApiKeys(): CustomApiKeys {
 }
 
 export function saveCustomApiKey(
-  provider: 'gemini' | 'groq' | 'elevenlabs',
+  provider: 'gemini' | 'groq' | 'elevenlabs' | 'deepseek',
   apiKey: string,
   latency?: number
 ): CustomApiKeys {
@@ -127,7 +127,7 @@ export function saveCustomApiKey(
   return updated;
 }
 
-export function removeCustomApiKey(provider: 'gemini' | 'groq' | 'elevenlabs'): CustomApiKeys {
+export function removeCustomApiKey(provider: 'gemini' | 'groq' | 'elevenlabs' | 'deepseek'): CustomApiKeys {
   if (typeof window === 'undefined') return {};
   const existing = getCustomApiKeys();
   delete existing[provider];
@@ -138,7 +138,7 @@ export function removeCustomApiKey(provider: 'gemini' | 'groq' | 'elevenlabs'): 
 }
 
 export async function validateApiKey(
-  provider: 'gemini' | 'groq' | 'elevenlabs',
+  provider: 'gemini' | 'groq' | 'elevenlabs' | 'deepseek',
   apiKey: string
 ): Promise<ApiKeyValidationResult> {
   try {

@@ -94,17 +94,20 @@ export interface CustomApiKeys {
   gemini?: string;
   groq?: string;
   elevenlabs?: string;
+  deepseek?: string;
   geminiValidatedAt?: string;
   groqValidatedAt?: string;
   elevenlabsValidatedAt?: string;
+  deepseekValidatedAt?: string;
   geminiLatency?: number;
   groqLatency?: number;
   elevenlabsLatency?: number;
+  deepseekLatency?: number;
 }
 
 export interface ApiKeyValidationResult {
   valid: boolean;
-  provider: 'gemini' | 'groq' | 'elevenlabs';
+  provider: 'gemini' | 'groq' | 'elevenlabs' | 'deepseek';
   latencyMs?: number;
   model?: string;
   message?: string;
