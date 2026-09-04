@@ -46,9 +46,13 @@ service cloud.firestore {
     }
 
     function isValidFAQ(data) {
-      return data.keys().hasAll(['question', 'answer']) &&
-             data.question is string && data.question.size() <= 1000 &&
-             data.answer is string && data.answer.size() <= 10000;
+      return (
+        (data.keys().hasAll(['question', 'answer']) &&
+         data.question is string && data.question.size() <= 2000 &&
+         data.answer is string && data.answer.size() <= 20000) ||
+        (data.keys().hasAny(['question_en', 'question_hi', 'question']) &&
+         data.keys().hasAny(['answer_en', 'answer_hi', 'answer']))
+      );
     }
 
     function isValidLeadInquiry(data) {
