@@ -372,27 +372,73 @@ export async function playElevenLabsTTS(
     const keys = getCustomApiKeys();
     const apiKey = keys.elevenlabs || undefined;
 
-    const response = await fetch('/api/elevenlabs-tts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        text: cleanText,
-        apiKey,
-        voiceId: voiceId || 'EXAVITQu4vr4xnSDxMaL', // Sarah (Multilingual, crystal-clear Hindi tone)
-      }),
-    });
+    let base64Audio: string | null = null;
 
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => '');
-      throw new Error(`ElevenLabs TTS failed with status ${response.status}: ${errorText}`);
+    // 1. Try backend server endpoint
+    try {
+      const response = await fetch('/api/elevenlabs-tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: cleanText,
+          apiKey,
+          voiceId: voiceId || 'EXAVITQu4vr4xnSDxMaL', // Sarah (Multilingual, crystal-clear Hindi tone)
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.audioContent) {
+          base64Audio = data.audioContent;
+        }
+      } else {
+        const errJson = await response.json().catch(() => ({}));
+        console.warn('[ElevenLabs Backend API Error]:', errJson);
+      }
+    } catch (netErr) {
+      console.warn('[ElevenLabs Backend unreachable, trying direct client]:', netErr);
     }
 
-    const data = await response.json();
-    if (!data.audioContent) {
-      throw new Error('No audio content received from ElevenLabs TTS service.');
+    // 2. If backend failed (e.g. static hosting on Vercel/Netlify without Node backend) and client has custom key, call ElevenLabs directly
+    if (!base64Audio && apiKey) {
+      const selectedVoice = voiceId || 'EXAVITQu4vr4xnSDxMaL';
+      const directRes = await fetch(
+        `https://api.elevenlabs.io/v1/text-to-speech/${selectedVoice}?output_format=mp3_44100_128`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'xi-api-key': apiKey,
+            'Accept': 'audio/mpeg',
+          },
+          body: JSON.stringify({
+            text: cleanText,
+            model_id: 'eleven_multilingual_v2',
+            voice_settings: {
+              stability: 0.5,
+              similarity_boost: 0.8,
+              style: 0.0,
+              use_speaker_boost: true,
+            },
+          }),
+        }
+      );
+
+      if (directRes.ok) {
+        const arrayBuf = await directRes.arrayBuffer();
+        const binary = String.fromCharCode(...new Uint8Array(arrayBuf));
+        base64Audio = window.btoa(binary);
+      } else {
+        const directErr = await directRes.text().catch(() => '');
+        console.error('[ElevenLabs Direct Client API Error]:', directErr);
+      }
     }
 
-    const audioUrl = `data:audio/mp3;base64,${data.audioContent}`;
+    if (!base64Audio) {
+      throw new Error('ElevenLabs TTS audio could not be generated. Please ensure your ElevenLabs API key is configured.');
+    }
+
+    const audioUrl = `data:audio/mp3;base64,${base64Audio}`;
     const audio = new Audio(audioUrl);
     activeCloudAudio = audio;
 
@@ -411,7 +457,14 @@ export async function playElevenLabsTTS(
       if (onEnd) onEnd();
     };
 
-    await audio.play();
+    try {
+      await audio.play();
+    } catch (playErr) {
+      // If browser blocked autoplay, attempt to handle gracefully
+      console.warn('Audio play() interrupted by browser user-interaction policy:', playErr);
+      if (onError) onError(playErr);
+      if (onEnd) onEnd();
+    }
   } catch (err) {
     activeCloudAudio = null;
     throw err;

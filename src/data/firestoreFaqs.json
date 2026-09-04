@@ -862,5 +862,21 @@
     "answer_en": "Haha, wo toh badhiya hai! Waise ClickCraft par hamara poora focus aapke business ko online badhane par rehta hai. Kya hum aapki nayi website ya online Google/Social Media ads ke upar baat shuru karein? Bataiye aapka kya business hai?",
     "answer_hi": "Haha, वो तो बढ़िया है! वैसे ClickCraft पर हमारा पूरा ध्यान आपके बिज़नेस को ऑनलाइन आगे बढ़ाने पर रहता है। क्या हम आपकी नई वेबसाइट या ऑनलाइन ऐड्स पर बात शुरू करें? बताइए आपका बिज़नेस क्या है?",
     "keywords": ["random chat", "chitchat", "jokes", "mausam kaisa hai", "kya chal raha hai", "aur batao", "time pass"]
+  },
+  {
+    "id": 109,
+    "question_en": "Thank you / You are welcome / Courtesy response",
+    "question_hi": "नमस्ते! आपका स्वागत है / धन्यवाद का जवाब",
+    "answer_en": "You're most welcome! 😊 ClickCraft Digital Marketing is always here to help scale your business with top-performing ads and high-converting websites. Feel free to reach out anytime! 🚀",
+    "answer_hi": "आपका बहुत-बहुत स्वागत है! 😊 ClickCraft डिजिटल मार्केटिंग टीम आपके बिज़नेस को नई ऊँचाइयों तक पहुँचाने के लिए हमेशा उपलब्ध है। Ads, वेबसाइट या डिजिटल ग्रोथ से जुड़ी किसी भी जानकारी या मदद की ज़रूरत हो, तो बेझिझक पूछिएगा! 🚀",
+    "keywords": ["thank you", "thanks", "dhanyawad", "shukriya", "thx", "ty", "bahut bahut dhanyawad", "thanku", "aapka swagat hai", "welcome"]
+  },
+  {
+    "id": 110,
+    "question_en": "Welcome and future digital marketing assistance",
+    "question_hi": "डिजिटल मार्केटिंग स्वागत और भविष्य में सहायता",
+    "answer_en": "Namaste! Welcome to ClickCraft Digital Marketing. 🚀 Whether you need high-converting ads, a premium business website, or expert guidance on scaling your brand online, feel free to ask anytime. Let's grow your business together! 📈",
+    "answer_hi": "नमस्ते! ClickCraft डिजिटल मार्केटिंग में आपका स्वागत है। 🚀 अपने बिज़नेस के लिए हाई-कन्वर्टिंग Ads, प्रीमियम वेबसाइट या डिजिटल ग्रोथ से जुड़ी कोई भी जानकारी चाहिए हो, तो बेझिझक पूछिए। हम आपके बिज़नेस को ऑनलाइन तेज़ी से ग्रो करने के लिए हमेशा तैयार हैं! 📈",
+    "keywords": ["namaste", "hello", "hi", "swagat hai", "help chahiye", "namaskar", "namaste ji", "kaise ho"]
   }
 ]
