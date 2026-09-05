@@ -209,7 +209,7 @@ export const ServicesModal: React.FC<ServicesModalProps> = ({
                 <div className="flex items-center gap-2 text-[#B0B0B0]">
                   <ShieldCheck className="w-4 h-4 text-[#D4A017] shrink-0" />
                   <span>
-                    <strong className="text-white">500+ Happy Clients</strong> • <strong className="text-white">1200+ Campaigns</strong> • 5-Star Rated Digital Agency
+                    <strong className="text-white">Quality Digital Solutions</strong> • 5-Star Rated Digital Agency
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5 text-[#B0B0B0]">

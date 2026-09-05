@@ -24,6 +24,10 @@ import {
   X,
   Image as ImageIcon,
   CheckCircle2,
+  Menu,
+  Shield,
+  Lock,
+  Settings,
 } from 'lucide-react';
 import { ChatMessage, Language } from '../types';
 import { POPULAR_LANGUAGES } from '../constants/languages';
@@ -50,6 +54,9 @@ interface ClickCraftMobileChatProps {
   onClearHistory: () => void;
   currentLanguage: Language;
   onLanguageChange: (lang: Language) => void;
+  consentGiven?: boolean | null;
+  onToggleConsent?: (value: boolean) => void;
+  onOpenConsentModal?: () => void;
 }
 
 // Quick Suggestion Topics for ClickCraft
@@ -78,12 +85,16 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
   onClearHistory,
   currentLanguage,
   onLanguageChange,
+  consentGiven = null,
+  onToggleConsent,
+  onOpenConsentModal,
 }) => {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [logoLoaded, setLogoLoaded] = useState(true);
   const [isServicesModalOpen, setIsServicesModalOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeLightboxImage, setActiveLightboxImage] = useState<{ url: string; title: string } | null>(null);
 
   // Network connection status monitoring
@@ -126,8 +137,8 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
         title: 'ClickCraft Live Client Portfolio',
         category: 'Portfolio Showcase',
         badge: 'Client Results',
-        desc: '500+ संतुष्ट क्लाइंट्स के लिए बनाए गए लाइव प्रोजेक्ट्स, प्रीमियम ब्रांडिंग और रिजल्ट-ओरिएंटेड हाई-कन्वर्टिंग डिज़ाइन्स।',
-        features: ['500+ Happy Clients', '1,200+ Campaigns Run', 'Proven 5-Star Track Record', 'Custom UI/UX'],
+        desc: 'क्लाइंट्स के लिए बनाए गए लाइव प्रोजेक्ट्स, प्रीमियम ब्रांडिंग और रिजल्ट-ओरिएंटेड हाई-कन्वर्टिंग डिज़ाइन्स।',
+        features: ['Live Client Projects', 'Targeted Ad Campaigns', 'Proven 5-Star Track Record', 'Custom UI/UX'],
       };
     }
     return {
@@ -208,23 +219,23 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
   };
 
   return (
-    <div className="w-full max-w-md mx-auto h-[100dvh] sm:h-[94vh] sm:max-h-[890px] bg-[#111418] sm:rounded-[24px] sm:border sm:border-[#242A32] flex flex-col overflow-hidden text-white font-sans shadow-2xl relative">
+    <div className="w-full h-[100dvh] max-w-full sm:max-w-xl md:max-w-2xl mx-auto bg-[#111418] rounded-none sm:rounded-2xl border-0 sm:border sm:border-[#242A32] flex flex-col overflow-hidden text-white font-sans sm:shadow-2xl relative">
       
       {/* ============================================================
-          1. MINIMAL PROFESSIONAL HEADER BAR
+          1. MINIMAL PROFESSIONAL HEADER BAR (Responsive & Full-bleed)
           - Official Company Logo with gold accent ring (#D4A017)
           - "ClickCraft" + "Assistant" + "5.0 ★" gold rating badge
           - "Digital marketing help • Online" status dot
-          - Right: Services pill + Language selector + Refresh
+          - Right: Services pill + Language selector + Refresh + Menu
       ============================================================ */}
-      <header className="px-4 py-3 bg-[#111418] border-b border-[#242A32] flex items-center justify-between shrink-0 z-10">
-        <div className="flex items-center gap-2.5">
+      <header className="px-2.5 sm:px-4 py-2 sm:py-2.5 bg-[#111418] border-b border-[#242A32] flex items-center justify-between shrink-0 z-10 gap-1 sm:gap-2">
+        <div className="flex items-center gap-2 min-w-0">
           {/* Circular Company Logo with Gold Accent Ring */}
           <div className="relative shrink-0">
             <div
               id="clickcraft-avatar-icon"
-              className={`w-11 h-11 rounded-full overflow-hidden border-2 border-[#D4A017] bg-[#181C22] flex items-center justify-center transition-all ${
-                isSpeaking ? 'ring-2 ring-[#D4A017]/40 shadow-[0_0_12px_rgba(212,160,23,0.3)]' : 'shadow-md'
+              className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2 border-[#D4A017] bg-[#181C22] flex items-center justify-center transition-all ${
+                isSpeaking ? 'ring-2 ring-[#D4A017]/40 shadow-[0_0_10px_rgba(212,160,23,0.3)]' : 'shadow-md'
               }`}
               title="ClickCraft Official Logo"
             >
@@ -237,14 +248,14 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="text-[#D4A017] font-black text-sm">CC</span>
+                <span className="text-[#D4A017] font-black text-xs">CC</span>
               )}
             </div>
 
             {/* Live Online Status Dot */}
             <span
               id="network-status-dot"
-              className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-[#111418] transition-all duration-300 ${
+              className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-[#111418] transition-all duration-300 ${
                 !isOnline
                   ? 'bg-rose-500'
                   : 'bg-emerald-400'
@@ -254,32 +265,30 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
           </div>
 
           {/* Assistant Title & Status */}
-          <div className="flex flex-col text-left">
-            <div className="flex items-center gap-1.5 leading-none">
-              <h1 className="text-[17px] sm:text-[18px] font-bold font-script-headline text-white text-luminous-white tracking-wide">
+          <div className="flex flex-col text-left min-w-0">
+            <div className="flex items-center gap-1 sm:gap-1.5 leading-none">
+              <h1 className="text-[15px] sm:text-[17px] font-bold font-script-headline text-white text-luminous-white tracking-wide truncate">
                 ClickCraft
               </h1>
-            </div>
-            <div className="flex items-center gap-1.5 mt-0.5 leading-none">
-              <span className="text-[14px] font-bold font-script-bold text-white text-bright-white tracking-wide">
+              <span className="text-[12px] sm:text-[13.5px] font-bold font-script-bold text-white text-bright-white tracking-wide truncate">
                 Assistant
               </span>
-              <span className="px-1.5 py-0.5 rounded-full text-[9.5px] font-bold bg-[#181C22] text-[#D4A017] border border-[#D4A017]/40 flex items-center gap-0.5">
+              <span className="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-[#181C22] text-[#D4A017] border border-[#D4A017]/40 flex items-center gap-0.5 shrink-0">
                 <span>5.0</span>
                 <span>★</span>
               </span>
             </div>
-            <div className="text-[11.5px] font-normal text-[#B0B0B0] leading-tight mt-1 flex items-center gap-1.5 flex-wrap">
-              <span>Digital marketing help</span>
-              <span className="text-[#606060]">•</span>
+            <div className="text-[10px] sm:text-[11px] font-normal text-[#B0B0B0] leading-tight mt-0.5 flex items-center gap-1 truncate">
+              <span className="truncate">Digital marketing help</span>
+              <span className="text-[#606060] shrink-0">•</span>
               
               {!isOnline ? (
-                <span className="inline-flex items-center gap-1 text-[10px] font-medium text-rose-400">
+                <span className="inline-flex items-center gap-1 text-[9.5px] font-medium text-rose-400 shrink-0">
                   <WifiOff className="w-2.5 h-2.5" />
                   Offline
                 </span>
               ) : (
-                <span className="text-emerald-400 text-[10.5px] flex items-center gap-1">
+                <span className="text-emerald-400 text-[10px] flex items-center gap-1 shrink-0">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                   Online
                 </span>
@@ -288,29 +297,29 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
           </div>
         </div>
 
-        {/* Header Right Controls: Services + Language + Refresh */}
-        <div className="flex items-center gap-1.5 shrink-0">
-          {/* Services Pill Button with thin gold border */}
+        {/* Header Right Controls: Services + Language + Refresh + Menu */}
+        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+          {/* Services Pill Button */}
           <button
             id="clickcraft-services-header-btn"
             onClick={() => setIsServicesModalOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#181C22] hover:bg-[#202630] text-white border border-[#D4A017]/50 hover:border-[#D4A017] text-xs font-semibold transition-all active:scale-95 shadow-sm"
+            className="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-full bg-[#181C22] hover:bg-[#202630] text-white border border-[#D4A017]/50 hover:border-[#D4A017] text-[11px] sm:text-xs font-semibold transition-all active:scale-95 shadow-sm shrink-0"
             title="View Services & Buy Packages (₹500 / ₹5000 / ₹10000)"
           >
             <ShoppingBag className="w-3.5 h-3.5 text-[#D4A017] shrink-0" />
-            <span>Services</span>
+            <span className="hidden min-[400px]:inline">Services</span>
           </button>
 
           {/* Language Selector Pill */}
-          <div className="relative flex items-center bg-[#181C22] rounded-full px-2.5 py-1.5 border border-[#242A32] text-xs hover:border-[#D4A017]/40 transition-colors shadow-sm">
-            <Globe className="w-3.5 h-3.5 text-[#B0B0B0] mr-1 shrink-0" />
+          <div className="relative flex items-center bg-[#181C22] rounded-full px-2 py-1.5 border border-[#242A32] text-xs hover:border-[#D4A017]/40 transition-colors shadow-sm shrink-0">
+            <Globe className="w-3 h-3 text-[#B0B0B0] mr-0.5 sm:mr-1 shrink-0" />
             <select
               value={currentLanguage.code}
               onChange={(e) => {
                 const found = POPULAR_LANGUAGES.find((l) => l.code === e.target.value);
                 if (found) onLanguageChange(found);
               }}
-              className="bg-transparent text-white text-[11px] font-medium outline-none cursor-pointer pr-3.5 appearance-none"
+              className="bg-transparent text-white text-[10.5px] sm:text-[11px] font-medium outline-none cursor-pointer pr-3 appearance-none"
               title="Change Language"
             >
               <option value="hi-IN" className="bg-[#111418] text-white">हिन्दी</option>
@@ -319,17 +328,31 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
               <option value="mr-IN" className="bg-[#111418] text-white">मराठी</option>
               <option value="gu-IN" className="bg-[#111418] text-white">ગુજરાતી</option>
             </select>
-            <ChevronDown className="w-3 h-3 text-[#B0B0B0] absolute right-1.5 pointer-events-none" />
+            <ChevronDown className="w-2.5 h-2.5 text-[#B0B0B0] absolute right-1 pointer-events-none" />
           </div>
 
           {/* Refresh / Clear Chat Icon Button */}
           <button
             onClick={onClearHistory}
-            className="w-8 h-8 rounded-full bg-[#181C22] text-[#B0B0B0] hover:text-white hover:border-[#D4A017]/40 border border-[#242A32] transition-colors flex items-center justify-center shrink-0"
+            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#181C22] text-[#B0B0B0] hover:text-white hover:border-[#D4A017]/40 border border-[#242A32] transition-colors flex items-center justify-center shrink-0"
             title="Reset / Clear Conversation"
             aria-label="Clear chat history"
           >
-            <RefreshCw className="w-3.5 h-3.5" />
+            <RefreshCw className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+          </button>
+
+          {/* Three-line / Hamburger Menu Button */}
+          <button
+            id="clickcraft-header-menu-btn"
+            onClick={() => setIsMenuOpen(true)}
+            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#181C22] text-[#B0B0B0] hover:text-white hover:border-[#D4A017]/40 border border-[#242A32] transition-colors flex items-center justify-center shrink-0 relative"
+            title="Menu & Consent Settings"
+            aria-label="Open settings menu"
+          >
+            <Menu className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+            {consentGiven === false && (
+              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-amber-500" title="Data consent is off" />
+            )}
           </button>
         </div>
       </header>
@@ -859,7 +882,7 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
       {/* ============================================================
           5. FOOTER: MINIMAL GOLD SOCIAL ICONS
       ============================================================ */}
-      <div className="py-2.5 px-8 bg-[#111418] border-t border-[#242A32] flex items-center justify-center gap-12 shrink-0">
+      <div className="py-2 px-4 sm:px-8 bg-[#111418] border-t border-[#242A32] flex items-center justify-center gap-8 sm:gap-12 shrink-0">
         {/* WhatsApp */}
         <a
           href="https://wa.me/919376124893?text=Hello%20ClickCraft%20Team%2C%20I%20want%20to%20know%20more%20about%20your%20digital%20marketing%20services"
@@ -967,6 +990,169 @@ export const ClickCraftMobileChat: React.FC<ClickCraftMobileChatProps> = ({
               >
                 Order This Package →
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Three-line / Hamburger Menu Drawer for Settings & Consent */}
+      {isMenuOpen && (
+        <div
+          id="clickcraft-menu-drawer-backdrop"
+          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex justify-end animate-fadeIn"
+          onClick={() => setIsMenuOpen(false)}
+        >
+          <div
+            id="clickcraft-menu-drawer"
+            className="w-full max-w-xs sm:max-w-sm h-full bg-[#111418] border-l border-[#242A32] p-5 flex flex-col justify-between shadow-2xl text-white overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Drawer Header */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-[#242A32]">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-[#181C22] border border-[#D4A017]/40 flex items-center justify-center text-[#D4A017]">
+                    <Settings className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-white">सेटिंग्स व मेन्यू</h3>
+                    <p className="text-[10px] text-[#A0A0A0]">ClickCraft Assistant</p>
+                  </div>
+                </div>
+                <button
+                  id="clickcraft-close-menu-btn"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="p-1.5 rounded-lg text-[#B0B0B0] hover:text-white hover:bg-[#181C22]"
+                  aria-label="Close menu"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Data Privacy & Consent Toggle Section */}
+              <div className="bg-[#181C22] border border-[#242A32] rounded-xl p-3.5 space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-[#D4A017] shrink-0" />
+                    <span className="text-xs font-bold text-white">बातचीत इतिहास (Data Consent)</span>
+                  </div>
+                  <span
+                    id="consent-status-badge"
+                    className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
+                      consentGiven === true
+                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                        : 'bg-neutral-800 text-neutral-400 border border-neutral-700'
+                    }`}
+                  >
+                    {consentGiven === true ? 'सहमति दी गई' : 'अस्वीकृत'}
+                  </span>
+                </div>
+
+                <p className="text-[11px] text-[#A0A0A0] leading-relaxed">
+                  आपकी बातचीत हमारी सेवा को बेहतर बनाने के लिए सुरक्षित रखी जाती है। इससे हमें ग्राहकों की ज़रूरतें समझने में मदद मिलती है। आप इसे यहाँ कभी भी बदल सकते हैं।
+                </p>
+
+                {/* Consent Toggle Switch */}
+                <div className="flex items-center justify-between pt-2.5 border-t border-[#242A32]">
+                  <span className="text-xs font-semibold text-neutral-200">
+                    {consentGiven === true ? 'बातचीत सुरक्षित रखें: चालू' : 'बातचीत सुरक्षित रखें: बंद'}
+                  </span>
+                  <button
+                    id="toggle-consent-drawer-btn"
+                    type="button"
+                    onClick={() => {
+                      const nextVal = consentGiven !== true;
+                      if (onToggleConsent) onToggleConsent(nextVal);
+                    }}
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                      consentGiven === true ? 'bg-[#D4A017]' : 'bg-neutral-700'
+                    }`}
+                    role="switch"
+                    aria-checked={consentGiven === true}
+                    title="Toggle conversation logging consent"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                        consentGiven === true ? 'translate-x-5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {onOpenConsentModal && (
+                  <button
+                    id="open-consent-info-btn"
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      onOpenConsentModal();
+                    }}
+                    className="w-full text-center text-[11px] text-[#D4A017] hover:underline pt-1 block font-medium"
+                  >
+                    सहमति विवरण पढ़ें (View Notice) →
+                  </button>
+                )}
+              </div>
+
+              {/* Other Quick Actions in Menu */}
+              <div className="space-y-2 pt-1">
+                <button
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    setIsServicesModalOpen(true);
+                  }}
+                  className="w-full flex items-center justify-between p-2.5 rounded-xl bg-[#181C22] hover:bg-[#202630] border border-[#242A32] text-xs font-semibold transition-all"
+                >
+                  <div className="flex items-center gap-2">
+                    <ShoppingBag className="w-4 h-4 text-[#D4A017]" />
+                    <span>सभी सर्विसेज व प्राइजिंग</span>
+                  </div>
+                  <ArrowRight className="w-3.5 h-3.5 text-[#B0B0B0]" />
+                </button>
+
+                <button
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    onClearHistory();
+                  }}
+                  className="w-full flex items-center justify-between p-2.5 rounded-xl bg-[#181C22] hover:bg-[#202630] border border-[#242A32] text-xs font-semibold text-neutral-300 hover:text-white transition-all"
+                >
+                  <div className="flex items-center gap-2">
+                    <RefreshCw className="w-4 h-4 text-neutral-400" />
+                    <span>चैट रीसेट करें (Clear Chat)</span>
+                  </div>
+                  <ArrowRight className="w-3.5 h-3.5 text-[#B0B0B0]" />
+                </button>
+
+                <a
+                  href="https://wa.me/919376124893?text=Hello%20ClickCraft%20Team%2C%20I%20want%20to%20know%20more%20about%20your%20services"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center justify-between p-2.5 rounded-xl bg-emerald-950/40 hover:bg-emerald-900/40 border border-emerald-500/30 text-xs font-semibold text-emerald-300 transition-all"
+                >
+                  <div className="flex items-center gap-2">
+                    <span>💬</span>
+                    <span>WhatsApp सपोर्ट (+91 9376124893)</span>
+                  </div>
+                  <ExternalLink className="w-3.5 h-3.5 text-emerald-400" />
+                </a>
+
+                <a
+                  href="tel:+919376124893"
+                  className="w-full flex items-center justify-between p-2.5 rounded-xl bg-blue-950/40 hover:bg-blue-900/40 border border-blue-500/30 text-xs font-semibold text-blue-300 transition-all"
+                >
+                  <div className="flex items-center gap-2">
+                    <Phone className="w-4 h-4 text-blue-400" />
+                    <span>कॉल सपोर्ट (+91 9376124893)</span>
+                  </div>
+                  <ExternalLink className="w-3.5 h-3.5 text-blue-400" />
+                </a>
+              </div>
+            </div>
+
+            {/* Drawer Footer */}
+            <div className="pt-4 border-t border-[#242A32] text-[10.5px] text-[#707070] text-center">
+              <span>ClickCraft Digital Marketing • 100% Secure & Private</span>
             </div>
           </div>
         </div>

@@ -87,14 +87,17 @@ const UNRELATED_PATTERNS = [
 // Patterns of business / digital marketing / website / advertising topics
 const RELATED_PATTERNS = [
   /\b(website|web|webpage|page|portal|landing page|domain|hosting|ssl|speed|slow|fast|responsive|mobile friendly)\b/i,
-  /\b(seo|search engine|google search|ranking|rank|keywords|backlinks|search console|analytics)\b/i,
-  /\b(ad|ads|advertisement|advertising|meta ads|facebook ads|fb ads|instagram ads|insta ads|google ads|ppc|cpc|roas|campaign|creative|poster|banner)\b/i,
-  /\b(digital marketing|marketing|online marketing|social media|smm|smo|content|reel|reels|whatsapp marketing|bulk message)\b/i,
-  /\b(business|startup|dukan|bikri|sales|revenue|profit|leads|lead|customers|grahak|client|clients|grow|scale|online business|ecommerce|store|shop)\b/i,
+  /\b(seo|search engine|google search|ranking|rank|keywords|backlinks|search console|analytics|google business|business profile|google maps|maps)\b/i,
+  /\b(ad|ads|advertisement|advertising|meta ads|facebook ads|fb ads|instagram ads|insta ads|google ads|ppc|cpc|roas|campaign|creative|poster|banner|prachar|campaigns)\b/i,
+  /\b(digital marketing|marketing|online marketing|social media|smm|smo|content|reel|reels|whatsapp marketing|bulk message|branding|brand)\b/i,
+  /\b(business|startup|startups|dukan|dukaan|dokan|shop|shops|store|stores|showroom|salon|clinic|bakery|restaurant|boutique|retail|wholesaler)\b/i,
+  /\b(bikri|sales|sale|sell|revenue|profit|leads|lead|customer|customers|custmer|custmers|grahak|client|clients|buyer|buyers|grow|growth|scale|online business|ecommerce)\b/i,
+  /\b(strategy|salah|advice|guide|consultant|consulting|idea|plan|planning|tips|kaise beche|kaise badhaye|kaise laye|kaise badhau|kya karu|kya kare)\b/i,
+  /\b(why choose|why clickcraft|aap hi kyu|khud bana|khud bna|free tools|tools|wix|wordpress|canva|shopify|paise kyu|charges kyu|charges kyo|fayda kya|fayda kyu|fayda hoga)\b/i,
   /\b(clickcraft|portfolio|sample|pricing|price|cost|charge|charges|fee|500|5000|10000|package|combo|refund|revision|guarantee|review)\b/i,
   /\b(hire|freelancer|agency|service|services|developer|designer|contact|whatsapp|phone|call)\b/i,
   // Hindi script equivalents
-  /[\u0900-\u097F]*(वेबसाइट|ऐड्स|विज्ञापन|मार्केटिंग|बिज़नेस|कस्टमर|लीड्स|बिक्री|सर्च इंजन|एसईओ|प्राइस|क्लिकक्राफ्ट|ऑनलाइन)[\u0900-\u097F]*/
+  /[\u0900-\u097F]*(वेबसाइट|ऐड्स|विज्ञापन|मार्केटिंग|बिज़नेस|कस्टमर|ग्राहक|दुकान|लीड्स|बिक्री|सर्च इंजन|एसईओ|प्राइस|क्लिकक्राफ्ट|ऑनलाइन|रणनीति|सलाह|बिक्री)[\u0900-\u097F]*/
 ];
 
 /**

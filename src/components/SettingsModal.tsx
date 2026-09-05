@@ -1,6 +1,6 @@
 import React from 'react';
 import { VoiceConfig } from '../types';
-import { X, Settings as SettingsIcon, Volume2, Mic, Lock } from 'lucide-react';
+import { X, Settings as SettingsIcon, Volume2, Mic, Lock, Shield } from 'lucide-react';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -8,6 +8,8 @@ interface SettingsModalProps {
   voiceConfig: VoiceConfig;
   onSaveVoiceConfig: (cfg: VoiceConfig) => void;
   onOpenApiKeys?: () => void;
+  consentGiven?: boolean | null;
+  onToggleConsent?: (value: boolean) => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -16,6 +18,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   voiceConfig,
   onSaveVoiceConfig,
   onOpenApiKeys,
+  consentGiven = null,
+  onToggleConsent,
 }) => {
   if (!isOpen) return null;
 
@@ -176,6 +180,40 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               }
               className="w-full accent-[#10A37F]"
             />
+          </div>
+
+          {/* Conversation History & Data Consent Toggle */}
+          <div className="pt-2 border-t border-[#2f2f2f] space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Shield className="w-4 h-4 text-[#10A37F]" />
+                <label className="font-bold text-[#ECECF1] text-xs">Conversation History Logging</label>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (onToggleConsent) onToggleConsent(consentGiven !== true);
+                }}
+                className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  consentGiven === true ? 'bg-[#10A37F]' : 'bg-neutral-700'
+                }`}
+                role="switch"
+                aria-checked={consentGiven === true}
+                title="Toggle conversation logging consent"
+              >
+                <span
+                  aria-hidden="true"
+                  className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                    consentGiven === true ? 'translate-x-4' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+            <p className="text-[11px] text-[#A0A0A0] leading-relaxed">
+              {consentGiven === true
+                ? 'आपकी बातचीत हमारी सेवा को बेहतर बनाने के लिए सुरक्षित रखी जाती है (स्वीकृत)।'
+                : 'बातचीत सुरक्षित नहीं रखी जा रही है (अस्वीकृत)।'}
+            </p>
           </div>
 
           {/* API Key Validator Quick Link */}

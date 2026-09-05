@@ -53,6 +53,7 @@ import { SettingsModal } from './components/SettingsModal';
 import { TranslatorModal } from './components/TranslatorModal';
 import { PlacesModal } from './components/PlacesModal';
 import { ClickCraftMobileChat } from './components/ClickCraftMobileChat';
+import { ConsentModal } from './components/ConsentModal';
 import { ToastContainer } from './components/Toast';
 import { isLocationSearchQuery } from './services/osmPlaces';
 import { getStoredGoogleAccessToken } from './services/calendarService';
@@ -99,6 +100,50 @@ export default function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isTranslatorOpen, setIsTranslatorOpen] = useState(false);
   const [spaceTheme, setSpaceTheme] = useState('google-gradient');
+
+  // User Data Consent State ('clickcraft_consent_given': true / false)
+  const [consentGiven, setConsentGiven] = useState<boolean | null>(() => {
+    try {
+      const stored = localStorage.getItem('clickcraft_consent_given');
+      if (stored === 'true') return true;
+      if (stored === 'false') return false;
+      return null;
+    } catch {
+      return null;
+    }
+  });
+
+  const [isConsentPopupOpen, setIsConsentPopupOpen] = useState<boolean>(() => {
+    try {
+      const stored = localStorage.getItem('clickcraft_consent_given');
+      return stored === null; // Open popup on first load if no choice stored yet
+    } catch {
+      return false;
+    }
+  });
+
+  const handleAcceptConsent = () => {
+    try {
+      localStorage.setItem('clickcraft_consent_given', 'true');
+    } catch {}
+    setConsentGiven(true);
+    setIsConsentPopupOpen(false);
+  };
+
+  const handleDeclineConsent = () => {
+    try {
+      localStorage.setItem('clickcraft_consent_given', 'false');
+    } catch {}
+    setConsentGiven(false);
+    setIsConsentPopupOpen(false);
+  };
+
+  const handleToggleConsent = (newVal: boolean) => {
+    try {
+      localStorage.setItem('clickcraft_consent_given', String(newVal));
+    } catch {}
+    setConsentGiven(newVal);
+  };
 
   // State: Toasts & Custom API Keys
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
@@ -399,11 +444,14 @@ export default function App() {
         handlePlaySpeech(directFaqAnswer, currentLanguage.speechCode, assistantMsgId);
       }
 
-      logConversationToFirebase(
-        promptText,
-        directFaqAnswer,
-        currentLanguage.label || currentLanguage.name
-      );
+      // Log conversation to Firebase Firestore
+      if (consentGiven !== false) {
+        logConversationToFirebase(
+          promptText,
+          directFaqAnswer,
+          currentLanguage.label || currentLanguage.name
+        );
+      }
       return;
     }
 
@@ -440,11 +488,14 @@ export default function App() {
         handlePlaySpeech(deflectionAnswer, currentLanguage.speechCode, assistantMsgId);
       }
 
-      logConversationToFirebase(
-        promptText,
-        deflectionAnswer,
-        currentLanguage.label || currentLanguage.name
-      );
+      // Log deflection to Firebase Firestore
+      if (consentGiven !== false) {
+        logConversationToFirebase(
+          promptText,
+          deflectionAnswer,
+          currentLanguage.label || currentLanguage.name
+        );
+      }
       return;
     }
 
@@ -552,11 +603,13 @@ export default function App() {
       }
 
       // Log conversation to Firebase Firestore for continuous AI training
-      logConversationToFirebase(
-        promptText,
-        finalAssistantMsgText,
-        currentLanguage.label || currentLanguage.name
-      );
+      if (consentGiven !== false) {
+        logConversationToFirebase(
+          promptText,
+          finalAssistantMsgText,
+          currentLanguage.label || currentLanguage.name
+        );
+      }
 
       setActiveSession((curr) => {
         if (!curr) return null;
@@ -699,7 +752,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#082E32] via-[#051E21] to-[#041618] text-white flex flex-col justify-center items-center font-sans antialiased overflow-x-hidden p-0 sm:p-4">
+    <div className="h-[100dvh] w-full bg-[#111418] sm:bg-gradient-to-b sm:from-[#082E32] sm:via-[#051E21] sm:to-[#041618] text-white flex flex-col justify-center items-center font-sans antialiased overflow-hidden p-0 sm:p-2 md:p-4">
       {/* Mobile Chat Interface Container (High-graphic, dark slate/teal & Gold #E8B923) */}
       <ClickCraftMobileChat
         messages={activeSession?.messages || []}
@@ -717,6 +770,16 @@ export default function App() {
         onClearHistory={handleClearHistory}
         currentLanguage={currentLanguage}
         onLanguageChange={setCurrentLanguage}
+        consentGiven={consentGiven}
+        onToggleConsent={handleToggleConsent}
+        onOpenConsentModal={() => setIsConsentPopupOpen(true)}
+      />
+
+      {/* One-Time Conversation History Consent Modal */}
+      <ConsentModal
+        isOpen={isConsentPopupOpen}
+        onAccept={handleAcceptConsent}
+        onDecline={handleDeclineConsent}
       />
 
       {/* Tool & Settings Modals */}
@@ -732,6 +795,8 @@ export default function App() {
         voiceConfig={voiceConfig}
         onSaveVoiceConfig={handleSaveVoiceConfig}
         onOpenApiKeys={() => {}}
+        consentGiven={consentGiven}
+        onToggleConsent={handleToggleConsent}
       />
 
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />

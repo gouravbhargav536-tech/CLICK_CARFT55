@@ -138,9 +138,9 @@ export const ServicesShowcaseCard: React.FC<ServicesShowcaseCardProps> = ({
 
       {/* Footer support notice */}
       <div className="flex items-center justify-between text-[11px] text-[#B0B0B0] pt-1">
-        <span className="flex items-center gap-1">
+        <span className="flex items-center gap-1 text-[#8F9CAE]">
           <ShieldCheck className="w-3.5 h-3.5 text-[#D4A017]" />
-          500+ Happy Clients
+          Verified Agency Support
         </span>
         <span className="text-[#D4A017]">Call/WA: +91 9376124893</span>
       </div>

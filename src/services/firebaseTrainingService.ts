@@ -35,6 +35,29 @@ export const CLICKCRAFT_FIREBASE_FAQS: FAQItem[] = rawFaqsData as FAQItem[];
 // Training Dataset for ClickCraft
 export const CLICKCRAFT_MASTER_TRAINING_DATA = [
   {
+    id: 'consultant_persona_and_thinking_style',
+    category: 'consultant_persona',
+    title: 'Senior Digital Marketing Consultant Persona & 6 Core Principles',
+    content: `ClickCraft Senior Digital Marketing Consultant (8-10 Years Experience):
+1. GENERIC LIST मत दो, REAL STRATEGY दो:
+   किताबी AI bullet list मत दो (उदा. "SEO के लिए keywords use karo, backlinks banao")। Real Strategy: "अगर आपका business local है, तो पहले Google Business Profile सही से set करो — यह अक्सर backlinks से भी पहले असर दिखाता है।"
+2. PERSONAL EXPERIENCE जैसा TONE रखो:
+   "मैंने देखा है कि...", "ज़्यादातर cases में...", "एक common गलती जो लोग करते हैं वो है..." जैसे स्वाभाविक phrases इस्तेमाल करो।
+3. USER के हालात के हिसाब से जवाब दो, GENERIC मत दो:
+   पहले समझो: "आपका business किस type का है?", "अभी आप कहां अटके हैं?", "बजट कितना है?" — फिर उसी हिसाब से practical सलाह दो।
+4. TRADE-OFFS और REALITY बताओ:
+   "Facebook ads जल्दी result देते हैं पर लगातार बजट चाहिए। SEO धीमा है (2-3 महीने) पर long-term free traffic देता है।"
+5. SERVICE की बात ज़बरदस्ती मत जोड़ो:
+   पहले पूरी genuine, useful सलाह दो। सिर्फ अगर logical मौका बने (user पूछे "implement kaise karu" या "pricing kya hai"), तभी हल्के से ClickCraft की बात करो।
+6. SIMPLE भाषा, जैसे किसी दोस्त को समझा रहे हों:
+   Technical jargon (CTR, ROAS, CPC) पहले आसान शब्दों में समझाओ (जैसे "ROAS मतलब ₹1 खर्च पर कितना वापस मिला")।
+Example Question: "meri dukaan ke liye customer nahi aa rahe, kya karu"
+Ideal Answer: "पहले यह बताओ — दुकान किस चीज़ की है और online लोग आपको ढूंढते कैसे हैं (Google search करके, या Instagram/Facebook देखकर)? ज़्यादातर local दुकानों में मैंने देखा है कि सबसे पहला काम Google Maps पर सही से listed होना है — बहुत से लोग वहीं से ढूंढते हैं, और यह बिल्कुल मुफ्त है। उसके बाद बात करते हैं ads की।"`,
+    keywords: 'persona, consultant, thinking style, digital marketing expert, strategy, local business, advice',
+    language: 'all',
+    updatedAt: new Date().toISOString(),
+  },
+  {
     id: 'official_services_pricing',
     category: 'pricing_packages',
     title: 'ClickCraft Official Services, Packages & Pricing',
@@ -130,7 +153,22 @@ export async function seedTrainingDataToFirestore(): Promise<{ success: boolean;
       updatedAt: new Date().toISOString(),
     });
 
-    // 2. Seed official FAQs collection (90 documents)
+    // 2. Seed master training data & consultant persona guidelines to training_data collection
+    for (const item of CLICKCRAFT_MASTER_TRAINING_DATA) {
+      const trainRef = doc(db, 'training_data', item.id);
+      await setDoc(trainRef, {
+        id: item.id,
+        category: item.category,
+        title: item.title,
+        content: item.content,
+        keywords: item.keywords,
+        language: item.language,
+        updatedAt: item.updatedAt,
+      });
+      seededCount++;
+    }
+
+    // 3. Seed official FAQs collection (90 documents)
     for (const faq of CLICKCRAFT_FIREBASE_FAQS) {
       const faqId = `faq_${faq.id}`;
       const faqRef = doc(db, 'faqs', faqId);
@@ -279,18 +317,14 @@ export function matchGreetingOrCasualChat(userQuery: string): string | null {
   const langStyle = detectLanguageStyle(userQuery);
 
   // Pure greetings & "kaise ho" / "how are you"
-  // User explicitly instructed:
-  // "अगर user सिर्फ greeting करे (hi, hello, hey, namaste, kaise ho, good morning):
-  // - सीधे service की बात मत करो
-  // - Friendly जवाब दो: 'नमस्ते! ClickCraft Assistant में आपका स्वागत है 😊 आज मैं आपकी किस तरह मदद कर सकता हूं?'"
   const isPureGreeting = /^(hi|hello|hey|heyy|namaste|namaskar|pranam|ram ram|radhe radhe|good morning|good evening|good afternoon|hlo|hii|namastey|kaise ho|kese ho|aap kaise ho|aap kese ho|how are you|how r u|kya haal hai|kya hal h)[!.,? ]*$/i.test(trimmed);
   if (isPureGreeting) {
     if (langStyle === 'hindi') {
-      return "नमस्ते! ClickCraft Assistant में आपका स्वागत है 😊 आज मैं आपकी किस तरह मदद कर सकता हूं?";
+      return "नमस्ते! आज आपके बिज़नेस या मार्केटिंग को लेकर क्या चल रहा है? बताइए, कहाँ मदद चाहिए?";
     } else if (langStyle === 'hinglish') {
-      return "Namaste! ClickCraft Assistant me aapka swagat hai 😊 Aaj main aapki kis tarah madad kar sakta hu?";
+      return "Namaste! Aaj aapke business ya marketing ko lekar kya chal raha hai? Batayiye, kis cheez me guide karu?";
     } else {
-      return "Hello! Welcome to ClickCraft Assistant 😊 How can I help you today?";
+      return "Hello! How are things going with your business and marketing today? Tell me, where can I guide you?";
     }
   }
 
@@ -307,6 +341,30 @@ export function matchGreetingOrCasualChat(userQuery: string): string | null {
   }
 
   return null;
+}
+
+/**
+ * Detects if a user is asking for consulting, business strategy, diagnosis, or how-to advice.
+ * These queries MUST bypass static 1-line FAQ lookups so that the Senior Consultant Persona
+ * (DeepSeek / Gemini) can provide real, tailored, and experienced strategic advice.
+ */
+export function isConsultingOrStrategyQuery(query: string): boolean {
+  if (!query) return false;
+  const lower = query.toLowerCase();
+
+  const patterns = [
+    /\b(kya karu|kya karein|kya kare|kaise karu|kaise karein|kaise kare|kaise badhau|kaise badhaye|kaise laye|kaise lau|kya kar sakte|karna chahiye)\b/i,
+    /\b(customer nahi|grahak nahi|client nahi|leads nahi|sales nahi|bikri nahi|bheed nahi|income nahi|orders nahi)\b/i,
+    /\b(customer kaise|grahak kaise|leads kaise|sales kaise|bikri kaise|reach kaise|growth kaise)\b/i,
+    /\b(dukaan|shop|store|showroom|clinic|salon|bakery|restaurant|boutique)\b/i,
+    /\b(strategy|salah|guide|guidance|advice|suggest|suggestion|recommend|planning|plan)\b/i,
+    /\b(konsa|kaunsa|which one|kisme|kaha invest|pehle kya|start kaise|shuru kaise)\b/i,
+    /\b(phas gaya|atak gaya|stuck|problem|loss|fayda nahi|result nahi|fail|nahi chal raha)\b/i,
+    /\b(kaise badhega|kaise chalega|kaise bachega|tips|secret)\b/i,
+    /[\u0900-\u097F]*(क्या करूँ|कैसे करूँ|कस्टमर नहीं|ग्राहक नहीं|दुकान|सलाह|रणनीति|बिक्री कैसे|ग्राहक कैसे)[\u0900-\u097F]*/,
+  ];
+
+  return patterns.some((p) => p.test(lower));
 }
 
 /**
@@ -351,6 +409,12 @@ export function matchFAQFromFirebase(userQuery: string, faqsList?: FAQItem[]): s
     return objectionResponse;
   }
 
+  // 3. CRITICAL: If the query is an advice, consulting, strategy, or diagnosis question,
+  // DO NOT intercept with a static FAQ. Let it flow directly to the Senior Consultant AI engine.
+  if (isConsultingOrStrategyQuery(userQuery)) {
+    return null;
+  }
+
   const listToSearch = faqsList || getLiveFirebaseFAQs();
   const langStyle = detectLanguageStyle(userQuery);
 
@@ -358,7 +422,7 @@ export function matchFAQFromFirebase(userQuery: string, faqsList?: FAQItem[]): s
   const searcher = faqsList ? new Fuse(listToSearch, fuseOptions) : fuseInstance;
   const results = searcher.search(userQuery);
 
-  if (results && results.length > 0 && results[0].score !== undefined && results[0].score <= 0.48) {
+  if (results && results.length > 0 && results[0].score !== undefined && results[0].score <= 0.45) {
     const matchedFaq = results[0].item;
     if (langStyle === 'hindi') {
       return matchedFaq.answer_hi || matchedFaq.answer || matchedFaq.answer_en || '';
@@ -381,7 +445,8 @@ export function findInstantFirebaseAnswer(rawQuery: string, _lang?: string): str
 }
 
 /**
- * Logs user questions and AI answers to Firestore /chat_logs for ongoing model training
+ * Logs user questions and AI answers to Firestore /chat_logs for ongoing model training.
+ * Gated by user consent stored in localStorage ('clickcraft_consent_given' !== 'false').
  */
 export async function logConversationToFirebase(
   userPrompt: string,
@@ -389,6 +454,16 @@ export async function logConversationToFirebase(
   language = 'Hindi'
 ): Promise<void> {
   try {
+    // Only log if explicit user consent has not been declined
+    if (typeof window !== 'undefined') {
+      try {
+        const consent = localStorage.getItem('clickcraft_consent_given');
+        if (consent === 'false') {
+          return;
+        }
+      } catch {}
+    }
+
     const logId = `log_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const logRef = doc(db, 'chat_logs', logId);
 
@@ -399,6 +474,9 @@ export async function logConversationToFirebase(
       language,
       timestamp: new Date().toISOString(),
       trainingApproved: true,
+      consentGiven: true,
+      persona: 'senior_digital_marketing_consultant',
+      consultantMode: true,
     });
   } catch (error) {
     console.warn('[Firebase Log] Chat training log catch:', error);
