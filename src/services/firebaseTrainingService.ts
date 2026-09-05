@@ -278,39 +278,53 @@ export function matchGreetingOrCasualChat(userQuery: string): string | null {
   const trimmed = userQuery.trim().toLowerCase();
   const langStyle = detectLanguageStyle(userQuery);
 
-  // Pure greetings
-  const isPureGreeting = /^(hi|hello|hey|heyy|namaste|namaskar|pranam|ram ram|radhe radhe|good morning|good evening|good afternoon|hlo|hii|namastey)[!.,? ]*$/i.test(trimmed);
+  // Pure greetings & "kaise ho" / "how are you"
+  // User explicitly instructed:
+  // "अगर user सिर्फ greeting करे (hi, hello, hey, namaste, kaise ho, good morning):
+  // - सीधे service की बात मत करो
+  // - Friendly जवाब दो: 'नमस्ते! ClickCraft Assistant में आपका स्वागत है 😊 आज मैं आपकी किस तरह मदद कर सकता हूं?'"
+  const isPureGreeting = /^(hi|hello|hey|heyy|namaste|namaskar|pranam|ram ram|radhe radhe|good morning|good evening|good afternoon|hlo|hii|namastey|kaise ho|kese ho|aap kaise ho|aap kese ho|how are you|how r u|kya haal hai|kya hal h)[!.,? ]*$/i.test(trimmed);
   if (isPureGreeting) {
     if (langStyle === 'hindi') {
-      return "नमस्ते! ClickCraft Assistant में आपका स्वागत है 😊 आज मैं आपकी किस तरह मदद कर सकता हूँ?";
+      return "नमस्ते! ClickCraft Assistant में आपका स्वागत है 😊 आज मैं आपकी किस तरह मदद कर सकता हूं?";
     } else if (langStyle === 'hinglish') {
-      return "Namaste! ClickCraft Assistant me aapka swagat hai 😊 Aaj main aapki kis tarah help kar sakta hu?";
+      return "Namaste! ClickCraft Assistant me aapka swagat hai 😊 Aaj main aapki kis tarah madad kar sakta hu?";
     } else {
       return "Hello! Welcome to ClickCraft Assistant 😊 How can I help you today?";
     }
   }
 
-  // "How are you" / "Kaise ho"
-  const isHowAreYou = /^(kaise ho|kese ho|aap kaise ho|aap kese ho|how are you|how r u|kya haal hai|kya hal h)[!.,? ]*$/i.test(trimmed);
-  if (isHowAreYou) {
-    if (langStyle === 'hindi') {
-      return "मैं बिल्कुल बढ़िया हूँ, पूछने के लिए धन्यवाद! 😊 आप कैसे हैं? बताइए आज आपके बिज़नेस या वेबसाइट के लिए किस तरह मदद करूँ?";
-    } else if (langStyle === 'hinglish') {
-      return "Main badhiya hu, poochhne ke liye shukriya! 😊 Aap kaise hain? Batayiye aaj aapki kis tarah help kar sakta hu?";
-    } else {
-      return "I'm doing great, thank you for asking! 😊 How are you? How can I assist you with your business or website today?";
-    }
-  }
-
-  // Casual acknowledgements: thanks, ok, theek hai, acha
+  // Casual acknowledgements: thanks, ok, theek hai, got it (Polite and brief, no service list)
   const isAcknowledgement = /^(thanks|thank you|dhanyawad|shukriya|ok|okay|theek hai|thik hai|acha|achha|theek h|thik h|got it|samajh gaya|samajh aa gaya)[!.,? ]*$/i.test(trimmed);
   if (isAcknowledgement) {
     if (langStyle === 'hindi') {
-      return "आपका बहुत-बहुत स्वागत है! 😊 अगर आपके मन में कोई और सवाल हो या किसी भी चीज़ में मदद चाहिए, तो कभी भी पूछ सकते हैं।";
+      return "आपका बहुत-बहुत स्वागत है! 😊 अगर कोई और सवाल हो तो ज़रूर बताइएगा।";
     } else if (langStyle === 'hinglish') {
-      return "Aapka swagat hai! 😊 Agar koi aur sawal ho ya kisi cheez me help chahiye, to bilkul batayiye.";
+      return "Aapka swagat hai! 😊 Agar koi aur sawal ho to bilkul batayiye.";
     } else {
       return "You're most welcome! 😊 Feel free to ask if you need help with anything else.";
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Checks for objection queries like "why choose you", "aap hi kyu", "khud bana lunga",
+ * "free tools se ban jayegi to paise kyu du", etc.
+ */
+export function matchObjectionHandling(userQuery: string): string | null {
+  if (!userQuery) return null;
+  const lower = userQuery.trim().toLowerCase();
+  const langStyle = detectLanguageStyle(userQuery);
+
+  const isObjection = /\b(why choose you|why choose clickcraft|why clickcraft|aap hi kyu|ap hi kyu|aapko kyu chunu|aapko kyu chune|khud bana lunga|khud bna lunga|khud bana lu|free tools se ban jayegi to paise kyu du|free tools|wix se bana lu|wix se khud|wordpress se khud|paise kyu du|why hire you|why should i hire|apko paise kyu du)\b/i.test(lower);
+
+  if (isObjection) {
+    if (langStyle === 'hindi' || langStyle === 'hinglish') {
+      return "बिल्कुल सही सोच है, आजकल Wix/WordPress जैसे tools से खुद website बनाई जा सकती है।\nलेकिन फर्क आता है समय की बचत, professional design, technical जानकारी (hosting/SEO), और ongoing support में।\nहमने पहले भी websites बनाई हैं जिनसे clients को enquiries बढ़ी हैं।\nचाहें तो मैं पिछला काम दिखा सकता हूं।";
+    } else {
+      return "That's completely valid thinking — tools like Wix or WordPress make it easy to start building on your own.\nHowever, the real difference lies in time savings, professional conversion-focused design, technical hosting & SEO expertise, and ongoing support.\nWe have previously built websites that directly increased client inquiries and sales.\nIf you'd like, I can gladly show you our past work.";
     }
   }
 
@@ -329,6 +343,12 @@ export function matchFAQFromFirebase(userQuery: string, faqsList?: FAQItem[]): s
   const greetingResponse = matchGreetingOrCasualChat(userQuery);
   if (greetingResponse) {
     return greetingResponse;
+  }
+
+  // 2. Check for objection handling ("why choose you", "khud bana lunga", etc.)
+  const objectionResponse = matchObjectionHandling(userQuery);
+  if (objectionResponse) {
+    return objectionResponse;
   }
 
   const listToSearch = faqsList || getLiveFirebaseFAQs();

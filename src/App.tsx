@@ -536,7 +536,7 @@ export default function App() {
 
       setIsThinking(false);
 
-      const fallbackIfEmpty = findInstantFirebaseAnswer(promptText, currentLanguage.code || 'hi-IN') || 'ClickCraft डिजिटल मार्केटिंग: हमारी सर्विसेज़ (₹500 Ads, ₹5000 Website, ₹10000 Combo) और बिज़नेस ग्रोथ के लिए WhatsApp (+91 9376124893) पर संपर्क करें।';
+      const fallbackIfEmpty = findInstantFirebaseAnswer(promptText, currentLanguage.code || 'hi-IN') || 'इसकी सही जानकारी के लिए WhatsApp पर +91 9376124893 पर संपर्क करें।';
       const finalAssistantMsgText = streamedText.trim() || fallbackIfEmpty;
 
       // Deduct/Track free credits

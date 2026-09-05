@@ -472,7 +472,208 @@ export async function playElevenLabsTTS(
 }
 
 /**
- * Play text using Google Cloud Text-to-Speech REST API - Routed to ElevenLabs exclusive voice
+ * Browser Web Speech API fallback (window.speechSynthesis)
+ * Uses high-priority Hindi voice selection (hi-IN / Google हिन्दी)
+ */
+export async function playBrowserSpeechSynthesisFallback(
+  text: string,
+  onStart?: () => void,
+  onEnd?: () => void,
+  onError?: (err: any) => void
+): Promise<void> {
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+    console.warn('[TTS Fallback]: Web Speech API is not supported in this browser.');
+    if (onError) onError(new Error('Web Speech API is not supported in this browser.'));
+    if (onEnd) onEnd();
+    return;
+  }
+
+  try {
+    // Cancel any ongoing speech synthesis to prevent queue buildup
+    window.speechSynthesis.cancel();
+
+    const voices = await getBrowserVoices();
+    const hindiVoice = getBestHindiVoice(voices);
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'hi-IN';
+    if (hindiVoice) {
+      utterance.voice = hindiVoice;
+      console.log(`[TTS Fallback]: Using browser voice: "${hindiVoice.name}" (${hindiVoice.lang})`);
+    } else {
+      console.warn('[TTS Fallback]: No specialized Hindi voice found in browser, using default voice.');
+    }
+
+    utterance.rate = 0.95;
+    utterance.pitch = 1.0;
+
+    let finished = false;
+    const safeEnd = () => {
+      if (!finished) {
+        finished = true;
+        if (onEnd) onEnd();
+      }
+    };
+
+    utterance.onstart = () => {
+      console.log('[TTS Fallback]: Browser SpeechSynthesis playback started.');
+      if (onStart) onStart();
+    };
+
+    utterance.onend = () => {
+      console.log('[TTS Fallback]: Browser SpeechSynthesis playback finished.');
+      safeEnd();
+    };
+
+    utterance.onerror = (event) => {
+      console.error('[TTS Fallback Error]: Browser SpeechSynthesis error:', event.error, event);
+      if (onError) onError(event);
+      safeEnd();
+    };
+
+    // Chrome bug workaround: speechSynthesis sometimes gets paused unexpectedly
+    if (window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+    }
+
+    window.speechSynthesis.speak(utterance);
+
+    // Keep-alive heartbeat for longer sentences on Chromium
+    const heartbeat = setInterval(() => {
+      if (!window.speechSynthesis.speaking) {
+        clearInterval(heartbeat);
+      } else if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
+    }, 1000);
+
+  } catch (err) {
+    console.error('[TTS Fallback Exception]:', err);
+    if (onError) onError(err);
+    if (onEnd) onEnd();
+  }
+}
+
+/**
+ * Primary Google Cloud Text-to-Speech call (hi-IN-Wavenet-A)
+ * Compatible with:
+ * 1. Netlify Production: /.netlify/functions/tts and /api/tts (via netlify.toml redirect)
+ * 2. AI Studio Preview / Local Dev: /api/tts and /.netlify/functions/tts (via server.ts)
+ */
+export async function playGoogleCloudTTS(
+  text: string,
+  onStart?: () => void,
+  onEnd?: () => void,
+  onError?: (err: any) => void
+): Promise<void> {
+  // Endpoints to attempt in order (Netlify serverless function first, then API proxy)
+  const endpoints = ['/.netlify/functions/tts', '/api/tts'];
+  let lastError: any = null;
+  let audioContent: string | null = null;
+
+  for (const endpoint of endpoints) {
+    try {
+      console.log(`[TTS Debug]: Attempting Google Cloud TTS via endpoint "${endpoint}"...`);
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 7000); // 7s timeout
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          text,
+          languageCode: 'hi-IN',
+          voiceName: 'hi-IN-Wavenet-A',
+          speakingRate: 0.95,
+          pitch: 0.0,
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorBody = await response.text().catch(() => '');
+        console.warn(`[TTS Debug]: Endpoint ${endpoint} returned HTTP ${response.status}:`, errorBody);
+        lastError = new Error(`TTS endpoint ${endpoint} failed with status ${response.status}: ${errorBody}`);
+        continue; // Try next endpoint
+      }
+
+      const data = await response.json().catch(() => null);
+      if (data && data.audioContent) {
+        audioContent = data.audioContent;
+        console.log(`[TTS Debug]: Successfully received Google Cloud TTS audio from ${endpoint}`);
+        break;
+      } else {
+        const errDetails = data ? JSON.stringify(data) : 'Empty response';
+        console.warn(`[TTS Debug]: Endpoint ${endpoint} returned 200 without audioContent:`, errDetails);
+        lastError = new Error(`TTS endpoint ${endpoint} returned 200 without audioContent: ${errDetails}`);
+      }
+    } catch (fetchErr: any) {
+      if (fetchErr.name === 'AbortError') {
+        console.warn(`[TTS Debug]: Endpoint ${endpoint} timed out after 7s.`);
+        lastError = new Error(`TTS endpoint ${endpoint} timed out.`);
+      } else {
+        console.warn(`[TTS Debug]: Network or CORS error calling ${endpoint}:`, fetchErr?.message || fetchErr);
+        lastError = fetchErr;
+      }
+    }
+  }
+
+  if (!audioContent) {
+    throw lastError || new Error('All Google Cloud TTS endpoints failed.');
+  }
+
+  // Play base64 audio via HTMLAudioElement
+  const audioUrl = `data:audio/mp3;base64,${audioContent}`;
+  const audio = new Audio(audioUrl);
+  activeCloudAudio = audio;
+
+  return new Promise<void>((resolve, reject) => {
+    let resolved = false;
+    const safeResolve = () => {
+      if (!resolved) {
+        resolved = true;
+        activeCloudAudio = null;
+        if (onEnd) onEnd();
+        resolve();
+      }
+    };
+
+    audio.onplay = () => {
+      console.log('[TTS Debug]: Audio playback started.');
+      if (onStart) onStart();
+    };
+
+    audio.onended = () => {
+      console.log('[TTS Debug]: Audio playback completed.');
+      safeResolve();
+    };
+
+    audio.onerror = (e) => {
+      activeCloudAudio = null;
+      console.error('[TTS Debug]: Audio element playback error:', e);
+      if (onError) onError(e);
+      safeResolve();
+      reject(new Error('Audio playback failed in HTMLAudioElement.'));
+    };
+
+    audio.play().catch((playErr) => {
+      activeCloudAudio = null;
+      console.warn('[TTS Debug]: Audio play() interrupted by browser policy:', playErr);
+      if (onError) onError(playErr);
+      safeResolve();
+      reject(playErr);
+    });
+  });
+}
+
+/**
+ * Play text using Google Cloud Text-to-Speech REST API with automatic browser fallback
  */
 export async function playCloudTTS(
   text: string,
@@ -480,11 +681,11 @@ export async function playCloudTTS(
   onEnd?: () => void,
   onError?: (err: any) => void
 ): Promise<void> {
-  return playElevenLabsTTS(text, onStart, onEnd, onError);
+  return speakHindi(text, onStart, onEnd, onError);
 }
 
 /**
- * Play text using Gemini TTS - Routed to ElevenLabs exclusive voice
+ * Play text using Gemini TTS
  */
 export async function playGeminiTTS(
   text: string,
@@ -492,11 +693,11 @@ export async function playGeminiTTS(
   onEnd?: () => void,
   onError?: (err: any) => void
 ): Promise<void> {
-  return playElevenLabsTTS(text, onStart, onEnd, onError);
+  return speakHindi(text, onStart, onEnd, onError);
 }
 
 /**
- * Play text using Browser Speech - Routed to ElevenLabs exclusive voice
+ * Play text using Browser Speech
  */
 export async function playBrowserSpeech(
   text: string,
@@ -504,7 +705,7 @@ export async function playBrowserSpeech(
   onEnd?: () => void,
   onError?: (err: any) => void
 ): Promise<void> {
-  return playElevenLabsTTS(text, onStart, onEnd, onError);
+  return playBrowserSpeechSynthesisFallback(text, onStart, onEnd, onError);
 }
 
 /**
@@ -621,7 +822,7 @@ export function normalizeHindiTextForTTS(rawText: string): string {
 }
 
 /**
- * Play text using Edge TTS - Routed to ElevenLabs exclusive voice
+ * Play text using Edge TTS - Routed through primary Hindi voice engine
  */
 export async function playEdgeTTS(
   text: string,
@@ -629,12 +830,17 @@ export async function playEdgeTTS(
   onEnd?: () => void,
   onError?: (err: any) => void
 ): Promise<void> {
-  return playElevenLabsTTS(text, onStart, onEnd, onError);
+  return speakHindi(text, onStart, onEnd, onError);
 }
 
 /**
  * Main function to speak Hindi text when user clicks "Listen" or AI speaks.
- * Exclusively uses ElevenLabs multilingual voice (eleven_multilingual_v2).
+ * Flow:
+ * 1. Normalize text (cleans markdown, URLs, currency, phone numbers into natural Hindi).
+ * 2. Primary: Google Cloud Text-to-Speech (hi-IN-Wavenet-A) via Netlify function.
+ * 3. Automatic Fallback: If server TTS fails, times out, or has no key, automatically
+ *    falls back to browser Web Speech API (speechSynthesis) using a Hindi (hi-IN) voice.
+ * User ALWAYS hears voice in both Netlify production and AI Studio preview!
  */
 export async function speakHindi(
   text: string,
@@ -651,16 +857,31 @@ export async function speakHindi(
     return;
   }
 
-  // Strictly and exclusively use ElevenLabs TTS
+  console.log(`[TTS Debug]: Initiating speakHindi (Length: ${cleanText.length} chars)`);
+
   try {
-    await playElevenLabsTTS(cleanText, onStart, onEnd, onError);
-  } catch (elevenErr: any) {
-    console.error('ElevenLabs exclusive TTS error:', elevenErr);
-    if (onError) {
-      onError(elevenErr);
-    }
-    if (onEnd) {
-      onEnd();
+    // 1. Try server-side Google Cloud TTS (Netlify function /.netlify/functions/tts or /api/tts)
+    await playGoogleCloudTTS(cleanText, onStart, onEnd, (cloudErr) => {
+      console.warn('[TTS Debug]: Google Cloud TTS audio element warning:', cloudErr);
+    });
+  } catch (serverTtsError: any) {
+    // 2. AUTOMATIC FALLBACK: Server TTS failed, timed out, or unconfigured
+    console.warn(
+      '[TTS Debug]: Server Google Cloud TTS call failed or timed out. Reason:',
+      serverTtsError?.message || serverTtsError
+    );
+    console.log('[TTS Debug]: Automatically falling back to browser Web Speech API (window.speechSynthesis) with hi-IN voice...');
+
+    try {
+      await playBrowserSpeechSynthesisFallback(cleanText, onStart, onEnd, onError);
+    } catch (fallbackError: any) {
+      console.error('[TTS Debug]: Both Google Cloud TTS and browser SpeechSynthesis failed:', fallbackError);
+      if (onError) {
+        onError(fallbackError);
+      }
+      if (onEnd) {
+        onEnd();
+      }
     }
   }
 }
@@ -676,7 +897,7 @@ export function playTextToSpeech(
     text,
     undefined,
     onEnded,
-    (err) => console.warn('TTS playback issue:', err)
+    (err) => console.warn('[TTS Debug]: playTextToSpeech issue:', err)
   ).catch(() => {
     if (onEnded) onEnded();
   });
@@ -788,7 +1009,7 @@ export class SentenceSpeechQueue {
     const sentence = this.queue.shift()!;
 
     try {
-      await playElevenLabsTTS(
+      await speakHindi(
         sentence,
         undefined,
         () => {

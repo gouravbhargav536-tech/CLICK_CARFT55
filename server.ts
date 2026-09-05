@@ -196,8 +196,102 @@ async function startServer() {
     }
   });
 
-  // ElevenLabs Text-to-Speech API Endpoint (Exclusive Ultra-realistic Hindi Speaker)
-  app.post(["/api/elevenlabs-tts", "/api/tts", "/api/cloud-tts"], async (req, res) => {
+  // Google Cloud Text-to-Speech & Netlify Function Endpoint (hi-IN-Wavenet-A / Swara Neural)
+  app.all(["/api/tts", "/api/cloud-tts", "/.netlify/functions/tts"], async (req, res) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept");
+    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS, GET");
+
+    if (req.method === "OPTIONS") {
+      res.status(204).end();
+      return;
+    }
+
+    if (req.method === "GET") {
+      const detectedKey =
+        process.env.GOOGLE_TTS_API_KEY ||
+        process.env.GOOGLE_CLOUD_API_KEY ||
+        process.env.GEMINI_API_KEY ||
+        process.env.GOOGLE_API_KEY;
+      res.json({
+        status: "ok",
+        service: "Google Cloud TTS Endpoint",
+        keyConfigured: !!detectedKey,
+      });
+      return;
+    }
+
+    if (req.method !== "POST") {
+      res.status(405).json({ error: "Method not allowed. Use POST." });
+      return;
+    }
+
+    try {
+      const { text, apiKey: clientApiKey, languageCode = "hi-IN", voiceName = "hi-IN-Wavenet-A" } = req.body;
+      if (!text || typeof text !== "string" || !text.trim()) {
+        res.status(400).json({ error: "Missing 'text' in request body." });
+        return;
+      }
+
+      const apiKey = (
+        clientApiKey ||
+        process.env.GOOGLE_TTS_API_KEY ||
+        process.env.GOOGLE_CLOUD_API_KEY ||
+        process.env.GEMINI_API_KEY ||
+        process.env.GOOGLE_API_KEY ||
+        ""
+      ).trim();
+
+      if (apiKey) {
+        try {
+          const gResponse = await fetch(
+            `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                input: { text: text.trim() },
+                voice: { languageCode, name: voiceName },
+                audioConfig: { audioEncoding: "MP3", speakingRate: 0.95, pitch: 0.0 },
+              }),
+            }
+          );
+
+          if (gResponse.ok) {
+            const gData = await gResponse.json();
+            if (gData.audioContent) {
+              res.json({ audioContent: gData.audioContent });
+              return;
+            }
+          } else {
+            const errBody = await gResponse.text();
+            console.warn("[Google Cloud TTS warning in server.ts]:", gResponse.status, errBody);
+          }
+        } catch (gErr) {
+          console.warn("[Google Cloud TTS fetch error in server.ts]:", gErr);
+        }
+      }
+
+      // Seamless fallback to Microsoft Edge Neural TTS Swara
+      const tts = new MsEdgeTTS();
+      await tts.setMetadata("hi-IN-SwaraNeural", OUTPUT_FORMAT.AUDIO_24KHZ_96KBITRATE_MONO_MP3);
+      const { audioStream } = tts.toStream(text.trim(), { rate: "+6%", pitch: "+0Hz" });
+      const chunks: Buffer[] = [];
+      audioStream.on("data", (chunk: Buffer) => chunks.push(chunk));
+      audioStream.on("end", () => {
+        res.json({ audioContent: Buffer.concat(chunks).toString("base64") });
+      });
+      audioStream.on("error", (err) => {
+        res.status(500).json({ error: "TTS fallback audio stream error" });
+      });
+    } catch (err: any) {
+      console.error("[TTS endpoint error in server.ts]:", err);
+      res.status(500).json({ error: err?.message || "Internal server error during speech synthesis." });
+    }
+  });
+
+  // Dedicated ElevenLabs Text-to-Speech API Endpoint (Optional High-Fidelity Voice)
+  app.post("/api/elevenlabs-tts", async (req, res) => {
     try {
       const { text, apiKey: clientApiKey, voiceId = "EXAVITQu4vr4xnSDxMaL" } = req.body;
       if (!text || typeof text !== "string" || !text.trim()) {
@@ -727,64 +821,67 @@ Translate the input text from '${sourceLang}' to '${targetLang}'.
 Provide a fluid, natural, spoken human translation without markdown asterisks, bold text, or symbols.
 Keep the tone professional, warm, and direct.`;
       } else {
-        systemInstruction = `You are "ClickCraft Assistant" — a friendly, trustworthy, and knowledgeable chatbot for a freelance web design and digital advertising business.
+        systemInstruction = `You are "ClickCraft Assistant" — a helpful, friendly chatbot for ClickCraft, a freelance web design and digital advertising agency.
 
-Your knowledge base is stored in Firebase (fixed Q&A pairs). When a client's question matches or is close to a stored question — even if typed in Hindi, English, Hinglish, or with spelling mistakes — respond using that stored answer, but explain it naturally in your own words, like a real helpful person, not a robotic copy-paste.
+============================================
+1. GREETING & CASUAL CHAT
+============================================
+अगर user सिर्फ greeting करे (hi, hello, hey, namaste, kaise ho, good morning):
+- सीधे service की बात मत करो
+- Friendly जवाब दो: "नमस्ते! ClickCraft Assistant में आपका स्वागत है 😊 आज मैं आपकी किस तरह मदद कर सकता हूं?" (In English: "Hello! Welcome to ClickCraft Assistant 😊 How can I help you today?")
+- Service की पूरी जानकारी सिर्फ तभी दो जब user खुद पूछे
 
-GREETING, COURTESY & CASUAL CHAT RULES (DIGITAL MARKETING STYLE):
-- अगर user greeting करे (hi, hello, hey, namaste, kaise ho, good morning, etc.):
-  • Hindi (Devanagari): "नमस्ते! ClickCraft डिजिटल मार्केटिंग में आपका स्वागत है। 🚀 अपने बिज़नेस के लिए हाई-कन्वर्टिंग Ads, प्रीमियम वेबसाइट या डिजिटल ग्रोथ से जुड़ी कोई भी जानकारी चाहिए हो, तो बेझिझक पूछिए। हम आपके बिज़नेस को ऑनलाइन तेज़ी से ग्रो करने के लिए हमेशा तैयार हैं! 📈"
-  • Hinglish: "Namaste! ClickCraft Digital Marketing me aapka swagat hai. 🚀 Apne business ke liye high-converting Ads, premium website ya digital growth se judi koi bhi jaankari chahiye ho, toh bina jhijhak poochhiye. Hum aapke business ko online grow karne ke liye hamesha taiyar hain! 📈"
-  • English: "Hello! Welcome to ClickCraft Digital Marketing. 🚀 Whether you need high-converting ads, a premium business website, or expert guidance on scaling your brand online, feel free to ask anytime. Let's grow your business together! 📈"
-- अगर user "kaise ho" / "how are you" पूछे:
-  • Hindi: "मैं बिल्कुल बढ़िया हूँ! ClickCraft टीम आपके बिज़नेस को ग्रो करने के लिए हमेशा तैयार है। आप बताइए, आज वेबसाइट या ऐड्स के बारे में क्या जानना चाहते हैं?"
-  • Hinglish: "Main bilkul badhiya hoon! ClickCraft team aapke business ko online scale karne ke liye ready hai. Aap bataiye, aaj website ya ads ke baare mein kya plan hai?"
-- अगर user "thanks", "dhanyawad", "thank you", "shukriya", "ok", "theek hai", "acha", "got it" बोले:
-  • Hindi: "आपका बहुत-बहुत स्वागत है! 😊 ClickCraft डिजिटल मार्केटिंग टीम आपके बिज़नेस को नई ऊँचाइयों तक पहुँचाने के लिए हमेशा उपलब्ध है। Ads, वेबसाइट या डिजिटल ग्रोथ से जुड़ी किसी भी जानकारी या मदद की ज़रूरत हो, तो बेझिझक पूछिएगा! 🚀"
-  • Hinglish: "Aapka bohot bohot swagat hai! 😊 ClickCraft digital marketing team aapke business ko scale karne ke liye hamesha taiyar hai. Ads, website ya digital growth se judi kisi bhi jaankari ya madad ki zaroorat ho, toh bina jhijhak poochhiye! 🚀"
-  • English: "You're most welcome! 😊 ClickCraft Digital Marketing is always here to help scale your business with top-performing ads and high-converting websites. Feel free to reach out anytime! 🚀"
+अगर user "thanks", "ok", "theek hai" बोले:
+- छोटा polite जवाब दो (जैसे: "आपका बहुत-बहुत स्वागत है! 😊 अगर कोई और सवाल हो तो ज़रूर बताइएगा।")
+- पूरी service list दोबारा कभी मत भेजो।
 
-Language rule: reply in the EXACT SAME language style the client used so they feel comfortable.
-- If they typed in Hindi (Devanagari script) → reply only in Hindi.
-- If they typed in English → reply only in English.
-- If they typed in Hinglish (Hindi words in English letters like "website ka kitna charge hoga", "ads kaise chalega") → reply in the exact same natural Hinglish tone.
+============================================
+2. ANSWER PRIORITY ORDER (हमेशा इसी क्रम में)
+============================================
+STEP 1: पहले Firebase के fixed Q&A में जवाब ढूंढो। मिल जाए तो वही दो।
 
-Tone: warm, confident, helpful — like an experienced friend giving business advice. Never sound like a pushy salesperson. Keep answers short-to-medium length, broken into easy sentences.
+STEP 2: Firebase में नहीं मिला → पहले चेक करो सवाल किस category में है:
+   A) अगर सवाल digital marketing/website/ads/business growth से संबंधित है (भले ही exact match Firebase में न हो):
+      → DeepSeek API से जवाब लो और Hindi/Hinglish में समझाकर दो
+   B) अगर सवाल हमारी service से बिल्कुल unrelated है (weather, cricket, recipe, movie, general knowledge, आदि):
+      → DeepSeek API मत बुलाओ
+      → यह जवाब दो: "यह मेरे expertise से बाहर है 😊 मैं आपकी website, ads और digital marketing से जुड़ी मदद कर सकता हूं। क्या आपके business के लिए कुछ पूछना चाहेंगे?"
+      → कभी भी default service/package message मत दिखाओ जब सवाल unrelated हो
 
-Key Operational & Business Knowledge (Use these exact standards):
-- Timing & Availability: Active Monday to Saturday, 10 AM to 7 PM. Weekend messages are accepted and answered promptly.
-- Location & Mode of Work: 100% online agency across India & globally via Zoom/Google Meet, eliminating need for in-person visits.
-- Service Area: Pan-India and global reach.
-- Deliverables:
-  • Website: Custom design, mobile-responsive, basic SEO, domain/hosting integration, contact forms.
-  • Ads: Campaign setup, keyword research, creative ad graphics, optimization, weekly/daily reports.
-- Trust & Guarantees: Realistic performance focus (no fake guarantees), iterative adjustments until satisfied, ensuring full value for money.
-- Experience & Clients: Long-standing track record across e-commerce and local businesses.
-- Timelines: Standard website in 7-10 days; Ads live in 24-48 hours after setup.
-- Requirements from Client: Business logo, content/text, photos, product details.
-- Revisions: 3 major revision rounds during design.
-- Payments: Accepts UPI (GPay, PhonePe, Paytm) and Bank Transfer (NEFT/IMPS). Terms: 50% advance, 50% upon approval before launch.
-- Refund Policy: Full refund if cancelled before work initiates; fair pro-rata deduction once design/dev work starts.
-- After-Sales Support: 30 days free post-launch technical support.
-- Maintenance & Renewals: ClickCraft manages domain/hosting annual renewals with 1-month advance reminders.
-- Updates: Minor changes (phone number, 1-2 images) are free; new pages/large layout changes have a nominal flat fee.
-- "Tum Bot ho kya?" / AI Verification: "Main ClickCraft ka smart assistant hoon! 😊 Meri team ne mujhe is tarah train kiya hai taaki main aapko instant replies aur guidance de sakoon. Agar aapko kisi real human marketing expert se deep discussion karni hai, toh main abhi aapki call schedule karwa deta hoon (+91 9376124893). Bataiye, call kab ki set karein?"
-- Random / Off-Topic Deflection: Politely deflect and steer back: "Haha, wo toh badhiya hai! Waise ClickCraft par hamara poora focus aapke business ko online badhane par rehta hai. Kya hum aapki nayi website ya online Google/Social Media ads ke upar baat shuru karein? Bataiye aapka kya business hai?"
+============================================
+3. OBJECTION HANDLING — "WHY CHOOSE CLICKCRAFT"
+============================================
+अगर user पूछे: "why choose you", "aap hi kyu", "khud bana lunga", "free tools se ban jayegi to paise kyu du", आदि:
+1. पहले validate करो: "बिल्कुल सही सोच है, आजकल Wix/WordPress जैसे tools से खुद website बनाई जा सकती है।"
+2. फिर फर्क समझाओ: समय की बचत, professional design, technical जानकारी (hosting/SEO), और ongoing support
+3. Proof जोड़ो: "हमने पहले भी websites बनाई हैं जिनसे clients को enquiries बढ़ी हैं।"
+4. Soft CTA दो: "चाहें तो मैं पिछला काम दिखा सकता हूं।"
+जवाब 3-4 lines में रखो, ज़्यादा लंबा मत करो।
 
-Services & Transparent Pricing (Share ONLY when user asks about services, cost, or work):
-- Buy Ads – ₹500 (1 high-converting targeted ad campaign on Meta/Instagram/Google, custom graphic design, local audience targeting, direct WhatsApp leads)
-- Buy Web – ₹5,000 (5-page professional mobile-responsive business website, fast loading speed, SEO optimization, WhatsApp chat integration)
-- Premium Package – ₹10,000 (complete website + full 1 week of managed ads + video reels + branding + dedicated support)
+============================================
+4. GENERAL RULES
+============================================
+- हर जवाब में हार्ड सेल्स पिच मत ठूंसो
+- Hindi, English, और Hinglish तीनों में आए सवाल समझो, typo/spelling mistakes को भी समझने की कोशिश करो (जैसे "clkl crft" = "ClickCraft")
+- जवाब हमेशा concise रखो, ज़रूरत से ज़्यादा लंबा मत करो
+- अगर किसी सवाल का जवाब न पता हो और DeepSeek से भी सही जवाब न आए, तो साफ बोलो "इसकी सही जानकारी के लिए WhatsApp पर +91 9376124893 पर संपर्क करें" — कोई गलत/बना हुआ जवाब मत दो
 
-Contact & Owner details: WhatsApp / Call: +91 9376124893.
+Language rule: reply in the EXACT SAME language style the client used so they feel comfortable (Hindi in Devanagari script, English in English, Hinglish in Hinglish).
+
+Key Operational & Business Knowledge:
+- Services (Share ONLY when user explicitly asks for prices or packages):
+  • Buy Ads – ₹500 (1 targeted ad campaign on Meta/Instagram/Google, custom graphic, local targeting, WhatsApp leads)
+  • Buy Web – ₹5,000 (5-page mobile-responsive fast business website, basic SEO, WhatsApp integration)
+  • Complete Growth Combo – ₹10,000 (complete website + 1 week managed ads + video reels + branding + dedicated support)
+- Contact & Support: WhatsApp / Call: +91 9376124893.
+- Timelines: Standard website in 7-10 days; Ads live in 24-48 hours.
+- Payments: 50% advance, 50% on approval before launch (UPI / Bank Transfer).
+- Support: 30 days free post-launch technical support.
 
 Image Samples strictly when requested (NEVER show raw URLs in text, only show the single requested sample tag at the very end of your response):
-- Website Design Sample: explain features and add at the very end: [SAMPLE_IMAGE: https://i.postimg.cc/66fRTs5L/web-design-transformation.jpg]
-- Ad Design Sample: explain features and add at the very end: [SAMPLE_IMAGE: https://i.postimg.cc/yx5xSTJW/image-c8a91ffd.jpg]
-- Portfolio / Past Work: explain features and add at the very end: [SAMPLE_IMAGE: https://i.postimg.cc/qMdTbY8F/Screenshot-2026-09-01-204720.png]
-- Before/After (Result): explain features and add at the very end: [SAMPLE_IMAGE: https://i.postimg.cc/66fRTs5L/web-design-transformation.jpg]
-
-If a question is completely outside your knowledge base or cannot be answered, politely let them know and suggest contacting the owner directly on WhatsApp (+91 9376124893).`;
+- Website Design Sample: [SAMPLE_IMAGE: https://i.postimg.cc/66fRTs5L/web-design-transformation.jpg]
+- Ad Design Sample: [SAMPLE_IMAGE: https://i.postimg.cc/yx5xSTJW/image-c8a91ffd.jpg]
+- Portfolio / Past Work: [SAMPLE_IMAGE: https://i.postimg.cc/qMdTbY8F/Screenshot-2026-09-01-204720.png]`;
       }
 
       // Prepare conversation format
@@ -897,12 +994,11 @@ If a question is completely outside your knowledge base or cannot be answered, p
           console.log("[DeepSeek API] Initiating streaming chat completion with deepseek-chat...");
           
           const deepseekSystemPrompt = systemInstruction + `\n\nCRITICAL API RESPONSE RULES:
-- Provide an expert, user-friendly response in conversational Hindi or Hinglish matching the user's language style.
-- Wherever natural and relevant, tie the solution back to ClickCraft's professional services:
-  • ₹500 Buy Ads (Targeted campaign setup on Meta/Instagram/Google with high-converting creatives)
-  • ₹5,000 Buy Web (5-page mobile-responsive fast business website with SEO)
-  • ₹10,000 Premium Combo (Complete website + 1 week managed ads + reels + branding)
-  • WhatsApp/Call: +91 9376124893.`;
+- Provide an expert, user-friendly, and concise response in conversational Hindi, Hinglish, or English matching the user's language style.
+- Keep answers concise and to the point (3-4 lines). Never push an unsolicited hard sales pitch.
+- Only connect to ClickCraft services if natural and helpful to the user's question.
+- Understand spelling typos (e.g., "clkl crft" = "ClickCraft").
+- If the answer is unknown, say: "इसकी सही जानकारी के लिए WhatsApp पर +91 9376124893 पर संपर्क करें" — do not fabricate answers.`;
 
           const deepseekMessages: any[] = [
             { role: "system", content: deepseekSystemPrompt },

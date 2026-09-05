@@ -104,9 +104,9 @@ export const DEFLECTION_RESPONSES = {
   hindi:
     'यह मेरे expertise से बाहर है 😊 मैं आपकी website, ads और digital marketing से जुड़ी मदद कर सकता हूं। क्या आपके business के लिए कुछ पूछना चाहेंगे?',
   hinglish:
-    'Yeh mere expertise se bahar hai 😊 Main aapki website, ads aur digital marketing se judi madad kar sakta hoon. Kya aap apne business ke liye kuch poochna chahenge?',
+    'यह मेरे expertise से बाहर है 😊 मैं आपकी website, ads और digital marketing से जुड़ी मदद कर सकता हूं। क्या आपके business के लिए कुछ पूछना चाहेंगे?',
   english:
-    'This is outside my area of expertise 😊 I specialize in websites, ads, and digital marketing to help scale your business. Would you like to ask something for your business?',
+    'This is outside my expertise 😊 I can help you with website, ads, and digital marketing. Would you like to ask something for your business?',
 };
 
 /**
